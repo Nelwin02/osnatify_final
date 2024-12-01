@@ -30,29 +30,26 @@
 		<![endif]-->
 
 		<?php
-  session_start();
-  include 'db.php'; 
-  ?>
+session_start();
+include 'db.php'; 
+?>
 
-		
-		  
 <?php
-		if (!isset($_SESSION['username'])) {
-			
-			header("Location: login.php");
-			exit();
-		}
-		
-		$username = $_SESSION['username'];
-		
-					
-			// Fetch clerk information
-$username = $_SESSION['username'];
-$sql = "SELECT clerk_name, clerk_image FROM clerk_log WHERE username = '$username'";
-$result = mysqli_query($con, $sql);
+// Check if clerk is logged in by verifying the session variable
+if (!isset($_SESSION['clerk_username'])) { // Changed to clerk_username
+    header("Location: login.php");
+    exit();
+}
+
+// Retrieve the clerk's username from session
+$clerk_username = $_SESSION['clerk_username']; // Updated session variable
+
+// Fetch clerk information using PostgreSQL
+$sql = "SELECT clerk_name, clerk_image FROM clerk_log WHERE username = $1"; // Using $1 for parameterized query
+$result = pg_query_params($con, $sql, array($clerk_username));
 
 if ($result) {
-    $clerk = mysqli_fetch_assoc($result);
+    $clerk = pg_fetch_assoc($result);
     if ($clerk) {
         $name = $clerk['clerk_name'];
         $image = $clerk['clerk_image'];
@@ -65,6 +62,8 @@ if ($result) {
     $image = "default.png"; // Fallback image
 }
 ?>
+
+
     </head>
     <body>
 	
@@ -90,10 +89,7 @@ if ($result) {
 				</a>
 				
 				<div class="top-nav-search">
-					<form>
-						<input type="text" class="form-control" placeholder="Search here">
-						<button class="btn" type="submit"><i class="fa fa-search"></i></button>
-					</form>
+					
 				</div>
 				
 				<!-- Mobile Menu Toggle -->
@@ -105,80 +101,7 @@ if ($result) {
 				<!-- Header Right Menu -->
 				<ul class="nav user-menu">
 
-					<!-- Notifications -->
-					<li class="nav-item dropdown noti-dropdown">
-						<a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown">
-							<i class="fe fe-bell"></i> <span class="badge badge-pill">3</span>
-						</a>
-						<div class="dropdown-menu notifications">
-							<div class="topnav-dropdown-header">
-								<span class="notification-title">Notifications</span>
-								<a href="javascript:void(0)" class="clear-noti"> Clear All </a>
-							</div>
-							<div class="noti-content">
-								<ul class="notification-list">
-									<li class="notification-message">
-										<a href="#">
-											<div class="media">
-												<span class="avatar avatar-sm">
-													<img class="avatar-img rounded-circle" alt="User Image" src="assets/img/doctors/doctor-thumb-01.jpg">
-												</span>
-												<div class="media-body">
-													<p class="noti-details"><span class="noti-title">
-														
-													</span> Schedule <span class="noti-title">her appointment</span></p>
-													<p class="noti-time"><span class="notification-time">4 mins ago</span></p>
-												</div>
-											</div>
-										</a>
-									</li>
-									<li class="notification-message">
-										<a href="#">
-											<div class="media">
-												<span class="avatar avatar-sm">
-													<img class="avatar-img rounded-circle" alt="User Image" src="assets/img/patients/patient1.jpg">
-												</span>
-												<div class="media-body">
-													<p class="noti-details"><span class="noti-title">Charlene Reed</span> has booked her appointment to <span class="noti-title">Dr. Ruby Perrin</span></p>
-													<p class="noti-time"><span class="notification-time">6 mins ago</span></p>
-												</div>
-											</div>
-										</a>
-									</li>
-									<li class="notification-message">
-										<a href="#">
-											<div class="media">
-												<span class="avatar avatar-sm">
-													<img class="avatar-img rounded-circle" alt="User Image" src="assets/img/patients/patient2.jpg">
-												</span>
-												<div class="media-body">
-												<p class="noti-details"><span class="noti-title">Travis Trimble</span> sent a amount of $210 for his <span class="noti-title">appointment</span></p>
-												<p class="noti-time"><span class="notification-time">8 mins ago</span></p>
-												</div>
-											</div>
-										</a>
-									</li>
-									<li class="notification-message">
-										<a href="#">
-											<div class="media">
-												<span class="avatar avatar-sm">
-													<img class="avatar-img rounded-circle" alt="User Image" src="assets/img/patients/patient3.jpg">
-												</span>
-												<div class="media-body">
-													<p class="noti-details"><span class="noti-title">Carl Kelly</span> send a message <span class="noti-title"> to his doctor</span></p>
-													<p class="noti-time"><span class="notification-time">12 mins ago</span></p>
-												</div>
-											</div>
-										</a>
-									</li>
-								</ul>
-							</div>
-							<div class="topnav-dropdown-footer">
-								<a href="#">View all Notifications</a>
-							</div>
-						</div>
-					</li>
-					<!-- /Notifications -->
+					
 					
 					<!-- User Menu -->
 					<li class="nav-item dropdown has-arrow">
@@ -191,12 +114,11 @@ if ($result) {
 								<span class="user-img"><img class="rounded-circle" src="../clerk/Images/<?php echo htmlspecialchars($image); ?>" width="31" alt="admin"></span>
 								</div>
 								<div class="user-text">
-								<h6><?php echo $username; ?></h6>
+								<h6><?php echo $clerk_username; ?></h6>
 									<p class="text-muted mb-0"><?php echo $name; ?></p>
 								</div>
 							</div>
 							<a class="dropdown-item" href="profile.php">My Profile</a>
-							<a class="dropdown-item" href="settings.php">Settings</a>
 							<a class="dropdown-item" href="../clerk/login.php">Logout</a>
 						</div>
 					</li>
@@ -222,33 +144,32 @@ if ($result) {
 							<li class="submenu">
 								<a href="#"><i class="fa fa-wheelchair"></i> <span>Manage Patient</span> <span class="menu-arrow"></span></a>
 								<ul style="display: none;">
+
+									<li><a href="add_patient.php">New Patient</a></li>
+										
+									<li><a href="view_patient.php">Patient List</a></li>
 									
-									<li><a href="add_patient.php">Add Patient</a></li>
-									<li><a href="predict.php">Predict Sickness</a></li>
-									<li><a href="view_patient.php">View Patient</a></li>
-								</ul>
-								<li class="submenu">
-								<a href="#"><i class="fa fa-user-md"></i> <span>Doctor</span> <span class="menu-arrow"></span></a>
-								<ul style="display: none;">
-									
-									<li><a href="pending-report.php">Pending Reports</a></li>
 									
 								</ul>
+								
+								<li> 
+								<a href="consultation.php"><i class="fa fa-stethoscope"></i> <span>Consultations</span></a>
+							</li>
+
+							
+
+								<li> 
+							
+							
+
 	
-							<li> 
-								<a href="settings.php"><i class="fe fe-vector"></i> <span>Settings</span></a>
-							</li>
-							<li class="submenu">
-								<a href="#"><i class="fe fe-document"></i> <span> Reports</span> <span class="menu-arrow"></span></a>
-								<ul style="display: none;">
-									<li><a href="pending-report.php">Pending Reports</a></li>
-								</ul>
-							</li>
-							<li class="menu-title"> 
-								<span>Pages</span>
-							</li>
+						
+							
 							<li> 
 								<a href="profile.php"><i class="fe fe-user-plus"></i> <span>Profile</span></a>
+							</li><br><br><br><br><br><br><br>
+							<li> 
+							<a href="login.php"><i class="fa fa-sign-out"></i> <span>Logout</span></a>
 							</li>
 					</div>
                 </div>
@@ -272,6 +193,11 @@ if ($result) {
 							</div>
 						</div>
 					</div>
+					<div class="mb-4">
+                            <h2 class="text-center">
+                                <hr style="border: 2px solid black; width: 100%;">
+                            </h2>
+                        </div>
 					<!-- /Page Header -->
 					
 					<div class="row">
@@ -284,40 +210,32 @@ if ($result) {
 										</a>
 									</div>
 									<div class="col ml-md-n2 profile-user-info">
-										<h4 class="user-name mb-0"><?php echo $username; ?></h4><h6></h6>
+										<h4 class="user-name mb-0"><?php echo $clerk_username; ?></h4><h6></h6>
 										<h1><?php echo $name; ?></h1>
 										
 									</div>
 									<div class="col-auto profile-btn">
 										
-										<a href="#" class="btn btn-primary">
-											Edit
-										</a>
+									
 									</div>
 								</div>
 							</div>
-							<div class="profile-menu">
-								<ul class="nav nav-tabs nav-tabs-solid">
-									<li class="nav-item">
-										<a class="nav-link active" data-toggle="tab" href="#per_details_tab">About</a>
-									</li>
-									<li class="nav-item">
-										<a class="nav-link" data-toggle="tab" href="#password_tab">Password</a>
-									</li>
-								</ul>
-							</div>	
+							
 							<div class="tab-content profile-tab-cont">
 								
 								<!-- Personal Details Tab -->
-								<div class="tab-pane fade show active" id="per_details_tab">
-								
-									<!-- Personal Details -->
-									<div class="row">
+
+
+
+
+
+
+								<div class="row">
 										<div class="col-lg-12">
 											<div class="card">
 												<div class="card-body">
 													<h5 class="card-title d-flex justify-content-between">
-														<span>Personal Details</span> 
+														<span>Personal Detail</span> 
 														<a class="edit-link" data-toggle="modal" href="#edit_personal_details"><i class="fa fa-edit mr-1"></i>Edit</a>
 													</h5>
 													<div class="row">
@@ -329,139 +247,79 @@ if ($result) {
 											</div>
 											
 											<!-- Edit Details Modal -->
-											<div class="modal fade" id="edit_personal_details" aria-hidden="true" role="dialog">
-												<div class="modal-dialog modal-dialog-centered" role="document" >
-													<div class="modal-content">
-														<div class="modal-header">
-															<h5 class="modal-title">Personal Details</h5>
-															<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-																<span aria-hidden="true">&times;</span>
-															</button>
-														</div>
-														<div class="modal-body">
-															<form>
-																<div class="row form-row">
-																	<div class="col-12 col-sm-6">
-																		<div class="form-group">
-																			<label>First Name</label>
-																			<input type="text" class="form-control" value="John">
-																		</div>
-																	</div>
-																	<div class="col-12 col-sm-6">
-																		<div class="form-group">
-																			<label>Last Name</label>
-																			<input type="text"  class="form-control" value="Doe">
-																		</div>
-																	</div>
-																	<div class="col-12">
-																		<div class="form-group">
-																			<label>Date of Birth</label>
-																			<div class="cal-icon">
-																				<input type="text" class="form-control" value="24-07-1983">
-																			</div>
-																		</div>
-																	</div>
-																	<div class="col-12 col-sm-6">
-																		<div class="form-group">
-																			<label>Email ID</label>
-																			<input type="email" class="form-control" value="johndoe@example.com">
-																		</div>
-																	</div>
-																	<div class="col-12 col-sm-6">
-																		<div class="form-group">
-																			<label>Mobile</label>
-																			<input type="text" value="+1 202-555-0125" class="form-control">
-																		</div>
-																	</div>
-																	<div class="col-12">
-																		<h5 class="form-title"><span>Address</span></h5>
-																	</div>
-																	<div class="col-12">
-																		<div class="form-group">
-																		<label>Address</label>
-																			<input type="text" class="form-control" value="4663 Agriculture Lane">
-																		</div>
-																	</div>
-																	<div class="col-12 col-sm-6">
-																		<div class="form-group">
-																			<label>City</label>
-																			<input type="text" class="form-control" value="Miami">
-																		</div>
-																	</div>
-																	<div class="col-12 col-sm-6">
-																		<div class="form-group">
-																			<label>State</label>
-																			<input type="text" class="form-control" value="Florida">
-																		</div>
-																	</div>
-																	<div class="col-12 col-sm-6">
-																		<div class="form-group">
-																			<label>Zip Code</label>
-																			<input type="text" class="form-control" value="22434">
-																		</div>
-																	</div>
-																	<div class="col-12 col-sm-6">
-																		<div class="form-group">
-																			<label>Country</label>
-																			<input type="text" class="form-control" value="United States">
-																		</div>
-																	</div>
-																</div>
-																<button type="submit" class="btn btn-primary btn-block">Save Changes</button>
-															</form>
-														</div>
-													</div>
-												</div>
-											</div>
-											<!-- /Edit Details Modal -->
-											
-										</div>
+											<?php
+include 'db.php'; // Database connection
 
-									
-									</div>
-									<!-- /Personal Details -->
+// Fetch clerk details by ID (replace with the actual ID or a variable if needed)
+$clerkId = 2; // Example clerk ID, you may want to make this dynamic
 
-								</div>
-								<!-- /Personal Details Tab -->
-								
-								<!-- Change Password Tab -->
-								<div id="password_tab" class="tab-pane fade">
-								
-									<div class="card">
-										<div class="card-body">
-											<h5 class="card-title">Change Password</h5>
-											<div class="row">
-												<div class="col-md-10 col-lg-6">
-													<form>
-														<div class="form-group">
-															<label>Old Password</label>
-															<input type="password" class="form-control">
-														</div>
-														<div class="form-group">
-															<label>New Password</label>
-															<input type="password" class="form-control">
-														</div>
-														<div class="form-group">
-															<label>Confirm Password</label>
-															<input type="password" class="form-control">
-														</div>
-														<button class="btn btn-primary" type="submit">Save Changes</button>
-													</form>
-												</div>
-											</div>
-										</div>
-									</div>
-								</div>
-								<!-- /Change Password Tab -->
-								
-							</div>
-						</div>
-					</div>
-				
-				</div>			
-			</div>
-			<!-- /Page Wrapper -->
-		
+// PostgreSQL query using parameterized query
+$query = "SELECT * FROM clerk_log WHERE id = $1";
+$result = pg_query_params($con, $query, array($clerkId));
+
+if ($result) {
+    if (pg_num_rows($result) > 0) {
+        $clerk = pg_fetch_assoc($result);
+    } else {
+        echo "No record found";
+        exit;
+    }
+} else {
+    echo "Error in query execution";
+    exit;
+}
+?>
+
+
+<div class="modal fade" id="edit_personal_details" aria-hidden="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Personal Details</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form action="update_clerk.php" method="POST" enctype="multipart/form-data"> <!-- Update action file -->
+                    <div class="row form-row">
+                        <div class="col-12 col-sm-6">
+                            <div class="form-group">
+                                <label>Username</label>
+                                <input type="text" class="form-control" name="username" value="<?php echo htmlspecialchars($clerk['username']); ?>" required>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-sm-6">
+                            <div class="form-group">
+                                <label>Name</label>
+                                <input type="text" class="form-control" name="clerk_name" value="<?php echo htmlspecialchars($clerk['clerk_name']); ?>" required>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="form-group">
+                                <label>Profile Image</label>
+                                <input type="file" class="form-control" name="clerk_image">
+                                <!-- Optionally show current image if available -->
+                                <?php if ($clerk['clerk_image']): ?>
+                                    <img src="Images/<?php echo htmlspecialchars($clerk['clerk_image']); ?>" alt="Current Image" style="max-width: 100px; margin-top: 10px;">
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    </div>
+
+                    <input type="hidden" name="clerk_id" value="<?php echo $clerk['id']; ?>">
+                    <button type="submit" class="btn btn-primary btn-block">Save Changes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
         </div>
 		<!-- /Main Wrapper -->
 		

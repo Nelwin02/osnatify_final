@@ -24,63 +24,64 @@
 		<!-- Main CSS -->
         <link rel="stylesheet" href="assets/css/style.css">
 		
-		<!--[if lt IE 9]>
-			<script src="assets/js/html5shiv.min.js"></script>
-			<script src="assets/js/respond.min.js"></script>
-		<![endif]-->
-
+		
+		
 		<?php
-  session_start();
-  include 'db.php'; 
-  ?>
+session_start();
+include 'db.php'; // Ensure this connects to your PostgreSQL database
+?>
 
-		<?php
-            // Query to count doctors
-            $sqlDoctors = "SELECT COUNT(*) as count FROM doctor_log";
-            $resultDoctors = mysqli_query($con, $sqlDoctors);
-            $countDoctors = mysqli_fetch_assoc($resultDoctors)['count'];
+<?php
+// Query to count doctors
+try {
+    $stmtDoctors = pg_prepare($con, "count_doctors", "SELECT COUNT(*) as count FROM doctor_log");
+    $resultDoctors = pg_execute($con, "count_doctors", array());
+    $countDoctors = ($row = pg_fetch_assoc($resultDoctors)) ? $row['count'] : 0;
 
-            // Query to count patients
-            $sqlPatients = "SELECT COUNT(*) as count FROM patient_info";
-            $resultPatients = mysqli_query($con, $sqlPatients);
-            $countPatients = mysqli_fetch_assoc($resultPatients)['count'];
+    // Query to count patients
+    $stmtPatients = pg_prepare($con, "count_patients", "SELECT COUNT(*) as count FROM patient_info");
+    $resultPatients = pg_execute($con, "count_patients", array());
+    $countPatients = ($row = pg_fetch_assoc($resultPatients)) ? $row['count'] : 0;
 
-            // Query to count clerks (nurses)
-            $sqlClerks = "SELECT COUNT(*) as count FROM clerk_log";
-            $resultClerks = mysqli_query($con, $sqlClerks);
-            $countClerks = mysqli_fetch_assoc($resultClerks)['count'];
-          ?>
-		  
-		  <?php
-		if (!isset($_SESSION['username'])) {
+    // Query to count clerks (nurses)
+    $stmtClerks = pg_prepare($con, "count_clerks", "SELECT COUNT(*) as count FROM clerk_log");
+    $resultClerks = pg_execute($con, "count_clerks", array());
+    $countClerks = ($row = pg_fetch_assoc($resultClerks)) ? $row['count'] : 0;
+} catch (Exception $e) {
+    $countDoctors = $countPatients = $countClerks = "Error: " . htmlspecialchars($e->getMessage());
+}
+?>
+
+<?php
+if (!isset($_SESSION['username'])) {
+    header("Location: login.php");
+    exit();
+}
+
+$adminusername = $_SESSION['username'];
+
+try {
+    // Query to fetch admin's name
+    $stmt = pg_prepare($con, "get_admin_name", "SELECT name FROM admin_log WHERE username = $1");
+    $result = pg_execute($con, "get_admin_name", array($adminusername));
+
+    if ($result) {
+        $user = pg_fetch_assoc($result);
+        $name = $user['name'] ?? "Unknown";
+    } else {
+        $name = "Unknown";
+    }
+} catch (Exception $e) {
+    $name = "Error: " . htmlspecialchars($e->getMessage());
+}
+
+// Close the connection (optional as PHP closes it at the end of the script)
+pg_close($con);
+?>
+
+
+
 			
-			header("Location: login.php");
-			exit();
-		}
-		
-		$username = $_SESSION['username'];
-		
-					
-			$sql = "SELECT name FROM admin_log WHERE username = '$username'";
-			$result = mysqli_query($con, $sql);
-
-			if ($result) {
-				$user = mysqli_fetch_assoc($result);
-				if ($user) {
-					
-					$name = $user['name'];
-				} else {
-				
-					$name = "Unknown";
-				}
-			} else {
-				
-				$name = "Unknown";
-			}
-
-
-			mysqli_close($con);
-			?>
     </head>
     <body>
 	
@@ -106,10 +107,7 @@
 				</a>
 				
 				<div class="top-nav-search">
-					<form>
-						<input type="text" class="form-control" placeholder="Search here">
-						<button class="btn" type="submit"><i class="fa fa-search"></i></button>
-					</form>
+					
 				</div>
 				
 				<!-- Mobile Menu Toggle -->
@@ -121,80 +119,6 @@
 				<!-- Header Right Menu -->
 				<ul class="nav user-menu">
 
-					<!-- Notifications -->
-					<li class="nav-item dropdown noti-dropdown">
-						<a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown">
-							<i class="fe fe-bell"></i> <span class="badge badge-pill">3</span>
-						</a>
-						<div class="dropdown-menu notifications">
-							<div class="topnav-dropdown-header">
-								<span class="notification-title">Notifications</span>
-								<a href="javascript:void(0)" class="clear-noti"> Clear All </a>
-							</div>
-							<div class="noti-content">
-								<ul class="notification-list">
-									<li class="notification-message">
-										<a href="#">
-											<div class="media">
-												<span class="avatar avatar-sm">
-													<img class="avatar-img rounded-circle" alt="User Image" src="assets/img/doctors/doctor-thumb-01.jpg">
-												</span>
-												<div class="media-body">
-													<p class="noti-details"><span class="noti-title">
-														
-													</span> Schedule <span class="noti-title">her appointment</span></p>
-													<p class="noti-time"><span class="notification-time">4 mins ago</span></p>
-												</div>
-											</div>
-										</a>
-									</li>
-									<li class="notification-message">
-										<a href="#">
-											<div class="media">
-												<span class="avatar avatar-sm">
-													<img class="avatar-img rounded-circle" alt="User Image" src="assets/img/patients/patient1.jpg">
-												</span>
-												<div class="media-body">
-													<p class="noti-details"><span class="noti-title">Charlene Reed</span> has booked her appointment to <span class="noti-title">Dr. Ruby Perrin</span></p>
-													<p class="noti-time"><span class="notification-time">6 mins ago</span></p>
-												</div>
-											</div>
-										</a>
-									</li>
-									<li class="notification-message">
-										<a href="#">
-											<div class="media">
-												<span class="avatar avatar-sm">
-													<img class="avatar-img rounded-circle" alt="User Image" src="assets/img/patients/patient2.jpg">
-												</span>
-												<div class="media-body">
-												<p class="noti-details"><span class="noti-title">Travis Trimble</span> sent a amount of $210 for his <span class="noti-title">appointment</span></p>
-												<p class="noti-time"><span class="notification-time">8 mins ago</span></p>
-												</div>
-											</div>
-										</a>
-									</li>
-									<li class="notification-message">
-										<a href="#">
-											<div class="media">
-												<span class="avatar avatar-sm">
-													<img class="avatar-img rounded-circle" alt="User Image" src="assets/img/patients/patient3.jpg">
-												</span>
-												<div class="media-body">
-													<p class="noti-details"><span class="noti-title">Carl Kelly</span> send a message <span class="noti-title"> to his doctor</span></p>
-													<p class="noti-time"><span class="notification-time">12 mins ago</span></p>
-												</div>
-											</div>
-										</a>
-									</li>
-								</ul>
-							</div>
-							<div class="topnav-dropdown-footer">
-								<a href="#">View all Notifications</a>
-							</div>
-						</div>
-					</li>
-					<!-- /Notifications -->
 					
 					<!-- User Menu -->
 					<li class="nav-item dropdown has-arrow">
@@ -207,13 +131,13 @@
 									<img src="./assets/img/profiles/profile.jpeg" alt="User Image" class="avatar-img rounded-circle">
 								</div>
 								<div class="user-text">
-								<h6><?php echo $username; ?></h6>
+								<h6><?php echo $adminusername; ?></h6>
 									<p class="text-muted mb-0"><?php echo $name; ?></p>
 								</div>
 							</div>
 							<a class="dropdown-item" href="profile.php">My Profile</a>
-							<a class="dropdown-item" href="settings.php">Settings</a>
-							<a class="dropdown-item" href="../login.php">Logout</a>
+							<a class="dropdown-item" href="settings.php">Web Settings</a>
+							<a class="dropdown-item" href="./login.php">Logout</a>
 						</div>
 					</li>
 					<!-- /User Menu -->
@@ -223,9 +147,16 @@
 				
             </div>
 			<!-- /Header -->
+
+			<style>
+				.fa {
+    margin-right: 8px; /* Add some space between the icon and text */
+}
+
+			</style>
 			
-			<!-- Sidebar -->
-            <div class="sidebar" id="sidebar">
+	<!-- Sidebar -->
+	<div class="sidebar" id="sidebar">
                 <div class="sidebar-inner slimscroll">
 					<div id="sidebar-menu" class="sidebar-menu">
 						<ul>
@@ -238,44 +169,50 @@
 							<li class="submenu">
 								<a href="#"><i class="fa fa-wheelchair"></i> <span>Manage Patient</span> <span class="menu-arrow"></span></a>
 								<ul style="display: none;">
-									<li><a href="manage_patient.php">Manage Patient</a></li>
-									<li><a href="patient.php">Patient List</a></li>
+								<li><a href="manage_patient.php"><i class="fa fa-info-circle"></i>Patient Information</a></li>
+								<li><a href="patient.php"><i class="fa fa-stethoscope"></i>Health Records</a></li>
 								</ul>
 								<li class="submenu">
 									<a href="#"><i class="fa fa-user-md"></i> <span>Manage Doctors</span> <span class="menu-arrow"></span></a>
 									<ul style="display: none;">
-										<li><a href="add_doctor.php">Add Doctor</a></li>
-										<li><a href="doctor.php">Doctor List</a></li>
+									<li><a href="add_doctor.php"><i class="fa fa-user-plus"></i> Add Doctor</a></li>
+									<li><a href="doctor.php"><i class="fa fa-user-md"></i> Doctor List</a></li>
 									</ul>
 								</li>
 								<li class="submenu">
 									<a href="#"><i class="fa fa-user"></i> <span>Manage Clerk</span> <span class="menu-arrow"></span></a>
 									<ul style="display: none;">
-										<li><a href="add_clerk.php">Add Clerk</a></li>
-										<li><a href="clerk.php">Clerk List</a></li>
+									<li><a href="add_clerk.php"><i class="fa fa-user-plus"></i> Add Clerk</a></li>
+									<li><a href="clerk.php"><i class="fa fa-user-md"></i> Clerk List</a></li>
 									</ul>
 								</li>
 							<li> 
+								
+							<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+							<li class="submenu">
+                                <a href="#"><i class="fas fa-bullhorn"></i> <span>Announcement</span> <span class="menu-arrow"></span></a>
+                                <ul style="display: none;">
+                                <li><a href="add_announcement.php"><i class="fas fa-plus"></i>  Add Announcement</a></li>
+                                
+                                </ul>
+                            </li>
 	
 							<li> 
-								<a href="settings.php"><i class="fe fe-vector"></i> <span>Settings</span></a>
+								<a href="settings.php"><i class="fe fe-vector"></i> <span>Web Settings</span></a>
 							</li>
-							<li class="submenu">
-								<a href="#"><i class="fe fe-document"></i> <span> Reports</span> <span class="menu-arrow"></span></a>
-								<ul style="display: none;">
-									<li><a href="pending-report.php">Pending Reports</a></li>
-								</ul>
-							</li>
-							<li class="menu-title"> 
-								<span>Pages</span>
-							</li>
+							
 							<li> 
 								<a href="profile.php"><i class="fe fe-user-plus"></i> <span>Profile</span></a>
+							</li><br><br><br><br><br><br><br><br>
+							<li> 
+							<a href="login.php"><i class="fa fa-sign-out"></i> <span>Logout</span></a>
 							</li>
 					</div>
                 </div>
             </div>
 			<!-- /Sidebar -->
+
 			
 			<!-- Page Wrapper -->
             <div class="page-wrapper">
@@ -294,73 +231,116 @@
 						</div>
 					</div>
 					<!-- /Page Header -->
-					
+					 <style>
+						.card-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+.card-link .card {
+    transition: transform 0.3s ease;
+}
+
+.card-link:hover .card {
+    transform: scale(1.05);
+}
+.card-body{
+	border: 1px solid grey;
+	border-radius: 10px;
+}
+
+
+					 </style>
 					<div class="row justify-content-center row-sm">
 						<div class="col-xl-3 col-sm-6 col-12">
-							<div class="card">
-								<div class="card-body">
-									<div class="dash-widget-header">
-										<span class="dash-widget-icon text-primary border-primary">
-											<i class="fe fe-users"></i>
-										</span>
-										<div class="dash-count">
-										<p><?php echo $countDoctors; ?></p>
+							<a href="patient.php" class="card-link">
+								<div class="card">
+									<div class="card-body">
+										<div class="dash-widget-header">
+											<span class="dash-widget-icon text-success">
+												<i class="fe fe-credit-card"></i>
+											</span>
+											<div class="dash-count">
+												<p><?php echo $countPatients; ?></p>
+											</div>
 										</div>
-									</div>
-									<div class="dash-widget-info">
-										<h6 class="text-muted">Doctors</h6>
-										<div class="progress progress-sm">
-										<div class="progress-bar bg-warning" id="doctorProgressBar" data-count="<?php echo $countDoctors; ?>"></div>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-						<div class="col-xl-3 col-sm-6 col-12">
-							<div class="card">
-								<div class="card-body">
-									<div class="dash-widget-header">
-										<span class="dash-widget-icon text-success">
-											<i class="fe fe-credit-card"></i>
-										</span>
-										<div class="dash-count">
-										<p><?php echo $countPatients; ?></p>
-										</div>
-									</div>
-									<div class="dash-widget-info">
-										
-										<h6 class="text-muted">Patients</h6>
-										<div class="progress progress-sm">
-										<div class="progress-bar bg-warning" id="patientProgressBar" data-count="<?php echo $countPatients; ?>"></div>
+										<div class="dash-widget-info">
+											<h6 class="text-muted">Total Patients</h6>
+											<div class="progress progress-sm">
+												<div class="progress-bar bg-warning" id="patientProgressBar" data-count="<?php echo $countPatients; ?>"></div>
+											</div>
 										</div>
 									</div>
 								</div>
-							</div>
+							</a>
 						</div>
 						
+						
 						<div class="col-xl-3 col-sm-6 col-12">
-						<div class="card">
-							<div class="card-body">
-								<div class="dash-widget-header">
-									<span class="dash-widget-icon text-warning border-warning">
-										<i class="fe fe-folder"></i>
-									</span>
-									<div class="dash-count">
-										<p><?php echo $countClerks; ?></p>
+							<a href="doctor.php" class="card-link">
+								<div class="card">
+									<div class="card-body">
+										<div class="dash-widget-header">
+											<span class="dash-widget-icon text-primary border-primary">
+												<i class="fe fe-users"></i>
+											</span>
+											<div class="dash-count">
+												<p><?php echo $countDoctors; ?></p>
+											</div>
+										</div>
+										<div class="dash-widget-info">
+											<h6 class="text-muted">Total Doctors</h6>
+											<div class="progress progress-sm">
+												<div class="progress-bar bg-warning" id="doctorProgressBar" data-count="<?php echo $countDoctors; ?>"></div>
+											</div>
+										</div>
 									</div>
 								</div>
-								<div class="dash-widget-info">
-									<h6 class="text-muted">Clerk</h6>
-									<div class="progress progress-sm">
-										<div class="progress-bar bg-warning" id="clerkProgressBar" data-count="<?php echo $countClerks; ?>"></div>
+							</a>
+						</div>
+
+
+						<div class="col-xl-3 col-sm-6 col-12">
+							<a href="clerk.php" class="card-link">
+								<div class="card">
+									<div class="card-body">
+										<div class="dash-widget-header">
+											<span class="dash-widget-icon text-warning border-warning">
+												<i class="fe fe-folder"></i>
+											</span>
+											<div class="dash-count">
+												<p><?php echo $countClerks; ?></p>
+											</div>
+										</div>
+										<div class="dash-widget-info">
+											<h6 class="text-muted">Total Clerks</h6>
+											<div class="progress progress-sm">
+												<div class="progress-bar bg-warning" id="clerkProgressBar" data-count="<?php echo $countClerks; ?>"></div>
+											</div>
+										</div>
 									</div>
 								</div>
-							</div>
+							</a>
 						</div>
 					</div>
 					
-		
-        </div>
+
+
+
+   
+
+    
+
+
+
+
+
+
+
+    
+</body>
+
 		<!-- /Main Wrapper -->
 		
 		<!-- jQuery -->

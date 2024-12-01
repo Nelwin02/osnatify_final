@@ -31,87 +31,73 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Doctor Login</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
         body {
-            background: linear-gradient(135deg, #e0f2f1, #b9fbc0);
-            font-family: Arial, sans-serif;
+            background: #f2f2f2;
+        }
+        .container {
             display: flex;
-            justify-content: center;
             align-items: center;
+            justify-content: center;
             height: 100vh;
         }
-
         .login-container {
-            width: 100%;
-            max-width: 450px;
-            padding: 20px;
+            background: #fff;
+            padding: 70px;  /* Increased padding */
+            box-shadow: 1px 1.732px 15px 0px rgba(0, 0, 0, 0.1);  /* Enhanced shadow for a larger effect */
+            width: 400px;   /* Increased width */
+            border: 1px solid #f3f3f3;
+            text-align: center;
+            border-radius: 8px;  /* Added border-radius for rounded corners */
+        }
+        .login-container h2 {
+            color: #00A885;
+            font-size: 26px;  /* Increased font size */
+            margin-bottom: 20px;  /* Added margin below the title */
+        }
+        .form-control {
+            height: 50px;  /* Increased input height */
             background: #ffffff;
-            border-radius: 12px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            animation: fadeIn 0.2s ease-in-out;
+            border: 1px solid #d9d9d9;
+            font-size: 16px;  /* Increased font size for inputs */
         }
-
-        .login-form h2 {
-            margin-bottom: 20px;
-            color: #004d40;
-            font-size: 28px;
-            font-weight: 600;
+        .input-group-text {
+            background: #00A885;
+            color: white;
         }
-
-        .input-group {
-            position: relative;
-        }
-
-        .input-group .form-control {
-            padding-right: 40px;
-        }
-
-        .input-group .show-password {
-            position: absolute;
-            top: 50%;
-            right: 10px;
-            transform: translateY(-50%);
-            cursor: pointer;
-            color: #004d40;
-        }
-
         .btn-custom {
-            background: #00796b;
-            border: none;
-            color: #ffffff;
-            font-size: 18px;
-            font-weight: 600;
-            transition: background-color 0.3s ease, transform 0.2s ease;
+            background: #00A885;
+            color: #fff;
+            font-size: 22px;  /* Increased button font size */
+            width: 100%;
+            padding: 10px;  /* Added padding for button */
         }
-
-        .btn-custom:hover {
-            background-color: #004d40;
-            transform: scale(1.02);
+        .show-password {
+            position: absolute;
+            right: 10px;
+            top: 12px;  /* Adjusted position */
+            cursor: pointer;
         }
-
-        .btn-custom:active {
-            background-color: #004d40;
-            transform: scale(0.98);
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: #00A885;
+            text-decoration: none;
         }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(-30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .back-button i {
+            margin-right: 5px;
         }
     </style>
 </head>
 <body>
-    <div class="container d-flex justify-content-center align-items-center">
+    <a href="../osna/index.php" class="back-button"><i class="fa fa-arrow-left"></i>Back</a>
+    <div class="container">
         <div class="login-container">
-            <h2 class="text-center">Doctor Login</h2>
+            <h2>Doctor Login</h2>
             <div id="alert-container"></div>
             <form id="loginForm">
                 <div class="form-group">
@@ -135,7 +121,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         </span>
                     </div>
                 </div>
-                <button type="submit" class="btn btn-custom btn-block">Login</button>
+                <button type="submit" class="btn btn-custom">Login</button>
             </form>
         </div>
     </div>

@@ -29,41 +29,36 @@
 			<script src="assets/js/respond.min.js"></script>
 		<![endif]-->
 
-		<?php
-  session_start();
-  include 'db.php'; 
-  ?>
+        <?php
+session_start();
+include 'db.php'; // Include the database connection
 
-<?php
-		if (!isset($_SESSION['username'])) {
-			
-			header("Location: login.php");
-			exit();
-		}
-		
-		$username = $_SESSION['username'];
-		
-					
-			$sql = "SELECT name FROM admin_log WHERE username = '$username'";
-			$result = mysqli_query($con, $sql);
+// Check if the user is logged in
+if (!isset($_SESSION['username'])) {
+    header("Location: login.php");
+    exit();
+}
 
-			if ($result) {
-				$user = mysqli_fetch_assoc($result);
-				if ($user) {
-					
-					$name = $user['name'];
-				} else {
-				
-					$name = "Unknown";
-				}
-			} else {
-				
-				$name = "Unknown";
-			}
+$username = $_SESSION['username'];
 
+// Query to fetch the admin name based on the username
+$sql = "SELECT name FROM admin_log WHERE username = $1"; // Use parameterized queries in PostgreSQL
+$result = pg_query_params($con, $sql, array($username)); // pg_query_params for prepared statements
 
-			mysqli_close($con);
-			?>
+// Check if the query was successful
+if ($result) {
+    $user = pg_fetch_assoc($result); // Fetch the result as an associative array
+
+    if ($user) {
+        $name = $user['name'];
+    } else {
+        $name = "Unknown";
+    }
+} else {
+    $name = "Unknown"; // If the query failed
+}
+?>
+
     </head>
     <body>
 	
@@ -89,10 +84,7 @@
 				</a>
 				
 				<div class="top-nav-search">
-					<form>
-						<input type="text" class="form-control" placeholder="Search here">
-						<button class="btn" type="submit"><i class="fa fa-search"></i></button>
-					</form>
+					
 				</div>
 				
 				<!-- Mobile Menu Toggle -->
@@ -104,78 +96,7 @@
 				<!-- Header Right Menu -->
 				<ul class="nav user-menu">
 
-					<!-- Notifications -->
-					<li class="nav-item dropdown noti-dropdown">
-						<a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown">
-							<i class="fe fe-bell"></i> <span class="badge badge-pill">3</span>
-						</a>
-						<div class="dropdown-menu notifications">
-							<div class="topnav-dropdown-header">
-								<span class="notification-title">Notifications</span>
-								<a href="javascript:void(0)" class="clear-noti"> Clear All </a>
-							</div>
-							<div class="noti-content">
-								<ul class="notification-list">
-									<li class="notification-message">
-										<a href="#">
-											<div class="media">
-												<span class="avatar avatar-sm">
-													<img class="avatar-img rounded-circle" alt="User Image" src="assets/img/doctors/doctor-thumb-01.jpg">
-												</span>
-												<div class="media-body">
-													<p class="noti-details"><span class="noti-title">Dr. Ruby Perrin</span> Schedule <span class="noti-title">her appointment</span></p>
-													<p class="noti-time"><span class="notification-time">4 mins ago</span></p>
-												</div>
-											</div>
-										</a>
-									</li>
-									<li class="notification-message">
-										<a href="#">
-											<div class="media">
-												<span class="avatar avatar-sm">
-													<img class="avatar-img rounded-circle" alt="User Image" src="assets/img/patients/patient1.jpg">
-												</span>
-												<div class="media-body">
-													<p class="noti-details"><span class="noti-title">Charlene Reed</span> has booked her appointment to <span class="noti-title">Dr. Ruby Perrin</span></p>
-													<p class="noti-time"><span class="notification-time">6 mins ago</span></p>
-												</div>
-											</div>
-										</a>
-									</li>
-									<li class="notification-message">
-										<a href="#">
-											<div class="media">
-												<span class="avatar avatar-sm">
-													<img class="avatar-img rounded-circle" alt="User Image" src="assets/img/patients/patient2.jpg">
-												</span>
-												<div class="media-body">
-												<p class="noti-details"><span class="noti-title">Travis Trimble</span> sent a amount of $210 for his <span class="noti-title">appointment</span></p>
-												<p class="noti-time"><span class="notification-time">8 mins ago</span></p>
-												</div>
-											</div>
-										</a>
-									</li>
-									<li class="notification-message">
-										<a href="#">
-											<div class="media">
-												<span class="avatar avatar-sm">
-													<img class="avatar-img rounded-circle" alt="User Image" src="assets/img/patients/patient3.jpg">
-												</span>
-												<div class="media-body">
-													<p class="noti-details"><span class="noti-title">Carl Kelly</span> send a message <span class="noti-title"> to his doctor</span></p>
-													<p class="noti-time"><span class="notification-time">12 mins ago</span></p>
-												</div>
-											</div>
-										</a>
-									</li>
-								</ul>
-							</div>
-							<div class="topnav-dropdown-footer">
-								<a href="#">View all Notifications</a>
-							</div>
-						</div>
-					</li>
-					<!-- /Notifications -->
+				
 					
 					<!-- User Menu -->
 					<li class="nav-item dropdown has-arrow">
@@ -193,7 +114,7 @@
 								</div>
 							</div>
 							<a class="dropdown-item" href="profile.php">My Profile</a>
-							<a class="dropdown-item" href="settings.php">Settings</a>
+							<a class="dropdown-item" href="settings.php">Web Settings</a>
 							<a class="dropdown-item" href="login.php">Logout</a>
 						</div>
 					</li>
@@ -204,9 +125,15 @@
 				
             </div>
 			<!-- /Header -->
+			<style>
+				.fa {
+    margin-right: 8px; /* Add some space between the icon and text */
+}
+
+			 </style>
 			
-			<!-- Sidebar -->
-            <div class="sidebar" id="sidebar">
+	<!-- Sidebar -->
+	<div class="sidebar" id="sidebar">
                 <div class="sidebar-inner slimscroll">
 					<div id="sidebar-menu" class="sidebar-menu">
 						<ul>
@@ -219,44 +146,50 @@
 							<li class="submenu">
 								<a href="#"><i class="fa fa-wheelchair"></i> <span>Manage Patient</span> <span class="menu-arrow"></span></a>
 								<ul style="display: none;">
-									<li><a href="manage_patient.php">Manage Patients</a></li>
-									<li><a href="patient.php">Patient List</a></li>
+								<li><a href="manage_patient.php"><i class="fa fa-info-circle"></i>Patient Information</a></li>
+								<li><a href="patient.php"><i class="fa fa-stethoscope"></i>Health Records</a></li>
 								</ul>
 								<li class="submenu">
 									<a href="#"><i class="fa fa-user-md"></i> <span>Manage Doctors</span> <span class="menu-arrow"></span></a>
 									<ul style="display: none;">
-										<li><a href="add_doctor.php">Add Doctor</a></li>
-										<li><a href="doctor.php">Doctor List</a></li>
+									<li><a href="add_doctor.php"><i class="fa fa-user-plus"></i> Add Doctor</a></li>
+									<li><a href="doctor.php"><i class="fa fa-user-md"></i> Doctor List</a></li>
 									</ul>
 								</li>
 								<li class="submenu">
 									<a href="#"><i class="fa fa-user"></i> <span>Manage Clerk</span> <span class="menu-arrow"></span></a>
 									<ul style="display: none;">
-										<li><a href="add_clerk.php">Add Clerk</a></li>
-										<li><a href="clerk.php">Clerk List</a></li>
+									<li><a href="add_clerk.php"><i class="fa fa-user-plus"></i> Add Clerk</a></li>
+									<li><a href="clerk.php"><i class="fa fa-user-md"></i> Clerk List</a></li>
 									</ul>
 								</li>
 							<li> 
+
+                            <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+							<li class="submenu">
+                                <a href="#"><i class="fas fa-bullhorn"></i> <span>Announcement</span> <span class="menu-arrow"></span></a>
+                                <ul style="display: none;">
+                                <li><a href="add_announcement.php"><i class="fas fa-plus"></i>  Add Announcement</a></li>
+                                
+                                </ul>
+                            </li>
 	
 							<li> 
-								<a href="settings.php"><i class="fe fe-vector"></i> <span>Settings</span></a>
+								<a href="settings.php"><i class="fe fe-vector"></i> <span>Web Settings</span></a>
 							</li>
-							<li class="submenu">
-								<a href="#"><i class="fe fe-document"></i> <span> Reports</span> <span class="menu-arrow"></span></a>
-								<ul style="display: none;">
-									<li><a href="pending-report.php">Pending Reports</a></li>
-								</ul>
-							</li>
-							<li class="menu-title"> 
-								<span>Pages</span>
-							</li>
+							
 							<li> 
 								<a href="profile.php"><i class="fe fe-user-plus"></i> <span>Profile</span></a>
+							</li><br><br><br><br><br><br><br><br>
+							<li> 
+							<a href="login.php"><i class="fa fa-sign-out"></i> <span>Logout</span></a>
 							</li>
 					</div>
                 </div>
             </div>
 			<!-- /Sidebar -->
+
 			
 			
 			<!-- Page Wrapper -->
@@ -267,11 +200,11 @@
 					<div class="page-header">
 						<div class="row">
 							<div class="col-sm-12">
-								<h3 class="page-title">General Settings</h3>
+								<h3 class="page-title">Web Settings</h3>
 								<ul class="breadcrumb">
 									<li class="breadcrumb-item"><a href="admin_dash.php">Dashboard</a></li>
-									<li class="breadcrumb-item"><a href="javascript:(0)">Settings</a></li>
-									<li class="breadcrumb-item active">General Settings</li>
+									<li class="breadcrumb-item"><a href="javascript:(0)">Web Settings</a></li>
+									
 								</ul>
 							</div>
 						</div>
@@ -284,32 +217,284 @@
 							
 							<!-- General -->
 							
-								<div class="card">
-									<div class="card-header">
-										<h4 class="card-title">General</h4>
-									</div>
-									<div class="card-body">
-										<form action="#">
-									
-											<div class="form-group">
-												<label>Website Name</label>
-												<input type="text" class="form-control">
-											</div>
-											<div class="form-group">
-												<label>Website Logo</label>
-												<input type="file" class="form-control">
-												<small class="text-secondary">Recommended image size is <b>150px x 150px</b></small>
-											</div>
-											<div class="form-group mb-0">
-												<label>Favicon</label>
-												<input type="file" class="form-control">
-												<small class="text-secondary">Recommended image size is <b>16px x 16px</b> or <b>32px x 32px</b></small><br>
-												<small class="text-secondary">Accepted formats : only png and ico</small>
-											</div>
-											
-										</form>
-									</div>
-								</div>
+                            <?php
+// Include the database connection file
+include_once 'db.php'; 
+
+// Update form values when submitted
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Sanitize and fetch form inputs
+    $newPhoneNumber = $_POST['phone_number'];
+    $newEmail = $_POST['email'];
+    $newOpeningTime = $_POST['opening_time'];
+    $newClosingTime = $_POST['closing_time'];
+    $mondayToFridayStart = $_POST['monday_to_friday_start'];
+    $mondayToFridayEnd = $_POST['monday_to_friday_end'];
+    $saturdayStart = $_POST['saturday_start'];
+    $saturdayEnd = $_POST['saturday_end'];
+    $sundayStart = $_POST['sunday_start'];
+    $sundayEnd = $_POST['sunday_end'];
+    $newAddress = $_POST['address'];
+    $newWhatWeDo = $_POST['what_we_do'];
+    $newOsnaService = $_POST['osna_service'];
+    $newClassLeadDescription = $_POST['class_lead_description'];
+
+    // File upload handling
+    $imagePath = preg_replace("/[^a-zA-Z0-9\._-]/", "", $_FILES['image_path']['name']);
+    $tempname = $_FILES['image_path']['tmp_name'];
+    $folder = "./Images/" . basename($imagePath);
+
+    // Validate file type
+    $allowed = ['jpg', 'jpeg', 'png', 'gif'];
+    $ext = strtolower(pathinfo($imagePath, PATHINFO_EXTENSION));
+
+    if (!in_array($ext, $allowed)) {
+        die("<div class='alert alert-danger'>Invalid file type. Only JPG, JPEG, PNG, and GIF files are allowed.</div>");
+    }
+
+    // Attempt to move uploaded file
+    if (move_uploaded_file($tempname, $folder)) {
+        // Image uploaded successfully
+    } else {
+        die("<div class='alert alert-danger'>Failed to upload image. Please try again.</div>");
+    }
+
+    // PostgreSQL Database update
+    try {
+        $sql = "UPDATE admin_settings SET 
+                phone_number = $1, 
+                email = $2, 
+                opening_time = $3, 
+                closing_time = $4, 
+                monday_to_friday_start = $5, 
+                monday_to_friday_end = $6, 
+                saturday_start = $7, 
+                saturday_end = $8, 
+                sunday_start = $9, 
+                sunday_end = $10, 
+                address = $11, 
+                what_we_do = $12, 
+                osna_service = $13, 
+                class_lead_description = $14, 
+                image_path = $15 
+                WHERE id = 1";
+
+        $params = [
+            $newPhoneNumber, 
+            $newEmail, 
+            $newOpeningTime, 
+            $newClosingTime, 
+            $mondayToFridayStart, 
+            $mondayToFridayEnd, 
+            $saturdayStart, 
+            $saturdayEnd, 
+            $sundayStart, 
+            $sundayEnd, 
+            $newAddress, 
+            $newWhatWeDo, 
+            $newOsnaService, 
+            $newClassLeadDescription, 
+            $folder
+        ];
+
+        // Prepare and execute the query
+        $stmt = pg_prepare($con, "update_settings", $sql);
+        $result = pg_execute($con, "update_settings", $params);
+
+        if ($result) {
+            echo "<div class='alert alert-success'>Web Settings Updated successfully!</div>";
+        } else {
+            echo "<div class='alert alert-danger'>Error updating settings: " . pg_last_error($con) . "</div>";
+        }
+    } catch (Exception $e) {
+        echo "<div class='alert alert-danger'>Error: " . $e->getMessage() . "</div>";
+    }
+}
+
+// Fetch current values from the database
+$sql = "SELECT 
+            phone_number, 
+            email, 
+            opening_time, 
+            closing_time, 
+            monday_to_friday_start, 
+            monday_to_friday_end, 
+            saturday_start, 
+            saturday_end, 
+            sunday_start, 
+            sunday_end, 
+            address, 
+            what_we_do, 
+            osna_service, 
+            class_lead_description, 
+            image_path 
+        FROM admin_settings WHERE id = 1";
+
+$result = pg_query($con, $sql);
+
+if ($result) {
+    $row = pg_fetch_assoc($result);
+
+    $phone_number = $row['phone_number'] ?? '';
+    $email = $row['email'] ?? '';
+    $opening_time = $row['opening_time'] ?? '08:00:00';
+    $closing_time = $row['closing_time'] ?? '20:00:00';
+    $monday_to_friday_start = $row['monday_to_friday_start'] ?? '08:00:00';
+    $monday_to_friday_end = $row['monday_to_friday_end'] ?? '17:00:00';
+    $saturday_start = $row['saturday_start'] ?? '08:00:00';
+    $saturday_end = $row['saturday_end'] ?? '17:00:00';
+    $sunday_start = $row['sunday_start'] ?? '10:00:00';
+    $sunday_end = $row['sunday_end'] ?? '15:00:00';
+    $address = $row['address'] ?? '';
+    $what_we_do = $row['what_we_do'] ?? 'What We Do';
+    $osna_service = $row['osna_service'] ?? 'OSNA Service';
+    $class_lead_description = $row['class_lead_description'] ?? 'We offer a comprehensive range of medical services designed to meet your health needs.';
+    $imagePath = $row['image_path'] ?? $imagePath;
+}
+?>
+
+
+<!-- Bootstrap Form with Rows and Icons -->
+<form method="POST" action="settings.php" enctype="multipart/form-data" class="settings-form container py-4">
+    <!-- Row for Phone Number and Email -->
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label for="phone_number" class="form-label">
+                <i class="fa fa-phone"></i> Phone Number
+            </label>
+            <input type="text" id="phone_number" name="phone_number" value="<?php echo htmlspecialchars($phone_number); ?>" class="form-control">
+        </div>
+        <div class="col-md-6">
+            <label for="email" class="form-label">
+                <i class="fa fa-envelope"></i> Email
+            </label>
+            <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($email); ?>" class="form-control">
+        </div>
+    </div>
+
+    <!-- Row for Opening and Closing Time -->
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label for="opening_time" class="form-label">
+                <i class="fa fa-clock-o"></i> Opening Time
+            </label>
+            <input type="time" id="opening_time" name="opening_time" value="<?php echo htmlspecialchars($opening_time); ?>" class="form-control">
+        </div>
+        <div class="col-md-6">
+            <label for="closing_time" class="form-label">
+                <i class="fa fa-clock-o"></i> Closing Time
+            </label>
+            <input type="time" id="closing_time" name="closing_time" value="<?php echo htmlspecialchars($closing_time); ?>" class="form-control">
+        </div>
+    </div>
+
+    <!-- Monday to Friday Timing -->
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label for="monday_to_friday_start" class="form-label">
+                <i class="fa fa-calendar"></i> Monday to Friday Start
+            </label>
+            <input type="time" id="monday_to_friday_start" name="monday_to_friday_start" value="<?php echo htmlspecialchars($monday_to_friday_start); ?>" class="form-control">
+        </div>
+        <div class="col-md-6">
+            <label for="monday_to_friday_end" class="form-label">
+                <i class="fa fa-calendar"></i> Monday to Friday End
+            </label>
+            <input type="time" id="monday_to_friday_end" name="monday_to_friday_end" value="<?php echo htmlspecialchars($monday_to_friday_end); ?>" class="form-control">
+        </div>
+    </div>
+
+    <!-- Weekend Timing -->
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label for="saturday_start" class="form-label">
+                <i class="fa fa-calendar"></i> Saturday Start
+            </label>
+            <input type="time" id="saturday_start" name="saturday_start" value="<?php echo htmlspecialchars($saturday_start); ?>" class="form-control">
+        </div>
+        <div class="col-md-6">
+            <label for="saturday_end" class="form-label">
+                <i class="fa fa-calendar"></i> Saturday End
+            </label>
+            <input type="time" id="saturday_end" name="saturday_end" value="<?php echo htmlspecialchars($saturday_end); ?>" class="form-control">
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label for="sunday_start" class="form-label">
+                <i class="fa fa-calendar"></i> Sunday Start
+            </label>
+            <input type="time" id="sunday_start" name="sunday_start" value="<?php echo htmlspecialchars($sunday_start); ?>" class="form-control">
+        </div>
+        <div class="col-md-6">
+            <label for="sunday_end" class="form-label">
+                <i class="fa fa-calendar"></i> Sunday End
+            </label>
+            <input type="time" id="sunday_end" name="sunday_end" value="<?php echo htmlspecialchars($sunday_end); ?>" class="form-control">
+        </div>
+    </div>
+
+    <!-- Address -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <label for="address" class="form-label">
+                <i class="fa fa-map-marker"></i> Address
+            </label>
+            <input type="text" id="address" name="address" value="<?php echo htmlspecialchars($address); ?>" class="form-control">
+        </div>
+    </div>
+
+    <!-- Additional Details -->
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <label for="what_we_do" class="form-label">
+                <i class="fa fa-info-circle"></i> What We Do
+            </label>
+            <textarea id="what_we_do" name="what_we_do" class="form-control"><?php echo htmlspecialchars($what_we_do); ?></textarea>
+        </div>
+        <div class="col-md-4">
+            <label for="osna_service" class="form-label">
+                <i class="fa fa-cogs"></i> OSNA Service
+            </label>
+            <textarea id="osna_service" name="osna_service" class="form-control"><?php echo htmlspecialchars($osna_service); ?></textarea>
+        </div>
+        <div class="col-md-4">
+            <label for="class_lead_description" class="form-label">
+                <i class="fa fa-users"></i> Class Lead Description
+            </label>
+            <textarea id="class_lead_description" name="class_lead_description" class="form-control"><?php echo htmlspecialchars($class_lead_description); ?></textarea>
+        </div>
+    </div>
+
+    <!-- File Upload and Logo -->
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label for="image_path" class="form-label">
+                <i class="fa fa-upload"></i> Update Logo
+            </label>
+            <input type="file" id="image_path" name="image_path" class="form-control">
+        </div>
+      <div>
+            <img src="<?php echo htmlspecialchars($imagePath); ?>" alt="Image" width="100" class="img-thumbnail mt-3">
+        </div>
+    </div>
+
+    <!-- Submit Button -->
+    <div class="row">
+        <div class="col-12 text-center">
+            <button type="submit" class="btn btn-primary">
+                <i class="fa fa-save"></i> Save Changes
+            </button>
+        </div>
+    </div>
+</form>
+
+
+
+
+
+
+
 							
 							<!-- /General -->
 								

@@ -71,21 +71,8 @@ if ($result) {
                             <small>Prescription</small>
                         </a>
                     </li>
-                    <li>
-                       <a href="manage-meds.php">
-                            <span class="las la-pills"></span>
-                            <small>Medicines</small>
-                        </a>
-                    </li>
-                   
-                   
                     
-                    <li>
-                       <a href="settings.php">
-                            <span class="las la-cog"></span>
-                            <small>Settings</small>
-                        </a>
-                    </li>
+                    
                     
 
                 </ul>

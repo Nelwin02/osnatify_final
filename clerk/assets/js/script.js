@@ -293,6 +293,22 @@ Version      : 1.0
 										<th>Heart Rate</th>
 										<td>${data.heartrate} bpm</td>
 									</tr>
+									<tr>
+										<th>Symptoms</th>
+										<td>${data.symptoms}</td>
+									</tr>
+									<tr>
+										<th>Predicted Diagnosis</th>
+										<td>${data.predicted_disease}</td>
+									</tr>
+									<tr>
+										<th>Predicted Prescription</th>
+										<td>${data.predicted_prescription}</td>
+									</tr>
+									<tr>
+										<th>Predicted Treatment</th>
+										<td>${data.predicted_treatment}</td>
+									</tr>
 								</table>
 							`;
 		

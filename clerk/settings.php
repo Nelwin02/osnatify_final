@@ -90,10 +90,7 @@ if ($result) {
 				</a>
 				
 				<div class="top-nav-search">
-					<form>
-						<input type="text" class="form-control" placeholder="Search here">
-						<button class="btn" type="submit"><i class="fa fa-search"></i></button>
-					</form>
+				
 				</div>
 				
 				<!-- Mobile Menu Toggle -->
@@ -105,80 +102,7 @@ if ($result) {
 				<!-- Header Right Menu -->
 				<ul class="nav user-menu">
 
-					<!-- Notifications -->
-					<li class="nav-item dropdown noti-dropdown">
-						<a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown">
-							<i class="fe fe-bell"></i> <span class="badge badge-pill">3</span>
-						</a>
-						<div class="dropdown-menu notifications">
-							<div class="topnav-dropdown-header">
-								<span class="notification-title">Notifications</span>
-								<a href="javascript:void(0)" class="clear-noti"> Clear All </a>
-							</div>
-							<div class="noti-content">
-								<ul class="notification-list">
-									<li class="notification-message">
-										<a href="#">
-											<div class="media">
-												<span class="avatar avatar-sm">
-													<img class="avatar-img rounded-circle" alt="User Image" src="assets/img/doctors/doctor-thumb-01.jpg">
-												</span>
-												<div class="media-body">
-													<p class="noti-details"><span class="noti-title">
-														
-													</span> Schedule <span class="noti-title">her appointment</span></p>
-													<p class="noti-time"><span class="notification-time">4 mins ago</span></p>
-												</div>
-											</div>
-										</a>
-									</li>
-									<li class="notification-message">
-										<a href="#">
-											<div class="media">
-												<span class="avatar avatar-sm">
-													<img class="avatar-img rounded-circle" alt="User Image" src="assets/img/patients/patient1.jpg">
-												</span>
-												<div class="media-body">
-													<p class="noti-details"><span class="noti-title">Charlene Reed</span> has booked her appointment to <span class="noti-title">Dr. Ruby Perrin</span></p>
-													<p class="noti-time"><span class="notification-time">6 mins ago</span></p>
-												</div>
-											</div>
-										</a>
-									</li>
-									<li class="notification-message">
-										<a href="#">
-											<div class="media">
-												<span class="avatar avatar-sm">
-													<img class="avatar-img rounded-circle" alt="User Image" src="assets/img/patients/patient2.jpg">
-												</span>
-												<div class="media-body">
-												<p class="noti-details"><span class="noti-title">Travis Trimble</span> sent a amount of $210 for his <span class="noti-title">appointment</span></p>
-												<p class="noti-time"><span class="notification-time">8 mins ago</span></p>
-												</div>
-											</div>
-										</a>
-									</li>
-									<li class="notification-message">
-										<a href="#">
-											<div class="media">
-												<span class="avatar avatar-sm">
-													<img class="avatar-img rounded-circle" alt="User Image" src="assets/img/patients/patient3.jpg">
-												</span>
-												<div class="media-body">
-													<p class="noti-details"><span class="noti-title">Carl Kelly</span> send a message <span class="noti-title"> to his doctor</span></p>
-													<p class="noti-time"><span class="notification-time">12 mins ago</span></p>
-												</div>
-											</div>
-										</a>
-									</li>
-								</ul>
-							</div>
-							<div class="topnav-dropdown-footer">
-								<a href="#">View all Notifications</a>
-							</div>
-						</div>
-					</li>
-					<!-- /Notifications -->
+					
 					
 					<!-- User Menu -->
 					<li class="nav-item dropdown has-arrow">
@@ -222,33 +146,29 @@ if ($result) {
 							<li class="submenu">
 								<a href="#"><i class="fa fa-wheelchair"></i> <span>Manage Patient</span> <span class="menu-arrow"></span></a>
 								<ul style="display: none;">
+									<li><a href="add_patient.php">New Patient</a></li>
+									<li><a href="view_patient.php">Patient List</a></li>
 									
-									<li><a href="add_patient.php">Add Patient</a></li>
-									<li><a href="predict.php">Predict Sickness</a></li>
-									<li><a href="view_patient.php">View Patient</a></li>
-								</ul>
-								<li class="submenu">
-								<a href="#"><i class="fa fa-user-md"></i> <span>Doctor</span> <span class="menu-arrow"></span></a>
-								<ul style="display: none;">
-									
-									<li><a href="pending-report.php">Pending Reports</a></li>
 									
 								</ul>
+
+								<li> 
+								<a href="consultation.php"><i class="fe fe-vector"></i> <span>Consultations</span></a>
+							</li>
+
+							
+								<li> 
+								
 	
 							<li> 
 								<a href="settings.php"><i class="fe fe-vector"></i> <span>Settings</span></a>
 							</li>
-							<li class="submenu">
-								<a href="#"><i class="fe fe-document"></i> <span> Reports</span> <span class="menu-arrow"></span></a>
-								<ul style="display: none;">
-									<li><a href="pending-report.php">Pending Reports</a></li>
-								</ul>
-							</li>
-							<li class="menu-title"> 
-								<span>Pages</span>
-							</li>
+							
 							<li> 
 								<a href="profile.php"><i class="fe fe-user-plus"></i> <span>Profile</span></a>
+							</li><br><br><br><br><br><br><br>
+							<li> 
+							<a href="login.php"><i class="fa fa-sign-out"></i> <span>Logout</span></a>
 							</li>
 					</div>
                 </div>

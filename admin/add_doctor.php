@@ -68,54 +68,76 @@
 // Check if form was submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST['add_doctor'])) {
-        // Add doctor
+        // Add doctor without image
         $username = $con->real_escape_string($_POST['username']);
         $password = $con->real_escape_string($_POST['password']);
         $doctor_name = $con->real_escape_string($_POST['doctor_name']);
 
-        $sql = $con->prepare("INSERT INTO doctor_log  (username, password, doctor_name) VALUES (?, ?, ?)");
-        $sql->bind_param("sss", $username, $password, $doctor_name);
+        // Check if username already exists
+        $stmt = $con->prepare("SELECT username FROM doctor_log WHERE username = ?");
+        $stmt->bind_param("s", $username);
+        $stmt->execute();
+        $stmt->store_result();
 
-        if ($sql->execute()) {
-            echo "<script>alert('New doctor added successfully');</script>";
+        if ($stmt->num_rows > 0) {
+            echo "<script>alert('Username already exists. Please choose a different username.');</script>";
         } else {
-            echo "<script>alert('Error: " . $con->error . "');</script>";
+            // Insert new doctor
+            $sql = $con->prepare("INSERT INTO doctor_log (username, password, doctor_name) VALUES (?, ?, ?)");
+            $sql->bind_param("sss", $username, $password, $doctor_name);
+
+            if ($sql->execute()) {
+                echo "<script>alert('New doctor added successfully');</script>";
+            } else {
+                echo "<script>alert('Error: " . $con->error . "');</script>";
+            }
+
+            $sql->close();
         }
+        $stmt->close();
+    }
 
-       
-    }}
-
-   // Check if form was submitted
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Handle doctor information and image upload
     if (isset($_POST['submit'])) {
+        // Handle doctor information with image upload
         $username = $con->real_escape_string($_POST['username']);
         $password = $con->real_escape_string($_POST['password']);
         $doctor_name = $con->real_escape_string($_POST['doctor_name']);
         $file_name = $_FILES['image']['name'];
         $tempname = $_FILES['image']['tmp_name'];
-        $folder = "../doctor/Images/" . $file_name;
+        $folder = "../doctor2/Images/" . $file_name;
 
-        // Prepare statements for inserting doctor information
-        $sql = $con->prepare("INSERT INTO doctor_log (username, password, doctor_name, doctor_image) VALUES (?, ?, ?, ?)");
-        $sql->bind_param("ssss", $username, $password, $doctor_name, $file_name);
+        // Check if username already exists
+        $stmt = $con->prepare("SELECT username FROM doctor_log WHERE username = ?");
+        $stmt->bind_param("s", $username);
+        $stmt->execute();
+        $stmt->store_result();
 
-        if ($sql->execute()) {
-            // Move uploaded file
-            if (move_uploaded_file($tempname, $folder)) {
-                echo "<script>alert('Doctor added and image uploaded successfully');</script>";
-            } else {
-                echo "<script>alert('Doctor added but image not uploaded');</script>";
-            }
+        if ($stmt->num_rows > 0) {
+            echo "<script>alert('Username already exists. Please choose a different username.');</script>";
         } else {
-            echo "<script>alert('Error: " . $con->error . "');</script>";
+            // Prepare statements for inserting doctor information with image
+            $sql = $con->prepare("INSERT INTO doctor_log (username, password, doctor_name, doctor_image) VALUES (?, ?, ?, ?)");
+            $sql->bind_param("ssss", $username, $password, $doctor_name, $file_name);
+
+            if ($sql->execute()) {
+                // Move uploaded file
+                if (move_uploaded_file($tempname, $folder)) {
+                    echo "<script>alert('Doctor added and image uploaded successfully');</script>";
+                } else {
+                    echo "<script>alert('Doctor added but image not uploaded');</script>";
+                }
+            } else {
+                echo "<script>alert('Error: " . $con->error . "');</script>";
+            }
+
+            $sql->close();
         }
-
-        $sql->close();
+        $stmt->close();
     }
-
-   
 }
+
+// Close connection
+$con->close();
 ?>
 
 		
@@ -144,10 +166,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 				</a>
 				
 				<div class="top-nav-search">
-					<form>
-						<input type="text" class="form-control" placeholder="Search here">
-						<button class="btn" type="submit"><i class="fa fa-search"></i></button>
-					</form>
+					
 				</div>
 				
 				<!-- Mobile Menu Toggle -->
@@ -159,78 +178,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 				<!-- Header Right Menu -->
 				<ul class="nav user-menu">
 
-					<!-- Notifications -->
-					<li class="nav-item dropdown noti-dropdown">
-						<a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown">
-							<i class="fe fe-bell"></i> <span class="badge badge-pill">3</span>
-						</a>
-						<div class="dropdown-menu notifications">
-							<div class="topnav-dropdown-header">
-								<span class="notification-title">Notifications</span>
-								<a href="javascript:void(0)" class="clear-noti"> Clear All </a>
-							</div>
-							<div class="noti-content">
-								<ul class="notification-list">
-									<li class="notification-message">
-										<a href="#">
-											<div class="media">
-												<span class="avatar avatar-sm">
-													<img class="avatar-img rounded-circle" alt="User Image" src="assets/img/doctors/doctor-thumb-01.jpg">
-												</span>
-												<div class="media-body">
-													<p class="noti-details"><span class="noti-title">Dr. Ruby Perrin</span> Schedule <span class="noti-title">her appointment</span></p>
-													<p class="noti-time"><span class="notification-time">4 mins ago</span></p>
-												</div>
-											</div>
-										</a>
-									</li>
-									<li class="notification-message">
-										<a href="#">
-											<div class="media">
-												<span class="avatar avatar-sm">
-													<img class="avatar-img rounded-circle" alt="User Image" src="assets/img/patients/patient1.jpg">
-												</span>
-												<div class="media-body">
-													<p class="noti-details"><span class="noti-title">Charlene Reed</span> has booked her appointment to <span class="noti-title">Dr. Ruby Perrin</span></p>
-													<p class="noti-time"><span class="notification-time">6 mins ago</span></p>
-												</div>
-											</div>
-										</a>
-									</li>
-									<li class="notification-message">
-										<a href="#">
-											<div class="media">
-												<span class="avatar avatar-sm">
-													<img class="avatar-img rounded-circle" alt="User Image" src="assets/img/patients/patient2.jpg">
-												</span>
-												<div class="media-body">
-												<p class="noti-details"><span class="noti-title">Travis Trimble</span> sent a amount of $210 for his <span class="noti-title">appointment</span></p>
-												<p class="noti-time"><span class="notification-time">8 mins ago</span></p>
-												</div>
-											</div>
-										</a>
-									</li>
-									<li class="notification-message">
-										<a href="#">
-											<div class="media">
-												<span class="avatar avatar-sm">
-													<img class="avatar-img rounded-circle" alt="User Image" src="assets/img/patients/patient3.jpg">
-												</span>
-												<div class="media-body">
-													<p class="noti-details"><span class="noti-title">Carl Kelly</span> send a message <span class="noti-title"> to his doctor</span></p>
-													<p class="noti-time"><span class="notification-time">12 mins ago</span></p>
-												</div>
-											</div>
-										</a>
-									</li>
-								</ul>
-							</div>
-							<div class="topnav-dropdown-footer">
-								<a href="#">View all Notifications</a>
-							</div>
-						</div>
-					</li>
-					<!-- /Notifications -->
+				
 					
 					<!-- User Menu -->
 					<li class="nav-item dropdown has-arrow">
@@ -248,7 +196,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 								</div>
 							</div>
 							<a class="dropdown-item" href="profile.php">My Profile</a>
-							<a class="dropdown-item" href="settings.php">Settings</a>
+							<a class="dropdown-item" href="settings.php">Web Settings</a>
 							<a class="dropdown-item" href="login.php">Logout</a>
 						</div>
 					</li>
@@ -259,9 +207,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 				
             </div>
 			<!-- /Header -->
+			<style>
+				.fa {
+    margin-right: 8px; /* Add some space between the icon and text */
+}
+
+			 </style>
 			
-			<!-- Sidebar -->
-            <div class="sidebar" id="sidebar">
+	<!-- Sidebar -->
+	<div class="sidebar" id="sidebar">
                 <div class="sidebar-inner slimscroll">
 					<div id="sidebar-menu" class="sidebar-menu">
 						<ul>
@@ -274,44 +228,50 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 							<li class="submenu">
 								<a href="#"><i class="fa fa-wheelchair"></i> <span>Manage Patient</span> <span class="menu-arrow"></span></a>
 								<ul style="display: none;">
-									<li><a href="manage_patient.php">Manage Patients</a></li>
-									<li><a href="patient.php">Patient List</a></li>
+								<li><a href="manage_patient.php"><i class="fa fa-info-circle"></i>Patient Information</a></li>
+								<li><a href="patient.php"><i class="fa fa-stethoscope"></i>Health Records</a></li>
 								</ul>
 								<li class="submenu">
 									<a href="#"><i class="fa fa-user-md"></i> <span>Manage Doctors</span> <span class="menu-arrow"></span></a>
 									<ul style="display: none;">
-										<li><a href="add_doctor.php">Add Doctor</a></li>
-										<li><a href="doctor.php">Doctor List</a></li>
+									<li><a href="add_doctor.php"><i class="fa fa-user-plus"></i> Add Doctor</a></li>
+									<li><a href="doctor.php"><i class="fa fa-user-md"></i> Doctor List</a></li>
 									</ul>
 								</li>
 								<li class="submenu">
-									<a href="#"><i class="fe fe-document"></i> <span> Manage Clerk</span> <span class="menu-arrow"></span></a>
+									<a href="#"><i class="fa fa-user"></i> <span>Manage Clerk</span> <span class="menu-arrow"></span></a>
 									<ul style="display: none;">
-										<li><a href="add_clerk.php">Add Clerk</a></li>
-										<li><a href="clerk.php">Clerk List</a></li>
+									<li><a href="add_clerk.php"><i class="fa fa-user-plus"></i> Add Clerk</a></li>
+									<li><a href="clerk.php"><i class="fa fa-user-md"></i> Clerk List</a></li>
 									</ul>
 								</li>
 							<li> 
+
+							<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+							<li class="submenu">
+                                <a href="#"><i class="fas fa-bullhorn"></i> <span>Announcement</span> <span class="menu-arrow"></span></a>
+                                <ul style="display: none;">
+                                <li><a href="add_announcement.php"><i class="fas fa-plus"></i>  Add Announcement</a></li>
+                                
+                                </ul>
+                            </li>
 	
 							<li> 
-								<a href="settings.php"><i class="fe fe-vector"></i> <span>Settings</span></a>
+								<a href="settings.php"><i class="fe fe-vector"></i> <span>Web Settings</span></a>
 							</li>
-							<li class="submenu">
-								<a href="#"><i class="fe fe-document"></i> <span> Reports</span> <span class="menu-arrow"></span></a>
-								<ul style="display: none;">
-									<li><a href="pending-report.php">Pending Reports</a></li>
-								</ul>
-							</li>
-							<li class="menu-title"> 
-								<span>Pages</span>
-							</li>
+							
 							<li> 
 								<a href="profile.php"><i class="fe fe-user-plus"></i> <span>Profile</span></a>
+							</li><br><br><br><br><br><br><br><br>
+							<li> 
+							<a href="login.php"><i class="fa fa-sign-out"></i> <span>Logout</span></a>
 							</li>
 					</div>
                 </div>
             </div>
 			<!-- /Sidebar -->
+
 			<div class="row justify-content-end">
     <div class="container mt-5">
        

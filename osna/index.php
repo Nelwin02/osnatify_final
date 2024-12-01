@@ -37,26 +37,85 @@
       </div>
       <!-- END LOADER -->
       <header>
-         <div class="header-top wow fadeIn">
-            <div class="container">
-               <a class="navbar-brand" href="index.php"><img src="./img/opd.png" alt="image"></a>
-               <div class="right-header">
-                  <div class="header-info">
-                     <div class="info-inner">
-                        <span class="icontop"><img src="images/phone-icon.png" alt="#"></span>
-                        <span class="iconcont"><a href="tel:800 123 456">09281920930</a></span>	
-                     </div>
-                     <div class="info-inner">
-                        <span class="icontop"><i class="fa fa-envelope" aria-hidden="true"></i></span>
-                        <span class="iconcont"><a data-scroll href="mailto:info@yoursite.com">osna.com</a></span>	
-                     </div>
-                     <div class="info-inner">
-                        <span class="icontop"><i class="fa fa-clock-o" aria-hidden="true"></i></span>
-                        <span class="iconcont"><a data-scroll href="#">Daily: 8:00am - 8:00pm</a></span>	
-                     </div>
-                  </div>
-               </div>
-            </div>
+      <?php
+include 'db.php'; 
+
+$image = ''; 
+
+// Updated SQL query using PostgreSQL's pg_query
+$sql = "SELECT image_path FROM admin_settings";
+$result = pg_query($con, $sql);
+
+if ($result) {
+    $user = pg_fetch_assoc($result);
+    if ($user) {
+        $image = '../admin/Images/' . basename($user['image_path']);
+    }
+}
+
+?>
+
+<div class="header-top wow fadeIn">
+    <div class="container">
+        <a class="navbar-brand" href="index.php">
+            <img src="<?php echo htmlspecialchars($image); ?>" alt="Website Logo" width="100px" height="100px">
+        </a>
+
+        <div class="right-header">
+            <div class="header-info">
+
+                <?php
+
+                // Using PDO for PostgreSQL connection
+                try {
+                    // Prepare and execute the SQL query using PostgreSQL
+                    $stmt = pg_prepare($con, "get_admin_settings", "SELECT phone_number, email, opening_time, closing_time FROM admin_settings WHERE id = 1");
+                    $result = pg_execute($con, "get_admin_settings", array());
+
+                    if ($result) {
+                        $row = pg_fetch_assoc($result);
+                        $phone_number = $row['phone_number'] ?? 'No phone number set';
+                        $email = $row['email'] ?? 'No email set';
+                        $opening_time = $row['opening_time'] ?? '08:00:00';
+                        $closing_time = $row['closing_time'] ?? '20:00:00';
+                    } else {
+                        $phone_number = 'No phone number found';
+                        $email = 'No email found';
+                        $opening_time = '08:00:00';
+                        $closing_time = '20:00:00';
+                    }
+                } catch (Exception $e) {
+                    $phone_number = "Error: " . $e->getMessage();
+                    $email = "Error: " . $e->getMessage();
+                    $opening_time = 'Error';
+                    $closing_time = 'Error';
+                }
+                ?>
+        <div class="info-inner">
+            <a href="mailto:<?php echo htmlspecialchars($email); ?>" target="_blank" rel="noopener noreferrer">
+                <span class="icontop"><i class="fa fa-envelope" aria-hidden="true"></i></span>
+                <span class="iconcont"><?php echo htmlspecialchars($email); ?></span>
+            </a>
+        </div>
+
+
+        <div class="info-inner">
+            <span class="icontop"><img src="images/phone-icon.png" alt="Phone Icon"></span>
+            <span class="iconcont">
+                <a href="tel:<?php echo htmlspecialchars($phone_number); ?>"><?php echo htmlspecialchars($phone_number); ?></a>
+            </span>  
+        </div>
+
+
+        <div class="info-inner">
+            <span class="icontop"><i class="fa fa-clock-o" aria-hidden="true"></i></span>
+            <span class="iconcont">
+                <a data-scroll href="#">Daily: <?php echo htmlspecialchars(date('g:ia', strtotime($opening_time))) . ' - ' . htmlspecialchars(date('g:ia', strtotime($closing_time))); ?></a>
+            </span>  
+        </div>
+     </div>
+</div>
+     </div>
          </div>
          <div class="header-bottom wow fadeIn">
             <div class="container">
@@ -69,8 +128,8 @@
                      <ul class="nav navbar-nav">
                         <li><a class="active" href="index.php">Home</a></li>
                         <li><a data-scroll href="#about">About us</a></li>
-                        <li><a data-scroll href="#service">Services</a></li>
-                        <li><a data-scroll href="#doctors">Doctors</a></li>
+                        
+                        <li><a data-scroll href="#doctors">OPD Clerk</a></li>
                         
 						
                         <li><a data-scroll href="#getintouch">Contact</a></li>
@@ -119,25 +178,70 @@
                   <div class="service-time one" style="background:#2895f1;">
                      <span class="info-icon"><i class="fa fa-ambulance" aria-hidden="true"></i></span>
                      <h3>OPD</h3>
-                     <p>we provide comprehensive medical care for non-emergency conditions.</p>
+                     <p>We offer full medical care for non-emergency conditions.</p>
                      
                   </div>
                </div>
             </div>
+
+
+            <?php
+
+function convertToAMPM($time) {
+    return date("h:i A", strtotime($time));
+}
+
+try {
+    // Prepare the SQL query for PostgreSQL
+    $stmt = pg_prepare($con, "get_schedule", "SELECT monday_to_friday_start, monday_to_friday_end, saturday_start, saturday_end, sunday_start, sunday_end FROM admin_settings WHERE id = 1");
+    $result = pg_execute($con, "get_schedule", array());
+
+    // Check if we have data
+    if ($result) {
+        $row = pg_fetch_assoc($result);
+
+        // Assign values or defaults if not found
+        $monday_to_friday_start = $row['monday_to_friday_start'] ?? '08:00:00';
+        $monday_to_friday_end = $row['monday_to_friday_end'] ?? '17:00:00';
+        $saturday_start = $row['saturday_start'] ?? '08:00:00';
+        $saturday_end = $row['saturday_end'] ?? '17:00:00';
+        $sunday_start = $row['sunday_start'] ?? '10:00:00';
+        $sunday_end = $row['sunday_end'] ?? '15:00:00';
+    } else {
+        // Default values if no data found
+        $monday_to_friday_start = '08:00:00';
+        $monday_to_friday_end = '17:00:00';
+        $saturday_start = '08:00:00';
+        $saturday_end = '17:00:00';
+        $sunday_start = '10:00:00';
+        $sunday_end = '15:00:00';
+    }
+} catch (Exception $e) {
+    // Handle errors
+    $monday_to_friday_start = "Error: " . $e->getMessage();
+    $monday_to_friday_end = "Error: " . $e->getMessage();
+    $saturday_start = "Error: " . $e->getMessage();
+    $saturday_end = "Error: " . $e->getMessage();
+    $sunday_start = "Error: " . $e->getMessage();
+    $sunday_end = "Error: " . $e->getMessage();
+}
+?>
+
+           
             <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
-               <div class="row">
-                  <div class="service-time middle" style="background:#0071d1;">
-                     <span class="info-icon"><i class="fa fa-clock-o" aria-hidden="true"></i></span> 
-                     <h3>Working Hours</h3>
-                     <div class="time-table-section">
+            <div class="row">
+                <div class="service-time middle" style="background:#0071d1;">
+                    <span class="info-icon"><i class="fa fa-clock-o" aria-hidden="true"></i></span> 
+                    <h3>Working Hours</h3>
+                    <div class="time-table-section">
                         <ul>
-                           <li><span class="left">Monday - Friday</span><span class="right">8:00am – 5:00pm</span></li>
-                           <li><span class="left">Saturday</span><span class="right">8:00am – 5:00pm</span></li>
-                           <li><span class="left">Sunday</span><span class="right">10:00am – 3:00pm</span></li>
+                        <li><span class="left">Monday - Friday</span><span class="right"><?php echo htmlspecialchars(convertToAMPM($monday_to_friday_start)) . ' - ' . htmlspecialchars(convertToAMPM($monday_to_friday_end)); ?></span></li>
+                        <li><span class="left">Saturday</span><span class="right"><?php echo htmlspecialchars(convertToAMPM($saturday_start)) . ' - ' . htmlspecialchars(convertToAMPM($saturday_end)); ?></span></li>
+                        <li><span class="left">Sunday</span><span class="right"><?php echo htmlspecialchars(convertToAMPM($sunday_start)) . ' - ' . htmlspecialchars(convertToAMPM($sunday_end)); ?></span></li>
                         </ul>
-                     </div>
-                  </div>
-               </div>
+                    </div>
+                </div>
+            </div>
             </div>
             <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
                <div class="row">
@@ -159,207 +263,69 @@
                <span class="icon-logo"><img src="./img/opd1.png" alt="#"></span>
                <h2>OSNA</h2>
             </div>
-            <!-- end title -->
-            <div class="row">
-               <div class="col-md-6">
-                  <div class="message-box">
-                     <h4>What We Do</h4>
-                        <h2>OSNA Service</h2>
-                        <p class="lead">We offer a comprehensive range of medical services designed to meet your health needs. Our dedicated team is here to provide the highest quality care.</p>
-                        <p>Our OPD timetable is designed to ensure you receive the best care at the most convenient times. Check our schedule to plan your visit accordingly.</p>
+           
+            <?php
 
-                     <!--<a href="#services" data-scroll class="btn btn-light btn-radius btn-brd grd1 effect-1">Learn More</a>-->
-                  </div>
-                  <!-- end messagebox -->
-               </div>
-               <!-- end col -->
-               <div class="col-md-6">
-                  <div class="post-media wow fadeIn">
-                     <img src="./img/osna.JPG" alt="" class="img-responsive">
-                     
-                  </div>
-                  <!-- end media -->
-               </div>
-               <!-- end col -->
-            </div>
-            <!-- end row -->
-            <hr class="hr1">
+include_once 'db.php';
+
+try {
+    // Prepare the SQL query for PostgreSQL
+    $stmt = pg_prepare(
+        $con,
+        "get_admin_settings",
+        "SELECT what_we_do, osna_service, class_lead_description, image_path FROM admin_settings WHERE id = 1"
+    );
+
+    // Execute the prepared statement
+    $result = pg_execute($con, "get_admin_settings", array());
+
+    if ($result) {
+        $row = pg_fetch_assoc($result);
+
+        // Set global variables with fallback defaults
+        $global_what_we_do = !empty($row['what_we_do']) ? $row['what_we_do'] : 'What We Do';
+        $global_osna_service = !empty($row['osna_service']) ? $row['osna_service'] : 'OSNA Service';
+        $global_class_lead = !empty($row['class_lead_description']) ? $row['class_lead_description'] : 'We offer a range of medical services to meet your health needs.';
+        $imagePath = !empty($row['image_path']) ? $row['image_path'] : null;
+    } else {
+        // Set defaults if no results are returned
+        $global_what_we_do = 'What We Do';
+        $global_osna_service = 'OSNA Service';
+        $global_class_lead = 'We offer a range of medical services to meet your health needs.';
+        $imagePath = null;
+    }
+} catch (Exception $e) {
+    // Handle any exceptions and set error messages as default values
+    $global_what_we_do = "Error: " . $e->getMessage();
+    $global_osna_service = "Error: " . $e->getMessage();
+    $global_class_lead = "Error: " . $e->getMessage();
+    $imagePath = null;
+}
+
+?>
+
+
             <div class="row">
-               <div class="col-md-3 col-sm-6 col-xs-12">
-                  <div class="service-widget">
-                     <div class="post-media wow fadeIn">
-                        <a href="images/clinic_01.jpg" data-rel="prettyPhoto[gal]" class="hoverbutton global-radius"><i class="flaticon-unlink"></i></a>
-                        <img src="images/clinic_01.jpg" alt="" class="img-responsive">
-                     </div>
-                     <h3>Digital Control Center</h3>
-                  </div>
-                  <!-- end service -->
-               </div>
-               <div class="col-md-3 col-sm-6 col-xs-12">
-                  <div class="service-widget">
-                     <div class="post-media wow fadeIn">
-                        <a href="images/clinic_02.jpg" data-rel="prettyPhoto[gal]" class="hoverbutton global-radius"><i class="flaticon-unlink"></i></a>
-                        <img src="images/clinic_02.jpg" alt="" class="img-responsive">
-                     </div>
-                     <h3>Hygienic Operating Room</h3>
-                  </div>
-                  <!-- end service -->
-               </div>
-               <div class="col-md-3 col-sm-6 col-xs-12">
-                  <div class="service-widget">
-                     <div class="post-media wow fadeIn">
-                        <a href="images/clinic_03.jpg" data-rel="prettyPhoto[gal]" class="hoverbutton global-radius"><i class="flaticon-unlink"></i></a>
-                        <img src="images/clinic_03.jpg" alt="" class="img-responsive">
-                     </div>
-                     <h3>Specialist Physicians</h3>
-                  </div>
-                  <!-- end service -->
-               </div>
-               <div class="col-md-3 col-sm-6 col-xs-12">
-                  <div class="service-widget">
-                     <div class="post-media wow fadeIn">
-                        <a href="images/clinic_01.jpg" data-rel="prettyPhoto[gal]" class="hoverbutton global-radius"><i class="flaticon-unlink"></i></a>
-                        <img src="images/clinic_01.jpg" alt="" class="img-responsive">
-                     </div>
-                     <h3>Digital Control Center</h3>
-                  </div>
-                  <!-- end service -->
-               </div>
+                <div class="col-md-6">
+                    <div class="message-box">
+                        <h4><?php echo htmlspecialchars($global_what_we_do); ?></h4>
+                        <h2><?php echo htmlspecialchars($global_osna_service); ?></h2>
+                        <p class="lead"><?php echo htmlspecialchars($global_class_lead); ?></p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                <div>
+                        <img src="<?php echo htmlspecialchars($imagePath); ?>" alt="Image" width="100" class="img-thumbnail mt-3">
+                    </div>
+                </div>
             </div>
-            <!-- end row -->
-         </div>
-         <!-- end container -->
-      </div>
-      <div id="service" class="services wow fadeIn">
-         <div class="container">
-            <div class="row">
-               <div class="col-lg-8 col-md-8 col-sm-6 col-xs-12">
-                  <div class="inner-services">
-                     <div class="col-lg-4 col-md-6 col-sm-6 col-xs-12">
-                        <div class="serv">
-                           <span class="icon-service"><img src="images/service-icon1.png" alt="#" /></span>
-                           <h4>PREMIUM FACILITIES</h4>
-                           <p>Lorem Ipsum is simply dummy text of the printing.</p>
-                        </div>
-                     </div>
-                     <div class="col-lg-4 col-md-6 col-sm-6 col-xs-12">
-                        <div class="serv">
-                           <span class="icon-service"><img src="images/service-icon2.png" alt="#" /></span>
-                           <h4>LARGE LABORATORY</h4>
-                           <p>Lorem Ipsum is simply dummy text of the printing.</p>
-                        </div>
-                     </div>
-                     <div class="col-lg-4 col-md-6 col-sm-6 col-xs-12">
-                        <div class="serv">
-                           <span class="icon-service"><img src="images/service-icon3.png" alt="#" /></span>
-                           <h4>DETAILED SPECIALIST</h4>
-                           <p>Lorem Ipsum is simply dummy text of the printing.</p>
-                        </div>
-                     </div>
-                     <div class="col-lg-4 col-md-6 col-sm-6 col-xs-12">
-                        <div class="serv">
-                           <span class="icon-service"><img src="images/service-icon4.png" alt="#" /></span>
-                           <h4>CHILDREN CARE CENTER</h4>
-                           <p>Lorem Ipsum is simply dummy text of the printing.</p>
-                        </div>
-                     </div>
-                     <div class="col-lg-4 col-md-6 col-sm-6 col-xs-12">
-                        <div class="serv">
-                           <span class="icon-service"><img src="images/service-icon5.png" alt="#" /></span>
-                           <h4>FINE INFRASTRUCTURE</h4>
-                           <p>Lorem Ipsum is simply dummy text of the printing.</p>
-                        </div>
-                     </div>
-                     <div class="col-lg-4 col-md-6 col-sm-6 col-xs-12">
-                        <div class="serv">
-                           <span class="icon-service"><img src="images/service-icon6.png" alt="#" /></span>
-                           <h4>ANYTIME BLOOD BANK</h4>
-                           <p>Lorem Ipsum is simply dummy text of the printing.</p>
-                        </div>
-                     </div>
-                  </div>
-               </div>
-               <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
-                  <div class="appointment-form">
-                     <h3><span>+</span> Book Appointment</h3>
-                     <div class="form">
-                        <form action="index.html">
-                           <fieldset>
-                              <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                 <div class="row">
-                                    <div class="form-group">
-                                       <input type="text" id="name" placeholder="Your Name"  />
-                                    </div>
-                                 </div>
-                              </div>
-                              <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                 <div class="row">
-                                    <div class="form-group">
-                                       <input type="email" placeholder="Email Address" id="email" />
-                                    </div>
-                                 </div>
-                              </div>
-                              <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 select-section">
-                                 <div class="row">
-                                    <div class="form-group">
-                                       <select class="form-control">
-                                          <option>Day</option>
-                                          <option>Sunday</option>
-                                          <option>Monday</option>
-                                       </select>
-                                    </div>
-                                    <div class="form-group">
-                                       <select class="form-control">
-                                          <option>Time</option>
-                                          <option>AM</option>
-                                          <option>PM</option>
-                                       </select>
-                                    </div>
-                                 </div>
-                              </div>
-                              <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                 <div class="row">
-                                    <div class="form-group">
-                                       <select class="form-control">
-                                          <option>Doctor Name</option>
-                                          <option>Mr.XYZ</option>
-                                          <option>Mr.ABC</option>
-                                       </select>
-                                    </div>
-                                 </div>
-                              </div>
-                              <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                 <div class="row">
-                                    <div class="form-group">
-                                       <textarea rows="4" id="textarea_message" class="form-control" placeholder="Your Message..."></textarea>
-                                    </div>
-                                 </div>
-                              </div>
-                              <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                 <div class="row">
-                                    <div class="form-group">
-                                       <div class="center"><button type="submit">Submit</button></div>
-                                    </div>
-                                 </div>
-                              </div>
-                           </fieldset>
-                        </form>
-                     </div>
-                  </div>
-               </div>
-            </div>
-         </div>
-      </div>
-      <!-- end section -->
-	  
-	  <!-- doctor -->
-	  
+
 	  <div id="doctors" class="parallax section db" data-stellar-background-ratio="0.4" style="background:#fff;" data-scroll-id="doctors" tabindex="-1">
         <div class="container">
 		
 		<div class="heading">
-               <span class="icon-logo"><img src="opd1.png" alt="#"></span>
-               <h2>Doctors</h2>
+              
+               <h2>OPD CLERK</h2>
             </div>
 
             <div class="row dev-list text-center">
@@ -369,19 +335,24 @@
 
                 <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12 wow fadeIn" data-wow-duration="1s" data-wow-delay="0.4s" style="visibility: visible; animation-duration: 1s; animation-delay: 0.4s; animation-name: fadeIn;">
                     <div class="widget clearfix">
-                        <img src="./img/nurse.jpg" alt="" class="img-responsive img-rounded">
+                        <img src="./img/nurse.jp" alt="" class="img-responsive img-rounded">
                         <div class="widget-title">
-                            <h3>Sabel Martinez</h3>
-                            <small>Specialist</small>
+                            <h3>Georgia P. Almodovar</h3>
+                            <small>OPD CLERK</small>
                         </div>
                         <!-- end title -->
-                        <p>Hello guys, I am Sabel from Nasugbu Batangas. I am senior doctor of OSNA.</p>
+                     
 
                         <div class="footer-social">
-                            <a href="#" class="btn grd1"><i class="fa fa-facebook"></i></a>
-                            <a href="#" class="btn grd1"><i class="fa fa-github"></i></a>
-                            <a href="#" class="btn grd1"><i class="fa fa-twitter"></i></a>
-                            <a href="#" class="btn grd1"><i class="fa fa-linkedin"></i></a>
+                        <a href="https://www.facebook.com/login" target="_blank" class="btn grd1">
+                          <i class="fa fa-facebook"></i>
+                        </a>
+
+                        <a href="https://twitter.com/login" target="_blank" class="btn grd1">
+                            <i class="fa fa-twitter"></i>
+                        </a>
+
+                            
                         </div>
                     </div><!--widget -->
                 </div><!-- end col -->
@@ -399,29 +370,51 @@
     <div id="login" class="parallax section db" data-stellar-background-ratio="0.4" style="background:#fff;" data-scroll-id="doctors" tabindex="-1">
     <div class="container"> 
         <br><br>
-        <div class="container">
-            <h2 style="text-align: center;"><strong>Please Login Here</strong></h2>
-            <p style="text-align: center;">Select your role</p>
-            <div class="login__container">
-                <div class="login__card" onclick="location.href='../admin/login.php';">
-                    <h3 style="color: black;">Admin Login</h3>
-                    <p>Login as an administrator to manage system settings.</p>
-                    <button class="btn-login" style="font-weight: bolder;">Login</button>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+
+        <div class="container py-5">
+            <h2 class="text-center mb-3"><strong>Please Login Here</strong></h2>
+            <p class="text-center">Select your role</p>
+            <div class="row justify-content-center">
+                <!-- Admin Login -->
+                <div class="col-md-4 mb-3">
+                    <div class="card text-center shadow h-100" onclick="location.href='../admin/login.php';" style="cursor: pointer;">
+                        <div class="card-body">
+                            <i class="fas fa-user-shield fa-3x text-primary mb-3"></i>
+                            <h3 style="color: black;">Admin Login</h3>
+                            <p class="card-text">Login as an administrator to manage system settings.</p>
+                            <button class="btn btn-primary fw-bold">Login</button>
+                        </div>
+                    </div>
                 </div>
-                <div class="login__card" onclick="location.href='../clerk/login.php';">
-                    <h3 style="color: black;">Clerk Login</h3>
-                    <p>Login as a clerk to manage patient information.</p>
-                    <button class="btn-login"  style="font-weight: bolder;">Login</button>
+                <!-- Clerk Login -->
+                <div class="col-md-4 mb-3">
+                    <div class="card text-center shadow h-100" onclick="location.href='../clerk/login.php';" style="cursor: pointer;">
+                        <div class="card-body">
+                            <i class="fas fa-user-tie fa-3x text-success mb-3"></i>
+                            <h3 style="color: black;">Clerk Login</h3>
+                            <p class="card-text">Login as a clerk to manage patient information.</p>
+                            <button class="btn btn-success fw-bold">Login</button>
+                        </div>
+                    </div>
                 </div>
-                <div class="login__card" onclick="location.href='../doctor/login.php';">
-                    <h3 style="color: black;">Doctor Login</h3>
-                    <p>Login as a doctor to access patient records and schedules.</p>
-                    <button class="btn-login"  style="font-weight: bolder;">Login</button>
+                <!-- Doctor Login -->
+                <div class="col-md-4 mb-3">
+                    <div class="card text-center shadow h-100" onclick="location.href='../doctor2/login.php';" style="cursor: pointer;">
+                        <div class="card-body">
+                            <i class="fas fa-user-md fa-3x text-danger mb-3"></i>
+                            <h3 style="color: black;">Doctor Login</h3>
+                            <p class="card-text">Login as a doctor to access patient records and schedules.</p>
+                            <button class="btn btn-danger fw-bold">Login</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-</div>
+
+
+
 
     </section>
     
@@ -493,7 +486,7 @@
       <div id="getintouch" class="section wb wow fadeIn" style="padding-bottom:0;">
          <div class="container">
              <div class="heading">
-                 <span class="icon-logo"><img src="./img/opd1.png" alt="#"></span>
+                 <span class="icon-logo"> <img src="<?php echo htmlspecialchars($image); ?>" alt="Website Logo" width="200px" height="100px"></span>
                  <h2>Get in Touch</h2>
              </div>
          </div>
@@ -557,16 +550,68 @@
             <div class="row">
                <div class="col-md-4">
                   <div class="logo padding">
-                     <a href=""><img src="./img/opd.png" alt=""></a>
+                     <a href=""> <img src="<?php echo htmlspecialchars($image); ?>" alt="Website Logo"></a>
                      
                   </div>
                </div>
                <div class="col-md-4">
                   <div class="footer-info padding">
                      <h3>CONTACT US</h3>
-                     <p><i class="fa fa-map-marker" aria-hidden="true"></i> P. Riñoza St. Brgy. 1, Nasugbu, Batangas, Philippines</p>
-                     <p><i class="fa fa-paper-plane" aria-hidden="true"></i> osnagmail.com</p>
-                     <p><i class="fa fa-phone" aria-hidden="true"></i>(043)9311035</p>
+
+                     <?php
+include_once 'db.php'; // Ensure this connects to your PostgreSQL database
+
+// Define global variable
+$global_address = "";
+
+// Fetch the address from the database
+try {
+    // Prepare the SQL query for PostgreSQL
+    $stmt = pg_prepare(
+        $con,
+        "get_address",
+        "SELECT address FROM admin_settings WHERE id = 1"
+    );
+
+    // Execute the prepared statement
+    $result = pg_execute($con, "get_address", array());
+
+    if ($result) {
+        $row = pg_fetch_assoc($result);
+
+        if ($row && !empty($row['address'])) {
+            $global_address = $row['address'];
+        } else {
+            $global_address = "Address not available.";
+        }
+    } else {
+        $global_address = "Address not available.";
+    }
+} catch (Exception $e) {
+    echo "<div class='alert alert-danger'>Error: " . htmlspecialchars($e->getMessage()) . "</div>";
+}
+?>
+
+
+<div style="color:black;">
+    <p style="color: black;">
+        <i class="fa fa-map-marker" aria-hidden="true"></i> 
+        <?php echo htmlspecialchars($global_address); ?>
+    </p>
+    <p>
+        <i class="fa fa-paper-plane" aria-hidden="true"></i> 
+        <a href="mailto:<?php echo htmlspecialchars($email); ?>" target="_blank" rel="noopener noreferrer">
+            <?php echo htmlspecialchars($email); ?>
+        </a>
+    </p>
+    <p>
+        <i class="fa fa-phone" aria-hidden="true"></i> 
+        <a href="tel:<?php echo htmlspecialchars($phone_number); ?>">
+            <?php echo htmlspecialchars($phone_number); ?>
+        </a>
+    </p>
+</div>
+
                   </div>
                </div>
                
@@ -585,8 +630,17 @@
                <div class="col-md-4">
                   <div class="social">
                      <ul class="social-links">
-                        <li><a href=""><i class="fa fa-facebook"></i></a></li>
-                        <li><a href=""><i class="fa fa-twitter"></i></a></li>
+                     <li>
+                    <a href="https://www.facebook.com/login" target="_blank">
+                        <i class="fa fa-facebook"></i>
+                    </a>
+                </li>
+                <li>
+                    <a href="https://twitter.com/login" target="_blank">
+                        <i class="fa fa-twitter"></i>
+                    </a>
+                </li>
+
                      </ul>
                   </div>
                </div>
