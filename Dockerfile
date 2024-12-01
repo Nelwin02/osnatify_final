@@ -6,18 +6,24 @@ RUN apt-get update && apt-get install -y \
     libpq-dev \
     && docker-php-ext-install pdo_pgsql
 
-# Copy application files to the container
-COPY . /var/www/html
-
-# Set proper permissions
-RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 755 /var/www/html
-
 # Enable Apache modules
 RUN a2enmod rewrite
 
-# Set working directory
+# Set the working directory
 WORKDIR /var/www/html
+
+# Copy application files to the container
+COPY . /var/www/html
+
+# Set permissions
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 755 /var/www/html
+
+# Configure Apache to use .htaccess
+COPY ./.htaccess /var/www/html/.htaccess
+RUN echo "<Directory /var/www/html/>
+    AllowOverride All
+</Directory>" >> /etc/apache2/apache2.conf
 
 # Expose port 80
 EXPOSE 80
