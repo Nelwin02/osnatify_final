@@ -10,7 +10,10 @@ RUN docker-php-ext-install pdo pdo_pgsql
 RUN a2enmod rewrite
 
 # Copy your PHP files to the container
-COPY . /var/www/html/
+RUN a2enmod rewrite
+COPY . /var/www/html
+WORKDIR /var/www/html
+
 
 # Expose port 80 to be able to access the app
 EXPOSE 80
