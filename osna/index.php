@@ -39,6 +39,8 @@
       <header>
       <?php
 include 'db.php'; 
+include 'admin/login.php';
+
 
 $image = ''; 
 
