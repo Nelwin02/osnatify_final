@@ -381,7 +381,7 @@ try {
             <div class="row justify-content-center">
                 <!-- Admin Login -->
                 <div class="col-md-4 mb-3">
-                    <div class="card text-center shadow h-100"  onclick="window.location.href='.../admin/login.php';" style="cursor: pointer;">
+                    <div class="card text-center shadow h-100"  onclick="window.location.href='http://osnatify-j1a3.onrender.com/admin/login.php';" style="cursor: pointer;">
                         <div class="card-body">
                             <i class="fas fa-user-shield fa-3x text-primary mb-3"></i>
                             <h3 style="color: black;">Admin Login</h3>
