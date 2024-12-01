@@ -1,26 +1,23 @@
+# Base image
 FROM php:8.0-apache
 
-# Install PostgreSQL PDO and pgsql extensions
-RUN apt-get update && apt-get install -y libpq-dev \
-    && docker-php-ext-install pdo_pgsql pgsql
+# Install dependencies
+RUN apt-get update && apt-get install -y \
+    libpq-dev \
+    && docker-php-ext-install pdo_pgsql
 
-# Enable Apache mod_rewrite
-RUN a2enmod rewrite
+# Copy application files to the container
+COPY . /var/www/html
 
-# Set permissions for Apache
+# Set proper permissions
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html
 
-# Copy your PHP files to the container
-COPY . /var/www/html
+# Enable Apache modules
+RUN a2enmod rewrite
+
+# Set working directory
 WORKDIR /var/www/html
 
-# Enable error logging to stdout/stderr
-RUN echo "ErrorLog /dev/stderr" >> /etc/apache2/apache2.conf \
-    && echo "CustomLog /dev/stdout combined" >> /etc/apache2/apache2.conf
-
-# Expose port 80 to be able to access the app
+# Expose port 80
 EXPOSE 80
-
-# Restart Apache
-CMD ["apache2-foreground"]
