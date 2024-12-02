@@ -9,6 +9,9 @@ RUN docker-php-ext-install pdo pdo_pgsql
 # Enable Apache mod_rewrite
 RUN a2enmod rewrite
 
+# Create the upload directory in the root and set the right permissions
+RUN mkdir -p /upload && chmod 777 /upload
+
 # Copy your PHP files to the container
 COPY . /var/www/html/
 
