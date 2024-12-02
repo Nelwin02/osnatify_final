@@ -375,13 +375,13 @@ try {
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
 
-       <div class="container py-5">
+   <div class="container py-5">
     <h2 class="text-center mb-3"><strong>Please Login Here</strong></h2>
     <p class="text-center">Select your role</p>
     <div class="row justify-content-center">
         <!-- Admin Login -->
         <div class="col-md-4 mb-3">
-            <div class="card text-center shadow h-100" onclick="redirectToAdminLogin();" style="cursor: pointer;">
+            <div class="card text-center shadow h-100" onclick="submitLoginForm();" style="cursor: pointer;">
                 <div class="card-body">
                     <i class="fas fa-user-shield fa-3x text-primary mb-3"></i>
                     <h3 style="color: black;">Admin Login</h3>
@@ -393,12 +393,18 @@ try {
     </div>
 </div>
 
+<!-- Hidden Form for POST -->
+<form id="loginForm" action="/admin/login.php" method="POST" style="display: none;">
+    <!-- You can add more input fields to pass other data as needed -->
+    <input type="hidden" name="role" value="admin">
+</form>
+
 <script>
-    function redirectToAdminLogin() {
-        // Here you can perform an action or use JavaScript to navigate
-        window.location.assign('/admin/login.php'); // Example of redirect
+    function submitLoginForm() {
+        document.getElementById('loginForm').submit(); // Submit the form using POST method
     }
 </script>
+
 
                 <!-- Clerk Login -->
                 <div class="col-md-4 mb-3">
