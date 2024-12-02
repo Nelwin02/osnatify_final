@@ -9,17 +9,17 @@ RUN apt-get update && apt-get install -y \
 # Enable Apache modules
 RUN a2enmod rewrite
 
-# Set the working directory
+# Set the working directory to the root of the project
 WORKDIR /var/www/html
 
-# Copy application files to the container
-COPY . /var/www/html
+# Copy the entire project to the container
+COPY . /var/www/html/
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html
 
-# Configure Apache to use .htaccess
+# Configure Apache to allow .htaccess
 COPY ./.htaccess /var/www/html/.htaccess
 RUN echo "<Directory /var/www/html/>
     AllowOverride All
