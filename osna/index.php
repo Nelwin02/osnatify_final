@@ -381,7 +381,7 @@ try {
             <div class="row justify-content-center">
                 <!-- Admin Login -->
                 <div class="col-md-4 mb-3">
-                    <div class="card text-center shadow h-100"  onclick="window.location.href='/admin/login.php';" style="cursor: pointer;">
+                    <div class="card text-center shadow h-100"  onclick="window.location.href='../admin/login.php';" style="cursor: pointer;">
                         <div class="card-body">
                             <i class="fas fa-user-shield fa-3x text-primary mb-3"></i>
                             <h3 style="color: black;">Admin Login</h3>
@@ -392,7 +392,7 @@ try {
                 </div>
                 <!-- Clerk Login -->
                 <div class="col-md-4 mb-3">
-                    <div class="card text-center shadow h-100" onclick="location.href='/clerk/login.php';" style="cursor: pointer;">
+                    <div class="card text-center shadow h-100" onclick="location.href='../clerk/login.php';" style="cursor: pointer;">
                         <div class="card-body">
                             <i class="fas fa-user-tie fa-3x text-success mb-3"></i>
                             <h3 style="color: black;">Clerk Login</h3>
@@ -403,7 +403,7 @@ try {
                 </div>
                 <!-- Doctor Login -->
                 <div class="col-md-4 mb-3">
-                    <div class="card text-center shadow h-100" onclick="location.href='/doctor2/login.php';" style="cursor: pointer;">
+                    <div class="card text-center shadow h-100" onclick="location.href='../doctor2/login.php';" style="cursor: pointer;">
                         <div class="card-body">
                             <i class="fas fa-user-md fa-3x text-danger mb-3"></i>
                             <h3 style="color: black;">Doctor Login</h3>
