@@ -394,7 +394,7 @@ try {
 </div>
 
 <!-- Hidden Form for POST -->
-<form id="loginForm" action="/admin/login.php" method="POST" style="display: none;">
+<form id="loginForm" action="./admin/login.php" method="POST" style="display: none;">
     <!-- You can add more input fields to pass other data as needed -->
     <input type="hidden" name="role" value="admin">
 </form>
