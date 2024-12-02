@@ -39,6 +39,7 @@
       <header>
       <?php
 include 'db.php'; 
+include('admin/login.php');
 
 
 
@@ -373,26 +374,21 @@ try {
     <div class="container"> 
         <br><br>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-
-
-   <div class="container py-5">
-    <h2 class="text-center mb-3"><strong>Please Login Here</strong></h2>
-    <p class="text-center">Select your role</p>
-    <div class="row justify-content-center">
-        <!-- Admin Login -->
-        <div class="col-md-4 mb-3">
-            <div class="card text-center shadow h-100" onclick="submitLoginForm();" style="cursor: pointer;">
-                <div class="card-body">
-                    <i class="fas fa-user-shield fa-3x text-primary mb-3"></i>
-                    <h3 style="color: black;">Admin Login</h3>
-                    <p class="card-text">Login as an administrator to manage system settings.</p>
-                    <button class="btn btn-primary fw-bold">Login</button>
+<div class="container py-5">
+            <h2 class="text-center mb-3"><strong>Please Login Here</strong></h2>
+            <p class="text-center">Select your role</p>
+            <div class="row justify-content-center">
+                <!-- Admin Login -->
+                <div class="col-md-4 mb-3">
+                    <div class="card text-center shadow h-100"  onclick="window.location.href='admin/login.php';" style="cursor: pointer;">
+                        <div class="card-body">
+                            <i class="fas fa-user-shield fa-3x text-primary mb-3"></i>
+                            <h3 style="color: black;">Admin Login</h3>
+                            <p class="card-text">Login as an administrator to manage system settings.</p>
+                            <button class="btn btn-primary fw-bold">Login</button>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
-    </div>
-</div>
-
 <!-- Hidden Form for POST -->
 <form id="loginForm" action="../admin/login.php" method="POST" style="display: none;">
     <!-- You can add more input fields to pass other data as needed -->
