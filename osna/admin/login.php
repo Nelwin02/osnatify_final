@@ -2,11 +2,6 @@
 session_start();
 include 'db.php';  // Include the db connection file
 
-if (isset($_SESSION['username'])) {
-    header("Location: admin_dash.php"); // Redirect to admin dashboard or any other page
-    exit();
-}
-
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $user = $_POST['username'];
