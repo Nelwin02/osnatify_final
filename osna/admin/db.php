@@ -1,9 +1,12 @@
 <?php
-// Start session at the very beginning of the script
-session_start();
+// Start session only if it hasn't been started already
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
 
 // Check if the user is logged in (i.e., check for 'username' in the session)
 if (!isset($_SESSION['username'])) {
+    // Redirect to login page if the user is not logged in
     header("Location: login.php");
     exit();
 }
@@ -25,10 +28,7 @@ $con = pg_connect($conn_string);
 if (!$con) {
     die("Connection failed: " . pg_last_error());
 }
-?>
 
-
-<?php
 // Ensure the user is logged in before executing the following code
 if (isset($_GET['id'])) {
     // Make sure 'id' is provided in the URL
@@ -48,5 +48,7 @@ if (isset($_GET['id'])) {
     // If 'id' is not set, return an error
     echo json_encode(['error' => 'Patient ID is required']);
 }
-?>
 
+// Close the database connection after processing
+pg_close($con);
+?>
