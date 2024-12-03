@@ -27,7 +27,7 @@
 		
 		
 		<?php
-session_start();
+
 include 'db.php'; // Ensure this connects to your PostgreSQL database
 ?>
 
@@ -53,31 +53,32 @@ try {
 ?>
 
 <?php
-if (!isset($_SESSION['username'])) {
-    header("Location: login.php");
-    exit();
-}
+// No session check here, allowing access to the page without requiring login
+$adminusername = $_SESSION['username'] ?? null;
 
-$adminusername = $_SESSION['username'];
+if ($adminusername) {
+    try {
+        // Query to fetch admin's name
+        $stmt = pg_prepare($con, "get_admin_name", "SELECT name FROM admin_log WHERE username = $1");
+        $result = pg_execute($con, "get_admin_name", array($adminusername));
 
-try {
-    // Query to fetch admin's name
-    $stmt = pg_prepare($con, "get_admin_name", "SELECT name FROM admin_log WHERE username = $1");
-    $result = pg_execute($con, "get_admin_name", array($adminusername));
-
-    if ($result) {
-        $user = pg_fetch_assoc($result);
-        $name = $user['name'] ?? "Unknown";
-    } else {
-        $name = "Unknown";
+        if ($result) {
+            $user = pg_fetch_assoc($result);
+            $name = $user['name'] ?? "Unknown";
+        } else {
+            $name = "Unknown";
+        }
+    } catch (Exception $e) {
+        $name = "Error: " . htmlspecialchars($e->getMessage());
     }
-} catch (Exception $e) {
-    $name = "Error: " . htmlspecialchars($e->getMessage());
+} else {
+    $name = "Unknown User"; // Handle case if no admin username is found in session
 }
 
 // Close the connection (optional as PHP closes it at the end of the script)
 pg_close($con);
 ?>
+
 
 
 
