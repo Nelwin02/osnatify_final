@@ -24,17 +24,15 @@
 		<!-- Main CSS -->
         <link rel="stylesheet" href="assets/css/style.css">
 		
-		
-	<?php
+<?php
 // Start session at the very beginning of the script
-session_start();
 
 // Include database connection
 include 'db.php';
 
 // Check if the user is logged in
 if (!isset($_SESSION['username'])) {
-    header("Location: login.php");
+    header("Location: ./admin/login.php");
     exit();
 }
 
