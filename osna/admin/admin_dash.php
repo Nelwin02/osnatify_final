@@ -25,14 +25,20 @@
         <link rel="stylesheet" href="assets/css/style.css">
 		
 		
-		
-<?php
+	<?php
+// Start session at the very beginning of the script
+session_start();
+
+// Include database connection
 include 'db.php';
+
+// Check if the user is logged in
 if (!isset($_SESSION['username'])) {
     header("Location: login.php");
     exit();
 }
 
+// Get the logged-in admin's username
 $adminusername = $_SESSION['username'];
 
 try {
@@ -50,11 +56,6 @@ try {
     $name = "Error: " . htmlspecialchars($e->getMessage());
 }
 
-// Close the connection (optional as PHP closes it at the end of the script)
-pg_close($con);
-?>
-
-<?php
 // Query to count doctors
 try {
     $stmtDoctors = pg_prepare($con, "count_doctors", "SELECT COUNT(*) as count FROM doctor_log");
@@ -73,7 +74,11 @@ try {
 } catch (Exception $e) {
     $countDoctors = $countPatients = $countClerks = "Error: " . htmlspecialchars($e->getMessage());
 }
+
+// Close the connection (optional as PHP closes it at the end of the script)
+pg_close($con);
 ?>
+
 
 
 
