@@ -1,4 +1,13 @@
 <?php
+// Start session at the very beginning of the script
+session_start();
+
+// Check if the user is logged in (i.e., check for 'username' in the session)
+if (!isset($_SESSION['username'])) {
+    header("Location: login.php");
+    exit();
+}
+
 // Database connection parameters
 $DB_HOST = 'dpg-ct2lk83qf0us739u2uvg-a.oregon-postgres.render.com';
 $port = '5432';  // Default PostgreSQL port
@@ -19,12 +28,10 @@ if (!$con) {
 ?>
 
 
-
-
-
-
 <?php
+// Ensure the user is logged in before executing the following code
 if (isset($_GET['id'])) {
+    // Make sure 'id' is provided in the URL
     $patientId = $_GET['id'];
 
     // Query the PostgreSQL database
@@ -32,11 +39,14 @@ if (isset($_GET['id'])) {
 
     if (pg_num_rows($query) > 0) {
         $row = pg_fetch_assoc($query);
-        echo json_encode($row); 
+        echo json_encode($row); // Return the patient data as JSON
     } else {
+        // If no patient is found, return an error message
         echo json_encode(['error' => 'No patient found']); 
     }
 } else {
-    // Handle case when 'id' is not set
+    // If 'id' is not set, return an error
+    echo json_encode(['error' => 'Patient ID is required']);
 }
 ?>
+
