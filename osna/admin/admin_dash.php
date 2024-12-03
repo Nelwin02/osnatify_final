@@ -27,7 +27,7 @@
 		
 		
 		<?php
-
+session_start();
 include 'db.php'; // Ensure this connects to your PostgreSQL database
 ?>
 
@@ -53,32 +53,31 @@ try {
 ?>
 
 <?php
-// No session check here, allowing access to the page without requiring login
-$adminusername = $_SESSION['username'] ?? null;
+if (!isset($_SESSION['username'])) {
+    header("Location: login.php");
+    exit();
+}
 
-if ($adminusername) {
-    try {
-        // Query to fetch admin's name
-        $stmt = pg_prepare($con, "get_admin_name", "SELECT name FROM admin_log WHERE username = $1");
-        $result = pg_execute($con, "get_admin_name", array($adminusername));
+$adminusername = $_SESSION['username'];
 
-        if ($result) {
-            $user = pg_fetch_assoc($result);
-            $name = $user['name'] ?? "Unknown";
-        } else {
-            $name = "Unknown";
-        }
-    } catch (Exception $e) {
-        $name = "Error: " . htmlspecialchars($e->getMessage());
+try {
+    // Query to fetch admin's name
+    $stmt = pg_prepare($con, "get_admin_name", "SELECT name FROM admin_log WHERE username = $1");
+    $result = pg_execute($con, "get_admin_name", array($adminusername));
+
+    if ($result) {
+        $user = pg_fetch_assoc($result);
+        $name = $user['name'] ?? "Unknown";
+    } else {
+        $name = "Unknown";
     }
-} else {
-    $name = "Unknown User"; // Handle case if no admin username is found in session
+} catch (Exception $e) {
+    $name = "Error: " . htmlspecialchars($e->getMessage());
 }
 
 // Close the connection (optional as PHP closes it at the end of the script)
 pg_close($con);
 ?>
-
 
 
 
@@ -364,4 +363,4 @@ pg_close($con);
     </body>
 
 <!-- Mirrored from dreamguys.co.in/demo/doccure/admin/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 30 Nov 2019 04:12:34 GMT -->
-</html>
+</html>	
