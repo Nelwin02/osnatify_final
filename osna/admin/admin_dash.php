@@ -32,7 +32,7 @@ include 'db.php';
 
 // Check if the user is logged in
 if (!isset($_SESSION['username'])) {
-    header("Location: ./admin/login.php");
+    header("Location: ../admin/login.php");
     exit();
 }
 
