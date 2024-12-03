@@ -26,33 +26,8 @@
 		
 		
 		
-		<?php
-include 'db.php'; // Ensure this connects to your PostgreSQL database
-?>
-
 <?php
-// Query to count doctors
-try {
-    $stmtDoctors = pg_prepare($con, "count_doctors", "SELECT COUNT(*) as count FROM doctor_log");
-    $resultDoctors = pg_execute($con, "count_doctors", array());
-    $countDoctors = ($row = pg_fetch_assoc($resultDoctors)) ? $row['count'] : 0;
-
-    // Query to count patients
-    $stmtPatients = pg_prepare($con, "count_patients", "SELECT COUNT(*) as count FROM patient_info");
-    $resultPatients = pg_execute($con, "count_patients", array());
-    $countPatients = ($row = pg_fetch_assoc($resultPatients)) ? $row['count'] : 0;
-
-    // Query to count clerks (nurses)
-    $stmtClerks = pg_prepare($con, "count_clerks", "SELECT COUNT(*) as count FROM clerk_log");
-    $resultClerks = pg_execute($con, "count_clerks", array());
-    $countClerks = ($row = pg_fetch_assoc($resultClerks)) ? $row['count'] : 0;
-} catch (Exception $e) {
-    $countDoctors = $countPatients = $countClerks = "Error: " . htmlspecialchars($e->getMessage());
-}
-?>
-
-<?php
-session_start();
+include 'db.php';
 if (!isset($_SESSION['username'])) {
     header("Location: login.php");
     exit();
@@ -77,6 +52,27 @@ try {
 
 // Close the connection (optional as PHP closes it at the end of the script)
 pg_close($con);
+?>
+
+<?php
+// Query to count doctors
+try {
+    $stmtDoctors = pg_prepare($con, "count_doctors", "SELECT COUNT(*) as count FROM doctor_log");
+    $resultDoctors = pg_execute($con, "count_doctors", array());
+    $countDoctors = ($row = pg_fetch_assoc($resultDoctors)) ? $row['count'] : 0;
+
+    // Query to count patients
+    $stmtPatients = pg_prepare($con, "count_patients", "SELECT COUNT(*) as count FROM patient_info");
+    $resultPatients = pg_execute($con, "count_patients", array());
+    $countPatients = ($row = pg_fetch_assoc($resultPatients)) ? $row['count'] : 0;
+
+    // Query to count clerks (nurses)
+    $stmtClerks = pg_prepare($con, "count_clerks", "SELECT COUNT(*) as count FROM clerk_log");
+    $resultClerks = pg_execute($con, "count_clerks", array());
+    $countClerks = ($row = pg_fetch_assoc($resultClerks)) ? $row['count'] : 0;
+} catch (Exception $e) {
+    $countDoctors = $countPatients = $countClerks = "Error: " . htmlspecialchars($e->getMessage());
+}
 ?>
 
 
