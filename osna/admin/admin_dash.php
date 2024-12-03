@@ -24,36 +24,14 @@
 		<!-- Main CSS -->
         <link rel="stylesheet" href="assets/css/style.css">
 		
+		
+		
+		<?php
+session_start();
+include 'db.php'; // Ensure this connects to your PostgreSQL database
+?>
+
 <?php
-// Start session at the very beginning of the script
-
-// Include database connection
-include 'db.php';
-
-// Check if the user is logged in
-if (!isset($_SESSION['username'])) {
-    header("Location: ../admin/login.php");
-    exit();
-}
-
-// Get the logged-in admin's username
-$adminusername = $_SESSION['username'];
-
-try {
-    // Query to fetch admin's name
-    $stmt = pg_prepare($con, "get_admin_name", "SELECT name FROM admin_log WHERE username = $1");
-    $result = pg_execute($con, "get_admin_name", array($adminusername));
-
-    if ($result) {
-        $user = pg_fetch_assoc($result);
-        $name = $user['name'] ?? "Unknown";
-    } else {
-        $name = "Unknown";
-    }
-} catch (Exception $e) {
-    $name = "Error: " . htmlspecialchars($e->getMessage());
-}
-
 // Query to count doctors
 try {
     $stmtDoctors = pg_prepare($con, "count_doctors", "SELECT COUNT(*) as count FROM doctor_log");
@@ -72,11 +50,34 @@ try {
 } catch (Exception $e) {
     $countDoctors = $countPatients = $countClerks = "Error: " . htmlspecialchars($e->getMessage());
 }
+?>
+
+<?php
+if (!isset($_SESSION['username'])) {
+    header("Location: login.php");
+    exit();
+}
+
+$adminusername = $_SESSION['username'];
+
+try {
+    // Query to fetch admin's name
+    $stmt = pg_prepare($con, "get_admin_name", "SELECT name FROM admin_log WHERE username = $1");
+    $result = pg_execute($con, "get_admin_name", array($adminusername));
+
+    if ($result) {
+        $user = pg_fetch_assoc($result);
+        $name = $user['name'] ?? "Unknown";
+    } else {
+        $name = "Unknown";
+    }
+} catch (Exception $e) {
+    $name = "Error: " . htmlspecialchars($e->getMessage());
+}
 
 // Close the connection (optional as PHP closes it at the end of the script)
 pg_close($con);
 ?>
-
 
 
 
