@@ -129,7 +129,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </style>
 </head>
 <body>
-    <a href="../osna/index.php" class="back-button"><i class="fa fa-arrow-left"></i>Back</a>
+    <a href="../index.php" class="back-button"><i class="fa fa-arrow-left"></i>Back</a>
     <div class="container">
         <div class="login-container">
             <h2>Clerk Login</h2>

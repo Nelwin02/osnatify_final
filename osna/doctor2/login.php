@@ -1,26 +1,25 @@
 <?php
 session_start();
-require_once 'db.php';
+include 'db.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $user = $_POST['username'];
-    $pass = $_POST['password'];
+    $username = $_POST['username'];
+    $password = $_POST['password'];
 
-    // Prepare SQL statement
-    $stmt = $con->prepare("SELECT * FROM doctor_log WHERE username = ? AND password = ?");
-    $stmt->bind_param("ss", $user, $pass);
-    $stmt->execute();
-    $result = $stmt->get_result();
+    // PostgreSQL query (using parameterized query)
+    $query = "SELECT * FROM doctor_log WHERE username = $1 AND password = $2";
+    $result = pg_query_params($con, $query, array($username, $password));
 
-    if ($result->num_rows > 0) {
-        $_SESSION['username'] = $user; // Set session variable for user
+    if ($result && pg_num_rows($result) > 0) {
+        $_SESSION['username'] = $username; // Set session variable for user
         echo json_encode(['status' => 'success']);
     } else {
         echo json_encode(['status' => 'error']);
     }
 
-    $stmt->close();
-    $con->close();
+    // Free result and close connection
+    pg_free_result($result);
+    pg_close($con);
     exit();
 }
 ?>
@@ -35,66 +34,87 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
-        body {
-            background: #f2f2f2;
+         body {
+            background: url('assets/img/bg.jpg') no-repeat center center fixed;
+            background-size: cover;
+            font-family: 'Arial', sans-serif;
         }
+
         .container {
             display: flex;
             align-items: center;
             justify-content: center;
             height: 100vh;
         }
+
         .login-container {
-            background: #fff;
-            padding: 70px;  /* Increased padding */
-            box-shadow: 1px 1.732px 15px 0px rgba(0, 0, 0, 0.1);  /* Enhanced shadow for a larger effect */
-            width: 400px;   /* Increased width */
-            border: 1px solid #f3f3f3;
-            text-align: center;
-            border-radius: 8px;  /* Added border-radius for rounded corners */
-        }
-        .login-container h2 {
-            color: #00A885;
-            font-size: 26px;  /* Increased font size */
-            margin-bottom: 20px;  /* Added margin below the title */
-        }
-        .form-control {
-            height: 50px;  /* Increased input height */
-            background: #ffffff;
-            border: 1px solid #d9d9d9;
-            font-size: 16px;  /* Increased font size for inputs */
-        }
-        .input-group-text {
-            background: #00A885;
-            color: white;
-        }
-        .btn-custom {
-            background: #00A885;
-            color: #fff;
-            font-size: 22px;  /* Increased button font size */
+            background: rgba(255, 255, 255, 0.9);
+            padding: 40px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
             width: 100%;
-            padding: 10px;  /* Added padding for button */
+            max-width: 400px;
+            text-align: center;
         }
+
+        .login-container h2 {
+            color: #007BFF;
+            margin-bottom: 20px;
+        }
+
+        .form-control {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid #ddd;
+            height: 45px;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .input-group-text {
+            background: #007BFF;
+            color: #fff;
+            border: none;
+            border-radius: 5px 0 0 5px;
+        }
+
+        .btn-custom {
+            background: #007BFF;
+            color: #fff;
+            font-size: 18px;
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+
+        .btn-custom:hover {
+            background: #0056b3;
+        }
+
         .show-password {
             position: absolute;
-            right: 10px;
-            top: 12px;  /* Adjusted position */
+            right: 15px;
+            top: 10px;
             cursor: pointer;
         }
+
         .back-button {
             position: absolute;
             top: 20px;
             left: 20px;
-            color: #00A885;
+            color: #fff;
             text-decoration: none;
+            font-size: 18px;
         }
+
         .back-button i {
             margin-right: 5px;
         }
     </style>
 </head>
 <body>
-    <a href="../osna/index.php" class="back-button"><i class="fa fa-arrow-left"></i>Back</a>
+    <a href="../index.php" class="back-button"><i class="fa fa-arrow-left"></i>Back</a>
     <div class="container">
         <div class="login-container">
             <h2>Doctor Login</h2>
@@ -153,7 +173,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     dataType: 'json',
                     success: function(response) {
                         if (response.status === 'success') {
-                            window.location.href = 'doctor_dash.php';
+                            window.location.href = 'doctor_dash2.php';
                         } else {
                             $('#alert-container').html("<div class='alert alert-danger' role='alert'>Invalid username or password!</div>");
                         }

@@ -40,6 +40,8 @@
       <?php
 include 'db.php'; 
 
+
+
 $image = ''; 
 
 // Updated SQL query using PostgreSQL's pg_query
@@ -49,7 +51,7 @@ $result = pg_query($con, $sql);
 if ($result) {
     $user = pg_fetch_assoc($result);
     if ($user) {
-        $image = '../admin/Images/' . basename($user['image_path']);
+        $image = './admin/Images/' . basename($user['image_path']);
     }
 }
 
@@ -269,12 +271,7 @@ try {
 include_once 'db.php';
 
 try {
-    // Prepare the SQL query for PostgreSQL
-    $stmt = pg_prepare(
-        $con,
-        "get_admin_settings",
-        "SELECT what_we_do, osna_service, class_lead_description, image_path FROM admin_settings WHERE id = 1"
-    );
+    
 
     // Execute the prepared statement
     $result = pg_execute($con, "get_admin_settings", array());
@@ -314,10 +311,7 @@ try {
                     </div>
                 </div>
                 <div class="col-md-6">
-                <div>
-                        <img src="<?php echo htmlspecialchars($imagePath); ?>" alt="Image" width="100" class="img-thumbnail mt-3">
-                    </div>
-                </div>
+               
             </div>
 
 	  <div id="doctors" class="parallax section db" data-stellar-background-ratio="0.4" style="background:#fff;" data-scroll-id="doctors" tabindex="-1">
@@ -371,15 +365,13 @@ try {
     <div class="container"> 
         <br><br>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-
-
-        <div class="container py-5">
+<div class="container py-5">
             <h2 class="text-center mb-3"><strong>Please Login Here</strong></h2>
             <p class="text-center">Select your role</p>
             <div class="row justify-content-center">
                 <!-- Admin Login -->
                 <div class="col-md-4 mb-3">
-                    <div class="card text-center shadow h-100" onclick="location.href='../admin/login.php';" style="cursor: pointer;">
+                    <div class="card text-center shadow h-100"  onclick="window.location.href='admin/login.php';" style="cursor: pointer;">
                         <div class="card-body">
                             <i class="fas fa-user-shield fa-3x text-primary mb-3"></i>
                             <h3 style="color: black;">Admin Login</h3>
@@ -388,9 +380,22 @@ try {
                         </div>
                     </div>
                 </div>
+<!-- Hidden Form for POST -->
+<form id="loginForm" action="../admin/login.php" method="POST" style="display: none;">
+    <!-- You can add more input fields to pass other data as needed -->
+    <input type="hidden" name="role" value="admin">
+</form>
+
+<script>
+    function submitLoginForm() {
+        document.getElementById('loginForm').submit(); // Submit the form using POST method
+    }
+</script>
+
+
                 <!-- Clerk Login -->
                 <div class="col-md-4 mb-3">
-                    <div class="card text-center shadow h-100" onclick="location.href='../clerk/login.php';" style="cursor: pointer;">
+                    <div class="card text-center shadow h-100" onclick="location.href='./clerk/login.php';" style="cursor: pointer;">
                         <div class="card-body">
                             <i class="fas fa-user-tie fa-3x text-success mb-3"></i>
                             <h3 style="color: black;">Clerk Login</h3>
@@ -401,7 +406,7 @@ try {
                 </div>
                 <!-- Doctor Login -->
                 <div class="col-md-4 mb-3">
-                    <div class="card text-center shadow h-100" onclick="location.href='../doctor2/login.php';" style="cursor: pointer;">
+                    <div class="card text-center shadow h-100" onclick="location.href='./doctor2/login.php';" style="cursor: pointer;">
                         <div class="card-body">
                             <i class="fas fa-user-md fa-3x text-danger mb-3"></i>
                             <h3 style="color: black;">Doctor Login</h3>

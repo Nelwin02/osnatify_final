@@ -1,13 +1,13 @@
 <?php
 // Database connection parameters
-$host = 'dpg-ct2lk83qf0us739u2uvg-a.oregon-postgres.render.com';
+$DB_HOST = 'dpg-ct2lk83qf0us739u2uvg-a.oregon-postgres.render.com';
 $port = '5432';  // Default PostgreSQL port
-$dbname = 'opdmsis';
-$user = 'opdmsis_user';
-$password = '3sc6VNaexgXhje2UgoQ4fnvPf8x1KDGG';
+$DB_NAME = 'opdmsis';
+$DB_USER = 'opdmsis_user';
+$DB_PASSWORD = '3sc6VNaexgXhje2UgoQ4fnvPf8x1KDGG';
 
 // Create connection string
-$conn_string = "host=$host port=$port dbname=$dbname user=$user password=$password";
+$conn_string = "host=$DB_HOST port=$port dbname=$DB_NAME user=$DB_USER password=$DB_PASSWORD";
 
 // Establish connection
 $con = pg_connect($conn_string);
@@ -16,8 +16,6 @@ $con = pg_connect($conn_string);
 if (!$con) {
     die("Connection failed: " . pg_last_error());
 }
-
-
 ?>
 
 
