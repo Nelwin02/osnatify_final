@@ -1,4 +1,6 @@
 <?php
+// Start session at the very beginning of the script
+session_start();
 
 // Check if the user is logged in (i.e., check for 'username' in the session)
 if (!isset($_SESSION['username'])) {
