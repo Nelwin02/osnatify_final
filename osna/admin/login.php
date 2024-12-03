@@ -6,7 +6,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $user = $_POST['username'];
     $pass = $_POST['password'];
 
-    // Prepare the query with parameterized values for security
+    
     $query = "SELECT * FROM admin_log WHERE username = $1 AND password = $2";
     $result = pg_query_params($con, $query, array($user, $pass));
 
