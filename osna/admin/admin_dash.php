@@ -27,7 +27,6 @@
 		
 		
 		<?php
-session_start();
 include 'db.php'; // Ensure this connects to your PostgreSQL database
 ?>
 
