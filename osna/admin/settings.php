@@ -1,3 +1,31 @@
+<?php
+// Start session
+session_start();
+include '../db.php'; // Ensure the correct path to db.php
+
+// Redirect to login if the user is not logged in
+if (!isset($_SESSION['username'])) {
+    header("Location: /osna/admin/login.php");
+    exit();
+}
+
+$username = $_SESSION['username'];
+
+// Use PostgreSQL's parameterized query to prevent SQL injection
+$sql = "SELECT name FROM admin_log WHERE username = $1";
+$result = pg_query_params($con, $sql, array($username));
+
+$name = "Unknown"; // Default value
+if ($result) {
+    $user = pg_fetch_assoc($result);
+    if ($user) {
+        $name = $user['name'];
+    }
+}
+
+// Free the result resource
+pg_free_result($result);
+?>
 <!DOCTYPE html>
 <html lang="en">
     
@@ -29,36 +57,7 @@
 			<script src="assets/js/respond.min.js"></script>
 		<![endif]-->
 
-        <?php
-session_start();
-include 'db.php'; // Include the database connection
-
-// Check if the user is logged in
-if (!isset($_SESSION['username'])) {
-    header("Location: login.php");
-    exit();
-}
-
-$username = $_SESSION['username'];
-
-// Query to fetch the admin name based on the username
-$sql = "SELECT name FROM admin_log WHERE username = $1"; // Use parameterized queries in PostgreSQL
-$result = pg_query_params($con, $sql, array($username)); // pg_query_params for prepared statements
-
-// Check if the query was successful
-if ($result) {
-    $user = pg_fetch_assoc($result); // Fetch the result as an associative array
-
-    if ($user) {
-        $name = $user['name'];
-    } else {
-        $name = "Unknown";
-    }
-} else {
-    $name = "Unknown"; // If the query failed
-}
-?>
-
+   
     </head>
     <body>
 	
