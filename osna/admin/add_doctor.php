@@ -95,8 +95,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $doctor_name = pg_escape_string($con, $_POST['doctor_name']);
         $file_name = $_FILES['image']['name'];
         $tempname = $_FILES['image']['tmp_name'];
-        $folder = "doctor2/Images/" . $file_name;
-
+	$folder = "doctor2/Images/" . $file_name;
         // Check if username already exists
         $stmt = pg_prepare($con, "check_username", "SELECT username FROM doctor_log WHERE username = $1");
         $result = pg_execute($con, "check_username", array($username));
