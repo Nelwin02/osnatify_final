@@ -1,7 +1,9 @@
-     <?php
+   <?php
 // Start session
 session_start();
-include '../db.php'; // Ensure the correct path to db.php
+
+// Include the database connection
+include '../db.php'; // Ensure correct path
 
 // Redirect to login if the user is not logged in
 if (!isset($_SESSION['username'])) {
@@ -9,53 +11,52 @@ if (!isset($_SESSION['username'])) {
     exit();
 }
 
+// Retrieve the clerk's username from the session
+$clerk_username = $_SESSION['clerk_username'] ?? null;
 
-// Retrieve the clerk's username from session
-$clerk_username = $_SESSION['clerk_username']; // Updated session variable
+if ($clerk_username) {
+    // Fetch clerk information
+    $query = "SELECT clerk_name, clerk_image FROM clerk_log WHERE username = $1";
+    $stmt = pg_prepare($con, "fetch_clerk_info", $query);
+    $stmt = pg_execute($con, "fetch_clerk_info", array($clerk_username));
 
-// Fetch clerk information
-$query = "SELECT clerk_name, clerk_image FROM clerk_log WHERE username = $1"; // Using clerk_username in the query
-$stmt = pg_prepare($con, "fetch_clerk_info", $query);
-$stmt = pg_execute($con, "fetch_clerk_info", array($clerk_username));
-
-if ($stmt) {
-    $clerk = pg_fetch_assoc($stmt);
-    if ($clerk) {
-        $name = $clerk['clerk_name'];
-        $image = $clerk['clerk_image'];
+    if ($stmt) {
+        $clerk = pg_fetch_assoc($stmt);
+        $name = $clerk['clerk_name'] ?? "Unknown";
+        $image = $clerk['clerk_image'] ?? "default.png"; // Fallback image
     } else {
         $name = "Unknown";
-        $image = "default.png"; // Fallback image
+        $image = "default.png";
     }
 } else {
     $name = "Unknown";
-    $image = "default.png"; // Fallback image
+    $image = "default.png";
 }
 
 // Query to count patients
 $queryPatients = "SELECT COUNT(*) as count FROM patient_info";
 $resultPatients = pg_query($con, $queryPatients);
-$countPatients = pg_fetch_assoc($resultPatients)['count'];
+$countPatients = pg_fetch_assoc($resultPatients)['count'] ?? 0;
 
 // Define a maximum threshold for progress calculation
 $maxPatients = 1000; // Change this to your desired maximum for the progress bar.
 $progressPercentage = ($countPatients / $maxPatients) * 100;
-$progressPercentage = $progressPercentage > 100 ? 100 : $progressPercentage; // Cap at 100%
+$progressPercentage = min($progressPercentage, 100); // Cap at 100%
 
 // Get total patients for today
 $queryToday = "SELECT COUNT(*) as count FROM patient_info WHERE DATE(date_created) = CURRENT_DATE";
 $resultToday = pg_query($con, $queryToday);
-$todayCount = pg_fetch_assoc($resultToday)['count'];
+$todayCount = pg_fetch_assoc($resultToday)['count'] ?? 0;
 
 // Get total patients for this month
 $queryMonth = "SELECT COUNT(*) as count FROM patient_info WHERE EXTRACT(MONTH FROM date_created) = EXTRACT(MONTH FROM CURRENT_DATE) AND EXTRACT(YEAR FROM date_created) = EXTRACT(YEAR FROM CURRENT_DATE)";
 $resultMonth = pg_query($con, $queryMonth);
-$monthCount = pg_fetch_assoc($resultMonth)['count'];
+$monthCount = pg_fetch_assoc($resultMonth)['count'] ?? 0;
 
 // Get total patients for this year
 $queryYear = "SELECT COUNT(*) as count FROM patient_info WHERE EXTRACT(YEAR FROM date_created) = EXTRACT(YEAR FROM CURRENT_DATE)";
 $resultYear = pg_query($con, $queryYear);
-$yearCount = pg_fetch_assoc($resultYear)['count'];
+$yearCount = pg_fetch_assoc($resultYear)['count'] ?? 0;
 
 // Array to hold monthly counts
 $monthlyCounts = [];
@@ -63,15 +64,13 @@ $monthlyCounts = [];
 // Get total patients for each month of the current year
 for ($month = 1; $month <= 12; $month++) {
     $queryMonth = "SELECT COUNT(*) as count FROM patient_info 
-                   WHERE EXTRACT(MONTH FROM date_created) = $month 
+                   WHERE EXTRACT(MONTH FROM date_created) = $1 
                    AND EXTRACT(YEAR FROM date_created) = EXTRACT(YEAR FROM CURRENT_DATE)";
-    $resultMonth = pg_query($con, $queryMonth);
-    $monthlyCounts[] = (int)pg_fetch_assoc($resultMonth)['count'];
+    $stmtMonth = pg_prepare($con, "fetch_monthly_count_$month", $queryMonth);
+    $resultMonth = pg_execute($con, "fetch_monthly_count_$month", array($month));
+    $monthlyCounts[] = (int)(pg_fetch_assoc($resultMonth)['count'] ?? 0);
 }
-
-
 ?>
-
 
 <!DOCTYPE html>
 <html lang="en">
