@@ -241,7 +241,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // File upload handling
     $imagePath = preg_replace("/[^a-zA-Z0-9\._-]/", "", $_FILES['image_path']['name']);
     $tempname = $_FILES['image_path']['tmp_name'];
-    $folder = "osna/Images/" . basename($imagePath);
+   $folder = $_SERVER['DOCUMENT_ROOT'] . '/osna/Images/' . basename($imagePath);
+
+	// Ensure the directory exists and has proper permissions
+	if (!is_dir($_SERVER['DOCUMENT_ROOT'] . '/osna/Images')) {
+	    mkdir($_SERVER['DOCUMENT_ROOT'] . '/osna/Images', 0777, true); // Create directory with full permissions
+	}
 
     // Validate file type
     $allowed = ['jpg', 'jpeg', 'png', 'gif'];
