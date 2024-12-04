@@ -1,35 +1,30 @@
 <?php
-	// Start session
-	session_start();
-	include '../db.php'; // Ensure the correct path to db.php
-	
-	// Redirect to login if the user is not logged in
-	if (!isset($_SESSION['username'])) {
-	    header("Location: /osna/admin/login.php");
-	    exit();
-	}
-    
-    $username = $_SESSION['username'];
-    
-    // Example query to fetch user details from the PostgreSQL database
-    $sql = "SELECT * FROM admin_log WHERE username = $1";
-    
-    // Prepare the SQL statement
-    $result = pg_prepare($con, "get_user", $sql);
-    
-    // Execute the query with the session username
-    $result = pg_execute($con, "get_user", array($username));
-    
-    // Fetch the user details
+// Start session
+session_start();
+include '../db.php'; // Ensure the correct path to db.php
+
+// Redirect to login if the user is not logged in
+if (!isset($_SESSION['username'])) {
+    header("Location: /osna/admin/login.php");
+    exit();
+}
+
+$username = $_SESSION['username'];
+
+// Use PostgreSQL's parameterized query to prevent SQL injection
+$sql = "SELECT name FROM admin_log WHERE username = $1";
+$result = pg_query_params($con, $sql, array($username));
+
+$name = "Unknown"; // Default value
+if ($result) {
     $user = pg_fetch_assoc($result);
-    
-    // Display the username or other user details
-    // Example of displaying the username
     if ($user) {
-        echo "Hello, " . htmlspecialchars($user['username']);
-    } else {
-        echo "User not found!";
+        $name = $user['name'];
     }
+}
+
+// Free the result resource
+pg_free_result($result);
 ?>
 
 <!DOCTYPE html>
