@@ -26,14 +26,21 @@
 		
 		
 		
-		<?php
+	<?php
+// Start the session at the very beginning, and ensure no output before this point.
 session_start();
-include 'db.php'; // Ensure this connects to your PostgreSQL database
-?>
 
-<?php
-// Query to count doctors
+include 'db.php'; // Ensure this connects to your PostgreSQL database
+
+if (!isset($_SESSION['username'])) {
+    header("Location: login.php");
+    exit();
+}
+
+$adminusername = $_SESSION['username'];
+
 try {
+    // Query to count doctors
     $stmtDoctors = pg_prepare($con, "count_doctors", "SELECT COUNT(*) as count FROM doctor_log");
     $resultDoctors = pg_execute($con, "count_doctors", array());
     $countDoctors = ($row = pg_fetch_assoc($resultDoctors)) ? $row['count'] : 0;
@@ -47,38 +54,19 @@ try {
     $stmtClerks = pg_prepare($con, "count_clerks", "SELECT COUNT(*) as count FROM clerk_log");
     $resultClerks = pg_execute($con, "count_clerks", array());
     $countClerks = ($row = pg_fetch_assoc($resultClerks)) ? $row['count'] : 0;
-} catch (Exception $e) {
-    $countDoctors = $countPatients = $countClerks = "Error: " . htmlspecialchars($e->getMessage());
-}
-?>
 
-<?php
-if (!isset($_SESSION['username'])) {
-    header("Location: login.php");
-    exit();
-}
-
-$adminusername = $_SESSION['username'];
-
-try {
     // Query to fetch admin's name
     $stmt = pg_prepare($con, "get_admin_name", "SELECT name FROM admin_log WHERE username = $1");
     $result = pg_execute($con, "get_admin_name", array($adminusername));
 
-    if ($result) {
-        $user = pg_fetch_assoc($result);
-        $name = $user['name'] ?? "Unknown";
-    } else {
-        $name = "Unknown";
-    }
+    $name = ($user = pg_fetch_assoc($result)) ? $user['name'] : "Unknown";
 } catch (Exception $e) {
-    $name = "Error: " . htmlspecialchars($e->getMessage());
+    $countDoctors = $countPatients = $countClerks = $name = "Error: " . htmlspecialchars($e->getMessage());
 }
 
-// Close the connection (optional as PHP closes it at the end of the script)
+// Close the connection (optional)
 pg_close($con);
 ?>
-
 
 
 			
