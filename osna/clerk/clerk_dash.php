@@ -1,16 +1,17 @@
-   <?php
+<?php
 // Start session
 session_start();
 
 // Include the database connection
-include '/clerk/db.php'; // Ensure correct path
+include __DIR__ . '/db.php'; // Ensure the correct path using absolute directory
 
 // Redirect to login if the user is not logged in
 if (!isset($_SESSION['username'])) {
-    header("Location: /clerk/login.php");
+    header("Location: ./login.php"); // Adjusted path
     exit();
 }
 ?>
+
 
 
 <!DOCTYPE html>
