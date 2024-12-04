@@ -1,12 +1,14 @@
-      <?php
+     <?php
+// Start session
 session_start();
-include 'db.php'; // Assuming this includes the PostgreSQL connection setup
+include '../db.php'; // Ensure the correct path to db.php
 
-// Check if clerk is logged in by verifying the session variable
-if (!isset($_SESSION['clerk_username'])) { // Changed to clerk_username
-    header("Location: login.php");
+// Redirect to login if the user is not logged in
+if (!isset($_SESSION['username'])) {
+    header("Location: /osna/clerk/login.php");
     exit();
 }
+
 
 // Retrieve the clerk's username from session
 $clerk_username = $_SESSION['clerk_username']; // Updated session variable
