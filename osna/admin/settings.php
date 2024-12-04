@@ -241,7 +241,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // File upload handling
     $imagePath = preg_replace("/[^a-zA-Z0-9\._-]/", "", $_FILES['image_path']['name']);
     $tempname = $_FILES['image_path']['tmp_name'];
-    $folder = "Images/" . basename($imagePath);
+    $folder = "osna/Images/" . basename($imagePath);
 
     // Validate file type
     $allowed = ['jpg', 'jpeg', 'png', 'gif'];
