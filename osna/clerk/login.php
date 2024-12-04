@@ -184,7 +184,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             dataType: 'json',
             success: function(response) {
                 if (response.status === 'success') {
-                    window.location.href = 'clerk/clerk_dash.php';
+                    window.location.href = 'clerk_dash.php';
                 } else {
                     $('#alert-container').html("<div class='alert alert-danger' role='alert'>Invalid username or password!</div>");
                 }
