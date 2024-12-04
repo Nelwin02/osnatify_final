@@ -3,11 +3,11 @@
 session_start();
 
 // Include the database connection
-include '../db.php'; // Ensure correct path
+include '/clerk/db.php'; // Ensure correct path
 
 // Redirect to login if the user is not logged in
 if (!isset($_SESSION['username'])) {
-    header("Location: /osna/clerk/login.php");
+    header("Location: /clerk/login.php");
     exit();
 }
 ?>
