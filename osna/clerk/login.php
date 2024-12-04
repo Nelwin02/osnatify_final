@@ -31,7 +31,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         echo json_encode(['status' => 'error', 'message' => 'Query failed']);
     }
 
-  
+    // Close the database connection
+    pg_close($con);
+    exit();
 }
 ?>
 
