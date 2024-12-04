@@ -93,34 +93,42 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $username = pg_escape_string($con, $_POST['username']);
         $password = pg_escape_string($con, $_POST['password']);
         $doctor_name = pg_escape_string($con, $_POST['doctor_name']);
-        $file_name = $_FILES['image']['name'];
-        $tempname = $_FILES['image']['tmp_name'];
-	$folder = "doctor2/Images/" . $file_name;
-        // Check if username already exists
-        $stmt = pg_prepare($con, "check_username", "SELECT username FROM doctor_log WHERE username = $1");
-        $result = pg_execute($con, "check_username", array($username));
+        
+        // Check if an image is uploaded
+        if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
+            $file_name = $_FILES['image']['name'];
+            $tempname = $_FILES['image']['tmp_name'];
+            $folder = "osna/doctor2/Images/" . $file_name;  // Updated folder path
 
-        if (pg_num_rows($result) > 0) {
-            echo "<script>alert('Username already exists. Please choose a different username.');</script>";
-        } else {
-            // Prepare statements for inserting doctor information with image
-            $sql = pg_prepare($con, "insert_doctor_image", "INSERT INTO doctor_log (username, password, doctor_name, doctor_image) VALUES ($1, $2, $3, $4)");
-            $result = pg_execute($con, "insert_doctor_image", array($username, $password, $doctor_name, $file_name));
+            // Check if username already exists
+            $stmt = pg_prepare($con, "check_username", "SELECT username FROM doctor_log WHERE username = $1");
+            $result = pg_execute($con, "check_username", array($username));
 
-            if ($result) {
-                // Move uploaded file
-                if (move_uploaded_file($tempname, $folder)) {
-                    echo "<script>alert('Doctor added and image uploaded successfully');</script>";
-                } else {
-                    echo "<script>alert('Doctor added but image not uploaded');</script>";
-                }
+            if (pg_num_rows($result) > 0) {
+                echo "<script>alert('Username already exists. Please choose a different username.');</script>";
             } else {
-                echo "<script>alert('Error: " . pg_last_error($con) . "');</script>";
+                // Insert doctor information with image path
+                $sql = pg_prepare($con, "insert_doctor_image", "INSERT INTO doctor_log (username, password, doctor_name, doctor_image) VALUES ($1, $2, $3, $4)");
+                $result = pg_execute($con, "insert_doctor_image", array($username, $password, $doctor_name, $file_name));
+
+                if ($result) {
+                    // Move uploaded file to the correct directory
+                    if (move_uploaded_file($tempname, $folder)) {
+                        echo "<script>alert('Doctor added and image uploaded successfully');</script>";
+                    } else {
+                        echo "<script>alert('Doctor added but image not uploaded');</script>";
+                    }
+                } else {
+                    echo "<script>alert('Error: " . pg_last_error($con) . "');</script>";
+                }
             }
+        } else {
+            echo "<script>alert('Please upload an image.');</script>";
         }
     }
 }
 ?>
+
 
 
 		
