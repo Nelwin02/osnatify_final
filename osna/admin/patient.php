@@ -1,3 +1,38 @@
+<?php
+	// Start session
+	session_start();
+	include '../db.php'; // Ensure the correct path to db.php
+	
+	// Redirect to login if the user is not logged in
+	if (!isset($_SESSION['username'])) {
+	    header("Location: /osna/admin/login.php");
+	    exit();
+	}
+    
+    // Retrieve username from session
+    $username = $_SESSION['username'];
+    
+    // Example query to fetch user details from the PostgreSQL database
+    $sql = "SELECT * FROM admin_log WHERE username = $1";
+    
+    // Prepare the SQL statement
+    $result = pg_prepare($con, "get_user", $sql);
+    
+    // Execute the query with the session username
+    $result = pg_execute($con, "get_user", array($username));
+    
+    // Fetch the user details
+    $user = pg_fetch_assoc($result);
+    
+    // Display the username or other user details
+    // Example of displaying the username
+    if ($user) {
+        echo "Hello, " . htmlspecialchars($user['username']);
+    } else {
+        echo "User not found!";
+    }
+?>
+
 <!DOCTYPE html>
 <html lang="en">
     
@@ -28,42 +63,6 @@
 			<script src="assets/js/html5shiv.min.js"></script>
 			<script src="assets/js/respond.min.js"></script>
 		<![endif]-->
-
-		<?php
-  session_start();
-  include 'db.php'; // Include the PostgreSQL connection file
-?>
-
-<?php
-    if (!isset($_SESSION['username'])) {
-        // Redirect to login page or handle unauthorized access
-        header("Location: login.php");
-        exit();
-    }
-    
-    // Retrieve username from session
-    $username = $_SESSION['username'];
-    
-    // Example query to fetch user details from the PostgreSQL database
-    $sql = "SELECT * FROM admin_log WHERE username = $1";
-    
-    // Prepare the SQL statement
-    $result = pg_prepare($con, "get_user", $sql);
-    
-    // Execute the query with the session username
-    $result = pg_execute($con, "get_user", array($username));
-    
-    // Fetch the user details
-    $user = pg_fetch_assoc($result);
-    
-    // Display the username or other user details
-    // Example of displaying the username
-    if ($user) {
-        echo "Hello, " . htmlspecialchars($user['username']);
-    } else {
-        echo "User not found!";
-    }
-?>
 
     </head>
     <body>
