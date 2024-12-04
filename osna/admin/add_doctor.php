@@ -9,7 +9,6 @@
 	    exit();
 	}
     
-    // Retrieve username from session
     $username = $_SESSION['username'];
     
     // Example query to fetch user details from the PostgreSQL database
