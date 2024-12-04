@@ -1,40 +1,4 @@
-
-
-<!DOCTYPE html>
-<html lang="en">
-    
-<!-- Mirrored from dreamguys.co.in/demo/doccure/admin/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 30 Nov 2019 04:12:20 GMT -->
-<head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
-        <title>clerk</title>
-	
-		<!-- Favicon -->
-        <link rel="shortcut icon" type="image/x-icon" href="assets/img/opd.png">
-		
-		<!-- Bootstrap CSS -->
-        <link rel="stylesheet" href="assets/css/bootstrap.min.css">
-		
-		<!-- Fontawesome CSS -->
-        <link rel="stylesheet" href="assets/css/font-awesome.min.css">
-		
-		<!-- Feathericon CSS -->
-        <link rel="stylesheet" href="assets/css/feathericon.min.css">
-		
-		<link rel="stylesheet" href="assets/plugins/morris/morris.css">
-		
-		<!-- Main CSS -->
-        <link rel="stylesheet" href="assets/css/style.css">
-		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-		<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-		
-		<!--[if lt IE 9]>
-			<script src="assets/js/html5shiv.min.js"></script>
-			<script src="assets/js/respond.min.js"></script>
-		<![endif]-->
-
-        <?php
+      <?php
 session_start();
 include 'db.php'; // Assuming this includes the PostgreSQL connection setup
 
@@ -103,10 +67,45 @@ for ($month = 1; $month <= 12; $month++) {
     $monthlyCounts[] = (int)pg_fetch_assoc($resultMonth)['count'];
 }
 
-// Close the PostgreSQL connection
-pg_close($con);
+
 ?>
 
+
+<!DOCTYPE html>
+<html lang="en">
+    
+<!-- Mirrored from dreamguys.co.in/demo/doccure/admin/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 30 Nov 2019 04:12:20 GMT -->
+<head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
+        <title>clerk</title>
+	
+		<!-- Favicon -->
+        <link rel="shortcut icon" type="image/x-icon" href="assets/img/opd.png">
+		
+		<!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+		
+		<!-- Fontawesome CSS -->
+        <link rel="stylesheet" href="assets/css/font-awesome.min.css">
+		
+		<!-- Feathericon CSS -->
+        <link rel="stylesheet" href="assets/css/feathericon.min.css">
+		
+		<link rel="stylesheet" href="assets/plugins/morris/morris.css">
+		
+		<!-- Main CSS -->
+        <link rel="stylesheet" href="assets/css/style.css">
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+		<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+		
+		<!--[if lt IE 9]>
+			<script src="assets/js/html5shiv.min.js"></script>
+			<script src="assets/js/respond.min.js"></script>
+		<![endif]-->
+
+  
 
     </head>
     <body>
