@@ -244,8 +244,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
    $folder = $_SERVER['DOCUMENT_ROOT'] . '/osna/images/' . basename($imagePath);
 
 	// Ensure the directory exists and has proper permissions
-	if (!is_dir($_SERVER['DOCUMENT_ROOT'] . '/osna/Images')) {
-	    mkdir($_SERVER['DOCUMENT_ROOT'] . '/osna/Images', 0777, true); // Create directory with full permissions
+	if (!is_dir($_SERVER['DOCUMENT_ROOT'] . '/osna/images')) {
+	    mkdir($_SERVER['DOCUMENT_ROOT'] . '/osna/images', 0777, true); // Create directory with full permissions
 	}
 
     // Validate file type
