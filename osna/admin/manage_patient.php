@@ -1,43 +1,36 @@
 
-	<?php
-  session_start();
-  include 'db.php'; 
-?>
-
 <?php
-  if (!isset($_SESSION['username'])) {
-    header("Location: login.php");
+// Start session
+session_start();
+include '../db.php'; // Ensure the correct path to db.php
+
+// Redirect to login if the user is not logged in
+if (!isset($_SESSION['username'])) {
+    header("Location: /osna/admin/login.php");
     exit();
-  }
+}
 
-  $username = $_SESSION['username'];
+$username = $_SESSION['username'];
 
-  // Use PostgreSQL's parameterized query to prevent SQL injection
-  $sql = "SELECT name FROM admin_log WHERE username = $1";
-  
-  // Prepare and execute the query
-  $result = pg_query_params($con, $sql, array($username));
+// Use PostgreSQL's parameterized query to prevent SQL injection
+$sql = "SELECT name FROM admin_log WHERE username = $1";
+$result = pg_query_params($con, $sql, array($username));
 
-  if ($result) {
+$name = "Unknown"; // Default value
+if ($result) {
     $user = pg_fetch_assoc($result);
     if ($user) {
-      $name = $user['name'];
-    } else {
-      $name = "Unknown";
+        $name = $user['name'];
     }
-  } else {
-    $name = "Unknown";
-  }
+}
 
-  // Free the result resource
-  pg_free_result($result);
+// Free the result resource
+pg_free_result($result);
 
 ?>
 
-
 <?php
-
-// Updating the users
+// Include your database connection script
 include 'db.php';
 
 $limit = 8;
@@ -55,20 +48,20 @@ $row_total = pg_fetch_row($result_total);
 $total_rows = $row_total[0];
 $total_pages = ceil($total_rows / $limit);
 
+// Free result resources
 pg_free_result($result_total);
 pg_free_result($result);
-
-
 ?>
 
 <?php
+// Handle form submissions
 include 'db.php'; // Include your database connection script
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    if (isset($_POST['action'])) {
-        $action = $_POST['action'];
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action'])) {
+    $action = $_POST['action'];
 
-        if ($action === 'update') {
+    switch ($action) {
+        case 'update':
             // Update patient record
             $id = $_POST['id'];
             $username = $_POST['username'];
@@ -77,39 +70,36 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $guardian = $_POST['guardian'];
             $address = $_POST['address'];
 
-            // Prepare an update statement
+            // Prepare and execute update statement
             $sql = "UPDATE patient_info SET username = $1, name = $2, email = $3, guardian = $4, address = $5 WHERE id = $6";
             $result = pg_query_params($con, $sql, array($username, $name, $email, $guardian, $address, $id));
 
-            if ($result) {
-                echo "UpdateSuccess";
-            } else {
-                echo "UpdateError: " . pg_last_error($con);
-            }
+            echo $result ? "UpdateSuccess" : "UpdateError: " . pg_last_error($con);
+            break;
 
-        } elseif ($action === 'delete') {
+        case 'delete':
             // Delete patient record
             $id = $_POST['id'];
 
-            // Prepare a delete statement
+            // Prepare and execute delete statement
             $sql = "DELETE FROM patient_info WHERE id = $1";
             $result = pg_query_params($con, $sql, array($id));
 
-            if ($result) {
-                echo "DeleteSuccess";
-            } else {
-                echo "DeleteError: " . pg_last_error($con);
-            }
-        }
-    } else {
-        echo "NoActionSpecified";
+            echo $result ? "DeleteSuccess" : "DeleteError: " . pg_last_error($con);
+            break;
+
+        default:
+            echo "NoValidAction";
+            break;
     }
 
-    pg_close($con); // Close the PostgreSQL connection
+    // Close the PostgreSQL connection
+    pg_close($con);
 } else {
     echo "InvalidRequestMethod";
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
