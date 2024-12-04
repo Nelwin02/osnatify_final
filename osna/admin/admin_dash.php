@@ -27,35 +27,35 @@
 		
 		
 	<?php
-// Start the session at the very beginning, and ensure no output before this point.
+// Siguraduhing walang whitespace o bagong linya bago ang PHP tags.
 session_start();
-
-include 'db.php'; // Ensure this connects to your PostgreSQL database
+include '../db.php'; // Siguraduhing tama ang relative path ng db.php
 
 if (!isset($_SESSION['username'])) {
-    header("Location: login.php");
+    // Kung walang naka-log in, i-redirect sa login page.
+    header("Location: /osna/admin/login.php");
     exit();
 }
 
 $adminusername = $_SESSION['username'];
 
 try {
-    // Query to count doctors
+    // Query para bilangin ang doctors
     $stmtDoctors = pg_prepare($con, "count_doctors", "SELECT COUNT(*) as count FROM doctor_log");
     $resultDoctors = pg_execute($con, "count_doctors", array());
     $countDoctors = ($row = pg_fetch_assoc($resultDoctors)) ? $row['count'] : 0;
 
-    // Query to count patients
+    // Query para bilangin ang patients
     $stmtPatients = pg_prepare($con, "count_patients", "SELECT COUNT(*) as count FROM patient_info");
     $resultPatients = pg_execute($con, "count_patients", array());
     $countPatients = ($row = pg_fetch_assoc($resultPatients)) ? $row['count'] : 0;
 
-    // Query to count clerks (nurses)
+    // Query para bilangin ang clerks
     $stmtClerks = pg_prepare($con, "count_clerks", "SELECT COUNT(*) as count FROM clerk_log");
     $resultClerks = pg_execute($con, "count_clerks", array());
     $countClerks = ($row = pg_fetch_assoc($resultClerks)) ? $row['count'] : 0;
 
-    // Query to fetch admin's name
+    // Query para kunin ang pangalan ng admin
     $stmt = pg_prepare($con, "get_admin_name", "SELECT name FROM admin_log WHERE username = $1");
     $result = pg_execute($con, "get_admin_name", array($adminusername));
 
@@ -64,10 +64,9 @@ try {
     $countDoctors = $countPatients = $countClerks = $name = "Error: " . htmlspecialchars($e->getMessage());
 }
 
-// Close the connection (optional)
+// Close the connection
 pg_close($con);
 ?>
-
 
 			
     </head>
