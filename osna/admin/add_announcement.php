@@ -1,3 +1,32 @@
+<?php
+// Start session
+session_start();
+include '../db.php'; // Ensure the correct path to db.php
+
+// Redirect to login if the user is not logged in
+if (!isset($_SESSION['username'])) {
+    header("Location: /osna/admin/login.php");
+    exit();
+}
+
+$username = $_SESSION['username'];
+
+// Use PostgreSQL's parameterized query to prevent SQL injection
+$sql = "SELECT name FROM admin_log WHERE username = $1";
+$result = pg_query_params($con, $sql, array($username));
+
+$name = "Unknown"; // Default value
+if ($result) {
+    $user = pg_fetch_assoc($result);
+    if ($user) {
+        $name = $user['name'];
+    }
+}
+
+// Free the result resource
+pg_free_result($result);
+?>
+
 <!DOCTYPE html>
 <html lang="en">
     
@@ -30,43 +59,7 @@
 			<script src="assets/js/respond.min.js"></script>
 		<![endif]-->
 
-        <?php
-session_start();
-include 'db.php'; // Ensure this connects to your PostgreSQL database
-?>
 
-<?php
-if (!isset($_SESSION['username'])) {
-    header("Location: login.php");
-    exit();
-}
-
-$username = $_SESSION['username'];
-
-try {
-    // Fetch doctor's name and image
-    $stmt = pg_prepare(
-        $con,
-        "get_doctor_log",
-        "SELECT doctor_name, doctor_image FROM doctor_log WHERE username = $1"
-    );
-    $result = pg_execute($con, "get_doctor_log", array($username));
-
-    if ($result) {
-        $user = pg_fetch_assoc($result);
-        if ($user) {
-            $name = $user['doctor_name'];
-            $image = $user['doctor_image'];
-        } else {
-            $name = "Unknown";
-        }
-    } else {
-        $name = "Unknown";
-    }
-} catch (Exception $e) {
-    $name = "Error: " . htmlspecialchars($e->getMessage());
-}
-?>
 
 <?php
 // Handle Add Announcement
