@@ -266,9 +266,10 @@ include 'db.php'; // Include your PostgreSQL database connection script
 $query = pg_query($con, "
     SELECT p.id, p.username, p.name, p.address, d.diagnosis, d.prescription
     FROM patient_info p
-    LEFT JOIN doctor_confirm d ON p.id = d.patient_info_id
+    LEFT JOIN doctor_confirm d ON p.id = d.patient_id
     ORDER BY p.id DESC
 ");
+
 
 // Check if query executed successfully
 if (!$query) {
