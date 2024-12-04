@@ -241,7 +241,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // File upload handling
     $imagePath = preg_replace("/[^a-zA-Z0-9\._-]/", "", $_FILES['image_path']['name']);
     $tempname = $_FILES['image_path']['tmp_name'];
-   $folder = $_SERVER['DOCUMENT_ROOT'] . '/osna/Images/' . basename($imagePath);
+   $folder = $_SERVER['DOCUMENT_ROOT'] . '/osna/images/' . basename($imagePath);
 
 	// Ensure the directory exists and has proper permissions
 	if (!is_dir($_SERVER['DOCUMENT_ROOT'] . '/osna/Images')) {
