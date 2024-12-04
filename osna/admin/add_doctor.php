@@ -5,7 +5,7 @@ include '../db.php'; // Ensure the correct path to db.php
 
 // Redirect to login if the user is not logged in
 if (!isset($_SESSION['username'])) {
-    header("Location: /osna/admin/login.php");
+    header("Location: login.php");
     exit();
 }
 
