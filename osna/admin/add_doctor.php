@@ -98,7 +98,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
             $file_name = $_FILES['image']['name'];
             $tempname = $_FILES['image']['tmp_name'];
-            $folder = "osna/doctor2/Images/" . $file_name;  // Updated folder path
+           $folder = "/var/www/html/osna/doctor2/Images/" . $file_name;
 
             // Check if username already exists
             $stmt = pg_prepare($con, "check_username", "SELECT username FROM doctor_log WHERE username = $1");
