@@ -57,64 +57,58 @@ pg_free_result($result);
 			<script src="assets/js/html5shiv.min.js"></script>
 			<script src="assets/js/respond.min.js"></script>
 		<![endif]-->
-
-		
 <?php
+// Include database connection
+include 'db.php';
+
 // Check if form was submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST['add_doctor'])) {
         // Add doctor without image
-        $username = $con->real_escape_string($_POST['username']);
-        $password = $con->real_escape_string($_POST['password']);
-        $doctor_name = $con->real_escape_string($_POST['doctor_name']);
+        $username = pg_escape_string($con, $_POST['username']);
+        $password = pg_escape_string($con, $_POST['password']);
+        $doctor_name = pg_escape_string($con, $_POST['doctor_name']);
 
         // Check if username already exists
-        $stmt = $con->prepare("SELECT username FROM doctor_log WHERE username = ?");
-        $stmt->bind_param("s", $username);
-        $stmt->execute();
-        $stmt->store_result();
+        $stmt = pg_prepare($con, "check_username", "SELECT username FROM doctor_log WHERE username = $1");
+        $result = pg_execute($con, "check_username", array($username));
 
-        if ($stmt->num_rows > 0) {
+        if (pg_num_rows($result) > 0) {
             echo "<script>alert('Username already exists. Please choose a different username.');</script>";
         } else {
             // Insert new doctor
-            $sql = $con->prepare("INSERT INTO doctor_log (username, password, doctor_name) VALUES (?, ?, ?)");
-            $sql->bind_param("sss", $username, $password, $doctor_name);
+            $sql = pg_prepare($con, "insert_doctor", "INSERT INTO doctor_log (username, password, doctor_name) VALUES ($1, $2, $3)");
+            $result = pg_execute($con, "insert_doctor", array($username, $password, $doctor_name));
 
-            if ($sql->execute()) {
+            if ($result) {
                 echo "<script>alert('New doctor added successfully');</script>";
             } else {
-                echo "<script>alert('Error: " . $con->error . "');</script>";
+                echo "<script>alert('Error: " . pg_last_error($con) . "');</script>";
             }
-
-            $sql->close();
         }
-        $stmt->close();
     }
 
     if (isset($_POST['submit'])) {
         // Handle doctor information with image upload
-        $username = $con->real_escape_string($_POST['username']);
-        $password = $con->real_escape_string($_POST['password']);
-        $doctor_name = $con->real_escape_string($_POST['doctor_name']);
+        $username = pg_escape_string($con, $_POST['username']);
+        $password = pg_escape_string($con, $_POST['password']);
+        $doctor_name = pg_escape_string($con, $_POST['doctor_name']);
         $file_name = $_FILES['image']['name'];
         $tempname = $_FILES['image']['tmp_name'];
         $folder = "../doctor2/Images/" . $file_name;
 
         // Check if username already exists
-        $stmt = $con->prepare("SELECT username FROM doctor_log WHERE username = ?");
-        $stmt->bind_param("s", $username);
-        $stmt->execute();
-        $stmt->store_result();
+        $stmt = pg_prepare($con, "check_username", "SELECT username FROM doctor_log WHERE username = $1");
+        $result = pg_execute($con, "check_username", array($username));
 
-        if ($stmt->num_rows > 0) {
+        if (pg_num_rows($result) > 0) {
             echo "<script>alert('Username already exists. Please choose a different username.');</script>";
         } else {
             // Prepare statements for inserting doctor information with image
-            $sql = $con->prepare("INSERT INTO doctor_log (username, password, doctor_name, doctor_image) VALUES (?, ?, ?, ?)");
-            $sql->bind_param("ssss", $username, $password, $doctor_name, $file_name);
+            $sql = pg_prepare($con, "insert_doctor_image", "INSERT INTO doctor_log (username, password, doctor_name, doctor_image) VALUES ($1, $2, $3, $4)");
+            $result = pg_execute($con, "insert_doctor_image", array($username, $password, $doctor_name, $file_name));
 
-            if ($sql->execute()) {
+            if ($result) {
                 // Move uploaded file
                 if (move_uploaded_file($tempname, $folder)) {
                     echo "<script>alert('Doctor added and image uploaded successfully');</script>";
@@ -122,17 +116,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     echo "<script>alert('Doctor added but image not uploaded');</script>";
                 }
             } else {
-                echo "<script>alert('Error: " . $con->error . "');</script>";
+                echo "<script>alert('Error: " . pg_last_error($con) . "');</script>";
             }
-
-            $sql->close();
         }
-        $stmt->close();
     }
 }
-
-
 ?>
+
 
 		
     </head>
