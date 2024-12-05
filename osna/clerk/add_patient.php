@@ -1,24 +1,23 @@
 <?php
-session_start(); // Start session at the beginning to avoid any issues with headers
-
+session_start();
 include '../db.php'; // Database connection file
 
 // Check if clerk is logged in by verifying the session variable
-if (!isset($_SESSION['clerk_username'])) { // Changed to clerk_username
+if (!isset($_SESSION['clerk_username'])) { 
     header("Location: /osna/doctor2/login.php");
     exit();
 }
 
 // Retrieve the clerk's username from session
-$clerk_username = $_SESSION['clerk_username']; // Updated session variable
+$clerk_username = $_SESSION['clerk_username']; 
 
 // Fetch clerk information using prepared statements
-$query = "SELECT clerk_name, clerk_image FROM clerk_log WHERE username = $1"; // Using clerk_username in the query
+$query = "SELECT clerk_name, clerk_image FROM clerk_log WHERE username = $1"; 
 $stmt = pg_prepare($con, "fetch_clerk_info", $query);
-$result = pg_execute($con, "fetch_clerk_info", array($clerk_username));
+$stmt = pg_execute($con, "fetch_clerk_info", array($clerk_username));
 
-if ($result) {
-    $clerk = pg_fetch_assoc($result);
+if ($stmt) {
+    $clerk = pg_fetch_assoc($stmt);
     if ($clerk) {
         $name = $clerk['clerk_name'];
         $image = $clerk['clerk_image'];
@@ -31,13 +30,17 @@ if ($result) {
     $image = "default.png"; // Fallback image
 }
 
+?>
+
+<?php
 // Include PHPMailer classes
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
-require '/clerk/phpmailer/src/Exception.php';
-require '/clerk/phpmailer/src/PHPMailer.php';
-require '/clerk/phpmailer/src/SMTP.php';
+// Correct path to the PHPMailer classes (adjusted based on your folder structure)
+require '/var/www/html/osna/clerk/PHPMailer/src/Exception.php'; // Adjust to your path
+require '/var/www/html/osna/clerk/PHPMailer/src/PHPMailer.php'; // Adjust to your path
+require '/var/www/html/osna/clerk/PHPMailer/src/SMTP.php'; // Adjust to your path
 
 $usernameNumber = rand(0, 999);
 $passwordNumber = rand(0, 999);
@@ -63,7 +66,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $_SESSION['dob'] = $_POST['dob'];
         $_SESSION['step'] = 3;
     } elseif (isset($_POST['submit'])) { 
-        // Database connection details
         $host = 'dpg-ct2lk83qf0us739u2uvg-a.oregon-postgres.render.com';
         $port = '5432';  // Default PostgreSQL port
         $dbname = 'opdmsis';
@@ -199,6 +201,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $_SESSION['step'] = 1;
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
     
