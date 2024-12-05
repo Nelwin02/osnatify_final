@@ -205,14 +205,16 @@ $result = pg_query($con, $sql);
                     </div>
             
                     <div class="printtable" style="max-width: 100%; margin-top: 20px;">
-
-                    <!-- Print Button -->
-                    <div class="text-left mb-3">
-                        <button onclick="printPrescription()" class="btn btn-primary">Print</button>
-                 
-                    
-    <button onclick="back()" class="btn btn-primary">Back</button>
-</div>
+			
+                   <div class="text-left mb-3">
+			     <button onclick="back()" class="btn btn-primary">
+			        <i class="fa fa-arrow-left"></i> 
+			    </button>
+			    <button onclick="printPrescription()" class="btn btn-primary">
+			        <i class="fa fa-print"></i> Print
+			    </button>
+			  
+			</div>
 
 <script>
     function back() {
