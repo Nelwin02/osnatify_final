@@ -1,5 +1,5 @@
-   <?php
-session_start();
+<?php
+ob_start(); // Start output buffering
 include '../db.php'; // Assuming this includes the PostgreSQL connection setup
 
 // Check if clerk is logged in by verifying the session variable
@@ -9,15 +9,15 @@ if (!isset($_SESSION['clerk_username'])) { // Changed to clerk_username
 }
 
 // Retrieve the clerk's username from session
-$clerk_username = $_SESSION['clerk_username']; // Updated session variable
+$clerk_username = $_SESSION['clerk_username'];
 
 // Fetch clerk information
-$query = "SELECT clerk_name, clerk_image FROM clerk_log WHERE username = $1"; // Using clerk_username in the query
+$query = "SELECT clerk_name, clerk_image FROM clerk_log WHERE username = $1";
 $stmt = pg_prepare($con, "fetch_clerk_info", $query);
-$stmt = pg_execute($con, "fetch_clerk_info", array($clerk_username));
+$result = pg_execute($con, "fetch_clerk_info", array($clerk_username));
 
-if ($stmt) {
-    $clerk = pg_fetch_assoc($stmt);
+if ($result) {
+    $clerk = pg_fetch_assoc($result);
     if ($clerk) {
         $name = $clerk['clerk_name'];
         $image = $clerk['clerk_image'];
@@ -29,43 +29,7 @@ if ($stmt) {
     $name = "Unknown";
     $image = "default.png"; // Fallback image
 }
-?>
 
-<!DOCTYPE html>
-<html lang="en">
-    
-<!-- Mirrored from dreamguys.co.in/demo/doccure/admin/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 30 Nov 2019 04:12:20 GMT -->
-<head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
-        <title>clerk</title>
-	
-		<!-- Favicon -->
-        <link rel="shortcut icon" type="image/x-icon" href="assets/img/opd.png">
-		
-		<!-- Bootstrap CSS -->
-        <link rel="stylesheet" href="assets/css/bootstrap.min.css">
-		
-		<!-- Fontawesome CSS -->
-        <link rel="stylesheet" href="assets/css/font-awesome.min.css">
-		
-		<!-- Feathericon CSS -->
-        <link rel="stylesheet" href="assets/css/feathericon.min.css">
-		
-		<link rel="stylesheet" href="assets/plugins/morris/morris.css">
-		
-		<!-- Main CSS -->
-        <link rel="stylesheet" href="assets/css/style.css">
-		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-		<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-		
-		<!--[if lt IE 9]>
-			<script src="assets/js/html5shiv.min.js"></script>
-			<script src="assets/js/respond.min.js"></script>
-		<![endif]-->
-
-     <?php
 // Query to count patients
 $queryPatients = "SELECT COUNT(*) as count FROM patient_info";
 $resultPatients = pg_query($con, $queryPatients);
@@ -105,8 +69,44 @@ for ($month = 1; $month <= 12; $month++) {
 
 // Close the PostgreSQL connection
 pg_close($con);
+
+ob_end_flush(); // End output buffering
 ?>
 
+
+<!DOCTYPE html>
+<html lang="en">
+    
+<!-- Mirrored from dreamguys.co.in/demo/doccure/admin/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 30 Nov 2019 04:12:20 GMT -->
+<head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
+        <title>clerk</title>
+	
+		<!-- Favicon -->
+        <link rel="shortcut icon" type="image/x-icon" href="assets/img/opd.png">
+		
+		<!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+		
+		<!-- Fontawesome CSS -->
+        <link rel="stylesheet" href="assets/css/font-awesome.min.css">
+		
+		<!-- Feathericon CSS -->
+        <link rel="stylesheet" href="assets/css/feathericon.min.css">
+		
+		<link rel="stylesheet" href="assets/plugins/morris/morris.css">
+		
+		<!-- Main CSS -->
+        <link rel="stylesheet" href="assets/css/style.css">
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+		<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+		
+		<!--[if lt IE 9]>
+			<script src="assets/js/html5shiv.min.js"></script>
+			<script src="assets/js/respond.min.js"></script>
+		<![endif]-->
 
     </head>
     <body>
