@@ -1,37 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-    
-<!-- Mirrored from dreamguys.co.in/demo/doccure/admin/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 30 Nov 2019 04:12:20 GMT -->
-<head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
-        <title>Doctor Dashboard</title>
-		
-		<!-- Favicon -->
-		<link rel="shortcut icon" type="image/x-icon" href="assets/img/opd.png">
-		
-		<!-- Bootstrap CSS -->
-        <link rel="stylesheet" href="assets/css/bootstrap.min.css">
-		
-		<!-- Fontawesome CSS -->
-        <link rel="stylesheet" href="assets/css/font-awesome.min.css">
-		
-		<!-- Feathericon CSS -->
-        <link rel="stylesheet" href="assets/css/feathericon.min.css">
-		
-		<link rel="stylesheet" href="assets/plugins/morris/morris.css">
-		
-		<!-- Main CSS -->
-        <link rel="stylesheet" href="assets/css/style.css">
-		
-		
-
-		<?php
+	<?php
 session_start();
-include 'db.php'; 
+include '../db.php'; 
 
 if (!isset($_SESSION['username'])) {
-    header("Location: login.php");
+    header("Location: /osna/doctor2/login.php");
     exit();
 }
 
@@ -168,6 +140,32 @@ WHERE
 ?>
 
 
+<!DOCTYPE html>
+<html lang="en">
+    
+<!-- Mirrored from dreamguys.co.in/demo/doccure/admin/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 30 Nov 2019 04:12:20 GMT -->
+<head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
+        <title>Doctor Dashboard</title>
+		
+		<!-- Favicon -->
+		<link rel="shortcut icon" type="image/x-icon" href="assets/img/opd.png">
+		
+		<!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+		
+		<!-- Fontawesome CSS -->
+        <link rel="stylesheet" href="assets/css/font-awesome.min.css">
+		
+		<!-- Feathericon CSS -->
+        <link rel="stylesheet" href="assets/css/feathericon.min.css">
+		
+		<link rel="stylesheet" href="assets/plugins/morris/morris.css">
+		
+		<!-- Main CSS -->
+        <link rel="stylesheet" href="assets/css/style.css">
+	
     </head>
     <body>
 	
