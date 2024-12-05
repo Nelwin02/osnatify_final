@@ -1,3 +1,35 @@
+	<?php
+session_start();
+include '../db.php'; 
+?>
+
+<?php
+if (!isset($_SESSION['username'])) {
+    header("Location: /osna/doctor2/login.php");
+    exit();
+}
+
+$username = $_SESSION['username'];
+
+
+$sql = "SELECT doctor_name, doctor_image FROM doctor_log WHERE username = $1";
+$result = pg_query_params($con, $sql, array($username));
+
+if ($result) {
+    $user = pg_fetch_assoc($result);
+    if ($user) {
+        $name = $user['doctor_name'];
+        $image = $user['doctor_image'];
+    } else {
+        $name = "Unknown";
+    }
+} else {
+    $name = "Unknown";
+}
+
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
     
@@ -29,37 +61,7 @@
 			<script src="assets/js/respond.min.js"></script>
 		<![endif]-->
 
-    	<?php
-session_start();
-include 'db.php'; 
-?>
-
-<?php
-if (!isset($_SESSION['username'])) {
-    header("Location: login.php");
-    exit();
-}
-
-$username = $_SESSION['username'];
-
-
-$sql = "SELECT doctor_name, doctor_image FROM doctor_log WHERE username = $1";
-$result = pg_query_params($con, $sql, array($username));
-
-if ($result) {
-    $user = pg_fetch_assoc($result);
-    if ($user) {
-        $name = $user['doctor_name'];
-        $image = $user['doctor_image'];
-    } else {
-        $name = "Unknown";
-    }
-} else {
-    $name = "Unknown";
-}
-
-
-?>
+    
 <?php
 include 'db.php';
 // Fetch current status from the database
