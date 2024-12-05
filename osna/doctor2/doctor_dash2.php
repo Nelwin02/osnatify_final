@@ -1,7 +1,11 @@
-	<?php
-session_start();
+<?php
+// Start the session at the very beginning
+session_start(); 
+
+// Include the database connection file
 include '../db.php'; 
 
+// Ensure the user is logged in, otherwise redirect
 if (!isset($_SESSION['username'])) {
     header("Location: /osna/doctor2/login.php");
     exit();
@@ -9,7 +13,7 @@ if (!isset($_SESSION['username'])) {
 
 $username = $_SESSION['username'];
 
-// Prepare SQL query
+// Prepare SQL query to fetch doctor details
 $sql = "SELECT doctor_name, doctor_image FROM doctor_log WHERE username = $1";  // Use $1 for parameterized query
 
 // Execute query with parameters
@@ -29,56 +33,48 @@ if ($result) {
     $image = "default.png"; // Default image in case of query failure
 }
 
-// Close the PostgreSQL connection
+// Query to count patients
+$sqlPatients = "SELECT COUNT(*) as count FROM patient_info";
+$resultPatients = pg_query($con, $sqlPatients);
+if ($resultPatients) {
+    $countPatients = pg_fetch_assoc($resultPatients)['count'];
+} else {
+    $countPatients = 0; // Default value if query fails
+}
 
-?>
+// Define a maximum threshold for progress calculation
+$maxPatients = 1000; // Change this to your desired maximum for the progress bar.
+$progressPercentage = ($countPatients / $maxPatients) * 100;
+$progressPercentage = $progressPercentage > 100 ? 100 : $progressPercentage; // Cap at 100%
 
-<?php
-  
+// Query to count prescriptions
+$sqlPrescriptions = "SELECT COUNT(*) as count FROM doctor_confirm WHERE prescription IS NOT NULL";
+$resultPrescriptions = pg_query($con, $sqlPrescriptions);
+if ($resultPrescriptions) {
+    $countPrescriptions = pg_fetch_assoc($resultPrescriptions)['count'];
+} else {
+    $countPrescriptions = 0; // Default value if query fails
+}
 
-    // Query to count patients
-    $sqlPatients = "SELECT COUNT(*) as count FROM patient_info";
-    $resultPatients = pg_query($con, $sqlPatients);
-    if ($resultPatients) {
-        $countPatients = pg_fetch_assoc($resultPatients)['count'];
-    } else {
-        $countPatients = 0; // Default value if query fails
-    }
+// Define a maximum threshold for progress calculation
+$maxPrescriptions = 500; // Change this to your desired maximum for the progress bar.
+$progressPrescriptionPercentage = ($countPrescriptions / $maxPrescriptions) * 100;
+$progressPrescriptionPercentage = $progressPrescriptionPercentage > 100 ? 100 : $progressPrescriptionPercentage; // Cap at 100%
 
-    // Define a maximum threshold for progress calculation
-    $maxPatients = 1000; // Change this to your desired maximum for the progress bar.
-    $progressPercentage = ($countPatients / $maxPatients) * 100;
-    $progressPercentage = $progressPercentage > 100 ? 100 : $progressPercentage; // Cap at 100%
+// Query to count diagnoses
+$sqlDiagnoses = "SELECT COUNT(*) as count FROM doctor_confirm WHERE diagnosis IS NOT NULL";
+$resultDiagnoses = pg_query($con, $sqlDiagnoses);
+if ($resultDiagnoses) {
+    $countDiagnoses = pg_fetch_assoc($resultDiagnoses)['count'];
+} else {
+    $countDiagnoses = 0; // Default value if query fails
+}
 
-    // Query to count prescriptions
-    $sqlPrescriptions = "SELECT COUNT(*) as count FROM doctor_confirm WHERE prescription IS NOT NULL";
-    $resultPrescriptions = pg_query($con, $sqlPrescriptions);
-    if ($resultPrescriptions) {
-        $countPrescriptions = pg_fetch_assoc($resultPrescriptions)['count'];
-    } else {
-        $countPrescriptions = 0; // Default value if query fails
-    }
+// Define a maximum threshold for progress calculation
+$maxDiagnoses = 500; // Change this to your desired maximum for the progress bar.
+$progressDiagnosisPercentage = ($countDiagnoses / $maxDiagnoses) * 100;
+$progressDiagnosisPercentage = $progressDiagnosisPercentage > 100 ? 100 : $progressDiagnosisPercentage; // Cap at 100%
 
-    // Define a maximum threshold for progress calculation
-    $maxPrescriptions = 500; // Change this to your desired maximum for the progress bar.
-    $progressPrescriptionPercentage = ($countPrescriptions / $maxPrescriptions) * 100;
-    $progressPrescriptionPercentage = $progressPrescriptionPercentage > 100 ? 100 : $progressPrescriptionPercentage; // Cap at 100%
-
-    // Query to count diagnoses
-    $sqlDiagnoses = "SELECT COUNT(*) as count FROM doctor_confirm WHERE diagnosis IS NOT NULL";
-    $resultDiagnoses = pg_query($con, $sqlDiagnoses);
-    if ($resultDiagnoses) {
-        $countDiagnoses = pg_fetch_assoc($resultDiagnoses)['count'];
-    } else {
-        $countDiagnoses = 0; // Default value if query fails
-    }
-
-    // Define a maximum threshold for progress calculation
-    $maxDiagnoses = 500; // Change this to your desired maximum for the progress bar.
-    $progressDiagnosisPercentage = ($countDiagnoses / $maxDiagnoses) * 100;
-    $progressDiagnosisPercentage = $progressDiagnosisPercentage > 100 ? 100 : $progressDiagnosisPercentage; // Cap at 100%
-?>
-<?php
 // Query to count new patients today
 $sqlNewPatientsToday = "
 SELECT COUNT(*) as count 
@@ -105,6 +101,7 @@ while ($row = pg_fetch_assoc($resultTotalPatientsGraph)) {
     $dailyPatientCounts[] = $row['daily_count']; // Daily patient counts
     $totalPatientCounts[] = $row['cumulative_count']; // Cumulative patient counts
 }
+
 
 ?>
 
