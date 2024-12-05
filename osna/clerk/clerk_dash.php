@@ -1,5 +1,5 @@
 <?php
-ob_start(); // Start output buffering
+session_start(); // Start output buffering
 include '../db.php'; // Assuming this includes the PostgreSQL connection setup
 
 // Check if clerk is logged in by verifying the session variable
@@ -67,10 +67,7 @@ for ($month = 1; $month <= 12; $month++) {
     $monthlyCounts[] = (int)pg_fetch_assoc($resultMonth)['count'];
 }
 
-// Close the PostgreSQL connection
-pg_close($con);
 
-ob_end_flush(); // End output buffering
 ?>
 
 
