@@ -210,7 +210,13 @@ if ($stmt) {
                     }
 // Function to call OpenAI API for disease prediction based on symptoms
 function predictDiseaseFromAPI($symptoms) {
-    $apiKey = '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'; // Replace with your valid API key
+    // Get API key from environment variable
+    $apiKey = getenv('API_KEY'); // Fetch the API_KEY from environment variables
+    
+    if (!$apiKey) {
+        return "Error: API key not set.";
+    }
+    
     $url = 'https://api.openai.com/v1/chat/completions';
     $headers = [
         'Content-Type: application/json',
@@ -218,7 +224,7 @@ function predictDiseaseFromAPI($symptoms) {
     ];
 
     // Define the question to send to the API
-    $question = "Based on the symptoms: using comma provide 3 common 'Diagnosis', 'Prescription', 'Treatment': " . $symptoms;
+    $question = "Based on the symptoms: $symptoms, provide 3 common 'Diagnosis', 'Prescription', 'Treatment'.";
 
     $data = [
         'model' => 'gpt-3.5-turbo',
@@ -240,30 +246,36 @@ function predictDiseaseFromAPI($symptoms) {
 
     // Execute cURL session
     $response = curl_exec($ch);
-    curl_close($ch);
 
-    // Log the full API response for debugging
+    // Check for cURL errors
     if ($response === false) {
-        return "Error: Unable to contact API.";
+        $errorMessage = curl_error($ch);
+        curl_close($ch);
+        return "Error: Unable to contact API. cURL error: $errorMessage";
     }
 
+    curl_close($ch);
+
+    // Decode JSON response
     $result = json_decode($response, true);
     
-    // Check for possible errors in the API response
+    // Log the full response for debugging (this is optional)
+    // file_put_contents('response_log.json', print_r($result, true)); // Uncomment this line for logging
+
+    // Check for API errors in the response
     if (isset($result['error'])) {
         return "Error: " . $result['error']['message'];
     }
 
-    // Return the content of the response
+    // Check if the response contains valid data
     if (isset($result['choices'][0]['message']['content'])) {
         return trim($result['choices'][0]['message']['content']);
-
-        
+    } elseif (isset($result['choices'][0]['text'])) { // For older responses (fallback)
+        return trim($result['choices'][0]['text']);
     } else {
         return "Error: Unexpected API response.";
     }
 }
-
 
 
 
