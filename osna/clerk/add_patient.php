@@ -38,9 +38,9 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
 // Correct path to the PHPMailer classes (adjusted based on your folder structure)
-require '/var/www/html/osna/clerk/PHPMailer/src/Exception.php'; // Adjust to your path
-require '/var/www/html/osna/clerk/PHPMailer/src/PHPMailer.php'; // Adjust to your path
-require '/var/www/html/osna/clerk/PHPMailer/src/SMTP.php'; // Adjust to your path
+require 'PHPMailer/src/Exception.php'; // Adjust to your path
+require 'PHPMailer/src/PHPMailer.php'; // Adjust to your path
+require 'PHPMailer/src/SMTP.php'; // Adjust to your path
 
 $usernameNumber = rand(0, 999);
 $passwordNumber = rand(0, 999);
