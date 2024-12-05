@@ -1,3 +1,39 @@
+<?php
+// Start the session at the very beginning
+session_start(); 
+
+// Include the database connection file
+include '../db.php'; 
+
+// Ensure the user is logged in, otherwise redirect
+if (!isset($_SESSION['username'])) {
+    header("Location: /osna/doctor2/login.php");
+    exit();
+}
+
+$username = $_SESSION['username'];
+
+// Prepare SQL query to fetch doctor details
+$sql = "SELECT doctor_name, doctor_image FROM doctor_log WHERE username = $1";  // Use $1 for parameterized query
+
+// Execute query with parameters
+$result = pg_query_params($con, $sql, array($username));
+
+if ($result) {
+    $user = pg_fetch_assoc($result);  // Fetch associative array
+    if ($user) {
+        $name = $user['doctor_name'];
+        $image = $user['doctor_image'];
+    } else {
+        $name = "Unknown";
+        $image = "default.png"; // Default image if no user found
+    }
+} else {
+    $name = "Unknown";
+    $image = "default.png"; // Default image in case of query failure
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
     
@@ -29,40 +65,7 @@
 			<script src="assets/js/respond.min.js"></script>
 		<![endif]-->
 
-		<?php
-  session_start();
-  include 'db.php'; 
-?>
-
-<?php
-				if (!isset($_SESSION['username'])) {
-					
-					header("Location: login.php");
-					exit();
-				}
-				
-				$username = $_SESSION['username'];
-				
-				// Prepare SQL query using PostgreSQL
-				$sql = "SELECT doctor_name, doctor_image FROM doctor_log WHERE username = $1";
-				$stmt = pg_prepare($con, "get_doctor_details", $sql);
-				$result = pg_execute($con, "get_doctor_details", array($username));
-
-				if ($result) {
-					$user = pg_fetch_assoc($result);
-					if ($user) {
-						
-						$name = $user['doctor_name'];
-						$image = $user['doctor_image'];
-					} else {
-					
-						$name = "Unknown";
-					}
-				} else {
-					
-					$name = "Unknown";
-				}
-?>
+		
 
 <?php
 
