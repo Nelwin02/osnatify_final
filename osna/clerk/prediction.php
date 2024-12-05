@@ -1,4 +1,36 @@
+<?php
+session_start();
+include '../db.php'; // Database connection file
 
+// Check if clerk is logged in by verifying the session variable
+if (!isset($_SESSION['clerk_username'])) { 
+    header("Location: /osna/doctor2/login.php");
+    exit();
+}
+
+// Retrieve the clerk's username from session
+$clerk_username = $_SESSION['clerk_username']; 
+
+// Fetch clerk information using prepared statements
+$query = "SELECT clerk_name, clerk_image FROM clerk_log WHERE username = $1"; 
+$stmt = pg_prepare($con, "fetch_clerk_info", $query);
+$stmt = pg_execute($con, "fetch_clerk_info", array($clerk_username));
+
+if ($stmt) {
+    $clerk = pg_fetch_assoc($stmt);
+    if ($clerk) {
+        $name = $clerk['clerk_name'];
+        $image = $clerk['clerk_image'];
+    } else {
+        $name = "Unknown";
+        $image = "default.png"; // Fallback image
+    }
+} else {
+    $name = "Unknown";
+    $image = "default.png"; // Fallback image
+}
+
+?>
 <!DOCTYPE html>
 <html lang="en">
     
@@ -29,42 +61,7 @@
 			<script src="assets/js/html5shiv.min.js"></script>
 			<script src="assets/js/respond.min.js"></script>
 		<![endif]-->
-        <?php
-session_start();
-include 'db.php'; 
-
-// Check if clerk is logged in by verifying the session variable
-if (!isset($_SESSION['clerk_username'])) { // Changed to clerk_username
-    header("Location: login.php");
-    exit();
-}
-
-// Retrieve the clerk's username from session
-$clerk_username = $_SESSION['clerk_username']; // Updated session variable
-
-// Database connection using PostgreSQL
-// Assuming the 'db.php' contains the proper connection setup for PostgreSQL
-
-// Prepare the query to fetch clerk information
-$sql = "SELECT clerk_name, clerk_image FROM clerk_log WHERE username = $1"; // Using placeholder for security
-$result = pg_query_params($con, $sql, array($clerk_username)); // Use pg_query_params for parameterized query
-
-if ($result) {
-    $clerk = pg_fetch_assoc($result);
-    if ($clerk) {
-        $name = $clerk['clerk_name'];
-        $image = $clerk['clerk_image'];
-    } else {
-        $name = "Unknown";
-        $image = "default.png"; // Fallback image
-    }
-} else {
-    $name = "Unknown";
-    $image = "default.png"; // Fallback image
-}
-?>
-
-
+   
 </head>
 	<style>
 	
