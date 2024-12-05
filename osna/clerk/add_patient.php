@@ -4,7 +4,7 @@ include '../db.php'; // Database connection file
 
 // Check if clerk is logged in by verifying the session variable
 if (!isset($_SESSION['clerk_username'])) { 
-    header("Location: /osna/doctor2/login.php");
+    header("Location: /osna/clerk/login.php");
     exit();
 }
 
