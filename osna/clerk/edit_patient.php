@@ -1,4 +1,36 @@
+<?php
+session_start();
+include '../db.php'; // Database connection file
 
+// Check if clerk is logged in by verifying the session variable
+if (!isset($_SESSION['clerk_username'])) { 
+    header("Location: /osna/clerk/login.php");
+    exit();
+}
+
+// Retrieve the clerk's username from session
+$clerk_username = $_SESSION['clerk_username']; 
+
+// Fetch clerk information using prepared statements
+$query = "SELECT clerk_name, clerk_image FROM clerk_log WHERE username = $1"; 
+$stmt = pg_prepare($con, "fetch_clerk_info", $query);
+$stmt = pg_execute($con, "fetch_clerk_info", array($clerk_username));
+
+if ($stmt) {
+    $clerk = pg_fetch_assoc($stmt);
+    if ($clerk) {
+        $name = $clerk['clerk_name'];
+        $image = $clerk['clerk_image'];
+    } else {
+        $name = "Unknown";
+        $image = "default.png"; // Fallback image
+    }
+} else {
+    $name = "Unknown";
+    $image = "default.png"; // Fallback image
+}
+
+?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -34,28 +66,26 @@
 			<script src="assets/js/respond.min.js"></script>
 		<![endif]-->
 
-		<?php
+	<?php
 session_start();
-include 'db.php'; 
-?>
+include '../db.php'; // Database connection file
 
-<?php
 // Check if clerk is logged in by verifying the session variable
-if (!isset($_SESSION['clerk_username'])) { // Changed to clerk_username
-    header("Location: login.php");
+if (!isset($_SESSION['clerk_username'])) { 
+    header("Location: /osna/clerk/login.php");
     exit();
 }
 
 // Retrieve the clerk's username from session
-$clerk_username = $_SESSION['clerk_username']; // Updated session variable
+$clerk_username = $_SESSION['clerk_username']; 
 
-// Fetch clerk information using PostgreSQL
-$sql = "SELECT clerk_name, clerk_image FROM clerk_log WHERE username = $1"; // $1 is a placeholder for parameter binding
-$result = pg_prepare($con, "get_clerk_info", $sql); // Prepare the query
-$result = pg_execute($con, "get_clerk_info", array($clerk_username)); // Execute the query with the session username
+// Fetch clerk information using prepared statements
+$query = "SELECT clerk_name, clerk_image FROM clerk_log WHERE username = $1"; 
+$stmt = pg_prepare($con, "fetch_clerk_info", $query);
+$stmt = pg_execute($con, "fetch_clerk_info", array($clerk_username));
 
-if ($result) {
-    $clerk = pg_fetch_assoc($result); // Fetch the row as an associative array
+if ($stmt) {
+    $clerk = pg_fetch_assoc($stmt);
     if ($clerk) {
         $name = $clerk['clerk_name'];
         $image = $clerk['clerk_image'];
@@ -67,8 +97,8 @@ if ($result) {
     $name = "Unknown";
     $image = "default.png"; // Fallback image
 }
-?>
 
+?>
 		
 
 
