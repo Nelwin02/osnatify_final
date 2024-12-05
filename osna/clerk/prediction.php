@@ -205,11 +205,7 @@ if ($stmt) {
                       
                         // Continue with your logic here
                     }
- Code Using getenv('API_KEY')
-Ensure your function to call the OpenAI API looks like this:
 
-php
-Copy code
 function predictDiseaseFromAPI($symptoms) {
     // Fetch API key from the environment variable
     $apiKey = getenv('API_KEY');
