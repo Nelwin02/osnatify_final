@@ -1,9 +1,8 @@
-	<?php
-session_start();
-include '../db.php'; 
-?>
-
 <?php
+session_start();
+include '../db.php';
+
+// Check if the user is logged in
 if (!isset($_SESSION['username'])) {
     header("Location: /osna/doctor2/login.php");
     exit();
@@ -11,7 +10,7 @@ if (!isset($_SESSION['username'])) {
 
 $username = $_SESSION['username'];
 
-
+// Query the database for doctor information
 $sql = "SELECT doctor_name, doctor_image FROM doctor_log WHERE username = $1";
 $result = pg_query_params($con, $sql, array($username));
 
@@ -22,13 +21,14 @@ if ($result) {
         $image = $user['doctor_image'];
     } else {
         $name = "Unknown";
+        $image = null; // Set a default value for the image
     }
 } else {
     $name = "Unknown";
+    $image = null; // Set a default value for the image
 }
-
-
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
