@@ -1,3 +1,37 @@
+<?php
+session_start();
+include '../db.php'; // Database connection file
+
+// Check if clerk is logged in by verifying the session variable
+if (!isset($_SESSION['clerk_username'])) { 
+    header("Location: /osna/doctor2/login.php");
+    exit();
+}
+
+// Retrieve the clerk's username from session
+$clerk_username = $_SESSION['clerk_username']; 
+
+// Fetch clerk information using prepared statements
+$query = "SELECT clerk_name, clerk_image FROM clerk_log WHERE username = $1"; 
+$stmt = pg_prepare($con, "fetch_clerk_info", $query);
+$stmt = pg_execute($con, "fetch_clerk_info", array($clerk_username));
+
+if ($stmt) {
+    $clerk = pg_fetch_assoc($stmt);
+    if ($clerk) {
+        $name = $clerk['clerk_name'];
+        $image = $clerk['clerk_image'];
+    } else {
+        $name = "Unknown";
+        $image = "default.png"; // Fallback image
+    }
+} else {
+    $name = "Unknown";
+    $image = "default.png"; // Fallback image
+}
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
     
@@ -29,43 +63,7 @@
 			<script src="assets/js/respond.min.js"></script>
 		<![endif]-->
 
-        <?php
-session_start();
-include 'db.php'; // Assuming db.php contains PostgreSQL connection details
-?>
-
-<?php
-// Check if clerk is logged in by verifying the session variable
-if (!isset($_SESSION['clerk_username'])) { // Check if session variable 'clerk_username' is set
-    header("Location: login.php");
-    exit();
-}
-
-// Retrieve the clerk's username from session
-$clerk_username = $_SESSION['clerk_username']; // Get the username from session
-
-// Fetch clerk information using PostgreSQL
-$sql = "SELECT clerk_name, clerk_image FROM clerk_log WHERE username = $1"; // Use $1 placeholder for parameter binding
-
-// Prepare and execute the query
-$result = pg_prepare($con, "get_clerk_info", $sql); // Prepare the query
-$result = pg_execute($con, "get_clerk_info", array($clerk_username)); // Execute with the username as parameter
-
-if ($result) {
-    $clerk = pg_fetch_assoc($result); // Fetch the result as an associative array
-    if ($clerk) {
-        $name = $clerk['clerk_name'];
-        $image = $clerk['clerk_image'];
-    } else {
-        $name = "Unknown";
-        $image = "default.png"; // Fallback image
-    }
-} else {
-    $name = "Unknown";
-    $image = "default.png"; // Fallback image
-}
-?>
-
+ 
 <?php
 // Build the SQL query
 $sql = "
