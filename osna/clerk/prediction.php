@@ -205,16 +205,26 @@ if ($stmt) {
                       
                         // Continue with your logic here
                     }
-// Function to call OpenAI API for disease prediction based on symptoms
+ Code Using getenv('API_KEY')
+Ensure your function to call the OpenAI API looks like this:
+
+php
+Copy code
 function predictDiseaseFromAPI($symptoms) {
-    $apiKey = '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'; // Replace with your valid API key
+    // Fetch API key from the environment variable
+    $apiKey = getenv('API_KEY');
+
+    // Check if the API key is available
+    if (!$apiKey) {
+        return "Error: API key is not set.";
+    }
+
     $url = 'https://api.openai.com/v1/chat/completions';
     $headers = [
         'Content-Type: application/json',
-        'Authorization: ' . 'Bearer ' . $apiKey
+        'Authorization: Bearer ' . $apiKey
     ];
 
-    // Define the question to send to the API
     $question = "Based on the symptoms: using comma provide 3 common 'Diagnosis', 'Prescription', 'Treatment': " . $symptoms;
 
     $data = [
@@ -228,7 +238,6 @@ function predictDiseaseFromAPI($symptoms) {
         'max_tokens' => 150,
         'temperature' => 0.5
     ];
-
     // Initialize cURL session
     $ch = curl_init($url);
     curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
