@@ -198,31 +198,20 @@ if ($stmt) {
 
                         <br><br>
 					
-                    
-
-
-                 <?php
-// Include database connection
-include 'db.php';
-
-if (isset($_GET['username'])) {
-    $username = $_GET['username'];
-}
-
+              
+                    <?php
+                    if (isset($_GET['username'])) {
+                        $username = $_GET['username'];
+                      
+                        // Continue with your logic here
+                    }
 // Function to call OpenAI API for disease prediction based on symptoms
 function predictDiseaseFromAPI($symptoms) {
-    // Fetch API key from environment variable
-    $apiKey = getenv('API_KEY');
-
-    // Check if the API key is available
-    if (!$apiKey) {
-        return "Error: API key is not set.";
-    }
-
+    $apiKey = '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'; // Replace with your valid API key
     $url = 'https://api.openai.com/v1/chat/completions';
     $headers = [
         'Content-Type: application/json',
-        'Authorization: Bearer ' . $apiKey
+        'Authorization: ' . 'Bearer ' . $apiKey
     ];
 
     // Define the question to send to the API
@@ -256,7 +245,7 @@ function predictDiseaseFromAPI($symptoms) {
     }
 
     $result = json_decode($response, true);
-
+    
     // Check for possible errors in the API response
     if (isset($result['error'])) {
         return "Error: " . $result['error']['message'];
@@ -265,22 +254,26 @@ function predictDiseaseFromAPI($symptoms) {
     // Return the content of the response
     if (isset($result['choices'][0]['message']['content'])) {
         return trim($result['choices'][0]['message']['content']);
+
+        
     } else {
         return "Error: Unexpected API response.";
     }
 }
 
-// Function to insert prediction data into the database
+
+
+
+// Function to insert the prediction data into the database and update the status
 function insertPredictionIntoDB($username, $symptoms, $disease, $prescription, $treatment) {
-    global $con;
+    include 'db.php'; // Assuming db.php connects to PostgreSQL
 
     // Begin transaction
     pg_query($con, "BEGIN");
 
     try {
-        // Insert prediction data
-        $sql = "INSERT INTO prediction (username, symptoms, predicted_disease, predicted_prescription, predicted_treatment) 
-                VALUES ($1, $2, $3, $4, $5)";
+        // Insert the prediction data
+        $sql = "INSERT INTO prediction (username, symptoms, predicted_disease, predicted_prescription, predicted_treatment) VALUES ($1, $2, $3, $4, $5)";
         $result = pg_prepare($con, "insert_prediction", $sql);
         $result = pg_execute($con, "insert_prediction", array($username, $symptoms, $disease, $prescription, $treatment));
 
@@ -300,11 +293,11 @@ function insertPredictionIntoDB($username, $symptoms, $disease, $prescription, $
         // Commit the transaction
         pg_query($con, "COMMIT");
 
-        // Display success modal
+        // Success: Show the modal and redirect after OK
         echo '
         <div id="successModal" class="modal">
             <div class="modal-content">
-                <p>Prediction saved, Ready for Prescription!</p>
+                <p>Prediction saved, Ready for Prescription!.</p>
                 <button id="okButton">OK</button>
             </div>
         </div>
@@ -313,13 +306,14 @@ function insertPredictionIntoDB($username, $symptoms, $disease, $prescription, $
             modal.style.display = "block";
             document.getElementById("okButton").onclick = function() {
                 modal.style.display = "none";
+                // Redirect to consult_patient.php with the same username
                 window.location.href = "consult_patient.php?username=' . urlencode($username) . '";
             };
         </script>
         ';
 
     } catch (Exception $e) {
-        // Rollback on error
+        // Rollback the transaction on error
         pg_query($con, "ROLLBACK");
         echo "Transaction failed: " . $e->getMessage();
     }
@@ -327,23 +321,44 @@ function insertPredictionIntoDB($username, $symptoms, $disease, $prescription, $
     // Close the database connection
     pg_close($con);
 }
+?>
+<?php
+// Assume you have a database connection set up as $con
+$username = $_GET['username']; // Retrieve the username from the URL or session
 
-// Fetch patient's name
+// Initialize the patientName variable
 $patientName = "";
+
+// Prepare the query to get the patient's name
 $query = "SELECT name FROM patient_info WHERE username = $1";
+
+// Prepare the query
 $stmt = pg_prepare($con, "get_patient_name", $query);
+
+// Execute the query
 $result = pg_execute($con, "get_patient_name", array($username));
 
+// Check if the query was successful and fetch the result
 if ($result) {
     $row = pg_fetch_assoc($result);
-    $patientName = $row ? $row['name'] : "Not Found";
+    if ($row) {
+        $patientName = $row['name']; // Assign the patient's name to the variable
+    } else {
+        // If no result, you can set a default value or handle it
+        $patientName = "Not Found"; 
+    }
 } else {
+    // Handle query failure
     echo "Error executing query: " . pg_last_error($con);
 }
 
+// Close the result set and connection
 pg_free_result($result);
 pg_close($con);
 ?>
+
+
+
 
 
 <!DOCTYPE html>
