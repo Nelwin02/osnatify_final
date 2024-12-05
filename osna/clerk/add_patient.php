@@ -35,9 +35,9 @@ if ($result) {
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
-require '/osna/clerk/phpmailer/src/Exception.php';
-require '/osna/clerk/phpmailer/src/PHPMailer.php';
-require '/osna/clerk/phpmailer/src/SMTP.php';
+require 'osna/clerk/phpmailer/src/Exception.php';
+require 'osna/clerk/phpmailer/src/PHPMailer.php';
+require 'osna/clerk/phpmailer/src/SMTP.php';
 
 $usernameNumber = rand(0, 999);
 $passwordNumber = rand(0, 999);
