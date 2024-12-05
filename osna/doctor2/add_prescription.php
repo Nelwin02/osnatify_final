@@ -220,9 +220,9 @@ if ($status_result) {
 include('db.php'); // Contains the database connection logic
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
-require './phpmailer/src/Exception.php';
-require './phpmailer/src/PHPMailer.php';
-require './phpmailer/src/SMTP.php';
+require 'phpmailer/src/Exception.php';
+require 'phpmailer/src/PHPMailer.php';
+require 'phpmailer/src/SMTP.php';
 
 // Retrieve username from URL
 $username = isset($_GET['username']) ? $_GET['username'] : null;
