@@ -202,21 +202,15 @@ if ($stmt) {
 
 
 
-                    <?php
-                    if (isset($_GET['username'])) {
-                        $username = $_GET['username'];
-                      
-                        // Continue with your logic here
-                    }
+              <?php
 // Function to call OpenAI API for disease prediction based on symptoms
 function predictDiseaseFromAPI($symptoms) {
-    // Get API key from environment variable
-    $apiKey = getenv('API_KEY'); // Fetch the API_KEY from environment variables
-    
+    // Retrieve API key from environment variables
+    $apiKey = getenv('API_KEY'); // Fetch the API key from environment
     if (!$apiKey) {
-        return "Error: API key not set.";
+        return "Error: API Key not found.";
     }
-    
+
     $url = 'https://api.openai.com/v1/chat/completions';
     $headers = [
         'Content-Type: application/json',
@@ -224,7 +218,7 @@ function predictDiseaseFromAPI($symptoms) {
     ];
 
     // Define the question to send to the API
-    $question = "Based on the symptoms: $symptoms, provide 3 common 'Diagnosis', 'Prescription', 'Treatment'.";
+    $question = "Based on the symptoms: using comma provide 3 common 'Diagnosis', 'Prescription', 'Treatment': " . $symptoms;
 
     $data = [
         'model' => 'gpt-3.5-turbo',
@@ -246,38 +240,27 @@ function predictDiseaseFromAPI($symptoms) {
 
     // Execute cURL session
     $response = curl_exec($ch);
-
-    // Check for cURL errors
-    if ($response === false) {
-        $errorMessage = curl_error($ch);
-        curl_close($ch);
-        return "Error: Unable to contact API. cURL error: $errorMessage";
-    }
-
     curl_close($ch);
 
-    // Decode JSON response
+    // Log the full API response for debugging
+    if ($response === false) {
+        return "Error: Unable to contact API.";
+    }
+
     $result = json_decode($response, true);
     
-    // Log the full response for debugging (this is optional)
-    // file_put_contents('response_log.json', print_r($result, true)); // Uncomment this line for logging
-
-    // Check for API errors in the response
+    // Check for possible errors in the API response
     if (isset($result['error'])) {
         return "Error: " . $result['error']['message'];
     }
 
-    // Check if the response contains valid data
+    // Return the content of the response
     if (isset($result['choices'][0]['message']['content'])) {
         return trim($result['choices'][0]['message']['content']);
-    } elseif (isset($result['choices'][0]['text'])) { // For older responses (fallback)
-        return trim($result['choices'][0]['text']);
     } else {
         return "Error: Unexpected API response.";
     }
 }
-
-
 
 // Function to insert the prediction data into the database and update the status
 function insertPredictionIntoDB($username, $symptoms, $disease, $prescription, $treatment) {
@@ -336,8 +319,7 @@ function insertPredictionIntoDB($username, $symptoms, $disease, $prescription, $
     // Close the database connection
     pg_close($con);
 }
-?>
-<?php
+
 // Assume you have a database connection set up as $con
 $username = $_GET['username']; // Retrieve the username from the URL or session
 
@@ -372,10 +354,6 @@ pg_free_result($result);
 pg_close($con);
 ?>
 
-
-
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -383,8 +361,6 @@ pg_close($con);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Prediction</title>
     <style>
-           
-       
         .container {
             width: 60%;
             max-width: 600px; 
@@ -444,258 +420,64 @@ pg_close($con);
             border: 1px solid #bee5eb; 
             display: none; /* Initially hidden */
         }
+
+        /* Modal styles */
         .modal {
-    display: none;
-    position: fixed;
-    z-index: 1000; /* Higher z-index for modal */
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.8); /* Darker modal background */
-}
-
-.modal-content {
-    background-color: #ffffff;
-    margin: 15% auto;
-    padding: 30px; /* Increased padding for more space */
-    border: 1px solid #888;
-    border-radius: 10px; /* Rounded corners */
-    width: 80%;
-    max-width: 400px; /* Slightly wider modal */
-    text-align: center;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3); /* Shadow for depth */
-}
-
-.modal-content button {
-    padding: 10px 20px;
-    background-color: #28a745; /* Bootstrap success color */
-    color: white;
-    border: none;
-    border-radius: 5px; /* Rounded button */
-    cursor: pointer;
-    font-weight: bold;
-}
-
-.modal-content button:hover {
-    background-color: #218838; /* Darker green on hover */
-}
-
-        .prediction-history {
-            width: 35%; 
-            max-width: 300px; 
-            float: right; 
-            background-color: #f8f9fa; 
-            border-radius: 8px;
-            padding: 15px;
-            margin-left: 20px; 
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
         }
 
-        .prediction-history h3 {
+        .modal-content {
+            background-color: #ffffff;
+            margin: 15% auto;
+            padding: 30px;
+            border: 1px solid #888;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 400px;
             text-align: center;
-            color: #007bff; 
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
         }
 
-        .prediction-history ul {
-            list-style-type: none; 
-            padding: 0; 
-            max-height: 150px; 
-            overflow-y: auto; 
-        }
-
-        .prediction-history li {
-            margin-bottom: 15px; 
-            border-bottom: 1px solid #ced4da;
-            padding-bottom: 10px;
-        }
-
-        .view-all {
-            text-align: center; 
-            margin-top: 10px;
-        }
-
-        .view-all button {
-            background-color: #007bff; 
+        .modal-content button {
+            padding: 10px 20px;
+            background-color: #28a745;
             color: white;
             border: none;
-            border-radius: 5px; 
-            padding: 10px 15px;
+            border-radius: 5px;
             cursor: pointer;
             font-weight: bold;
         }
 
-        .view-all button:hover {
-            background-color: #0056b3; 
+        .modal-content button:hover {
+            background-color: #218838;
         }
-        /* Style for the container */
-
-
-/* Style for the input field */
-input[type="text"] {
-  padding: 8px 12px;
-  font-size: 16px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  width: 250px;
-  background-color: #f9f9f9;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-/* Style for the button */
-.toggle-button {
-  padding: 8px 10px;
-  font-size: 16px;
-  background-color: #024CAA;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-/* Hover effect for the button */
-.toggle-button:hover {
-  background-color: #024CAA;
-  transform: translateY(-2px);
-}
-
-/* Focus effect for input field */
-input[type="text"]:focus {
-  outline: none;
-  border-color: #4CAF50;
-  box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
-}
-
-/* Transition for button text change */
-.toggle-button:focus {
-  outline: none;
-}
 
     </style>
-    
 </head>
 <body>
     <div class="container">
         <h1 style="font-size: 25px; font-weight: bold;">How are you feeling right now?</h1>
-        <style>
-    input[type="text"] {
-        width: 100%;
-        padding: 10px;
-        margin: 8px 0;
-        box-sizing: border-box;
-        border: 2px solid #ccc;
-        border-radius: 4px;
-        font-size: 16px;
-        transition: border-color 0.3s ease;
-    }
-
-    input[type="text"]:focus {
-        border-color: #007BFF; /* Blue border on focus */
-        outline: none; /* Remove default outline */
-    }
-</style>
-<input type="text" name="username" value="<?php echo htmlspecialchars($username); ?>" hidden/>
-<!-- Input field for name with a button inside to show/hide username -->
-<div>
-  <input type="text" name="name" value="<?php echo htmlspecialchars($patientName); ?>" readonly />
-  
-  <!-- Button to show/hide username -->
-  <button type="button" onclick="toggleUsername()" class="toggle-button">Show P_ID</button>
-
-  <!-- Hidden input field containing the username -->
-  <input type="hidden" id="username" value="<?php echo htmlspecialchars($username); ?>" />
-</div>
-
-<script>
-  function toggleUsername() {
-    // Get the button and the username input
-    var button = event.target;
-    var username = document.getElementById('username').value;
-
-    // Check if the username is currently visible
-    var nameInput = document.querySelector('input[name="name"]');
-    
-    if (nameInput.value === "<?php echo htmlspecialchars($patientName); ?>") {
-      // If the name is showing, show the username and change the button text
-      nameInput.value = username;
-      button.innerHTML = 'Show Name';
-    } else {
-      // If the username is showing, show the patient name and change the button text
-      nameInput.value = "<?php echo htmlspecialchars($patientName); ?>";
-      button.innerHTML = 'Show P_ID';
-    }
-  }
-</script>
-
-
         <form method="POST">
             <input type="hidden" name="username" value="<?php echo $username; ?>" />
-            <label for="symptoms"></label>
             <textarea name="symptoms" id="symptoms" rows="4" placeholder="Enter your symptoms" required></textarea>
             <input type="submit" value="Predict">
         </form>
 
         <div class="result" id="predictionResult">
-            <h3 style='font-weight: bold'>Prediction Results:</h3>
-            <p id="predictionDetails"></p>
+            <strong>Predicted Disease:</strong> <span id="predictedDisease"></span><br>
+            <strong>Prescription:</strong> <span id="prescription"></span><br>
+            <strong>Treatment:</strong> <span id="treatment"></span>
         </div>
-
-        <?php
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $symptoms = $_POST['symptoms'];
-    $username = $_POST['username']; // Get the username from the form
-    $predictedData = predictDiseaseFromAPI($symptoms);
-
-    // Initialize variables for disease, prescription, and treatment
-    $disease = 'N/A';
-    $prescription = 'N/A';
-    $treatment = 'N/A';
-
-    // Split the API response into lines
-    $predictedEntries = explode("\n", $predictedData);
-    $resultDetails = '';
-
-    // Loop through the predicted entries and identify relevant sections
-    foreach ($predictedEntries as $entry) {
-        $entry = trim($entry);
-        if (strpos(strtolower($entry), 'diagnosis') !== false) {
-            $disease = $entry;
-        } elseif (strpos(strtolower($entry), 'prescription') !== false || strpos(strtolower($entry), 'medication') !== false) {
-            $prescription = $entry;
-        } elseif (strpos(strtolower($entry), 'treatment') !== false) {
-            $treatment = $entry;
-        }
-        $resultDetails .= htmlspecialchars($entry) . '<br>';
-    }
-
-    // If no prescription was explicitly found, set it as "Not provided"
-    if ($prescription === 'N/A') {
-        $prescription = 'Not provided';
-    }
-
-    // Insert the prediction data into the PostgreSQL database
-    insertPredictionIntoDB($username, $symptoms, $disease, $prescription, $treatment);
-
-    // Display prediction results in the HTML
-    echo "<script>
-        document.getElementById('predictionResult').style.display = 'block';
-        document.getElementById('predictionDetails').innerHTML = '{$resultDetails}';
-    </script>";
-}
-        ?>
     </div>
 </body>
 </html>
-
-
-
-    
-
-
-
-
 
 
 
