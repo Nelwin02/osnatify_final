@@ -1,41 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-    
-<!-- Mirrored from dreamguys.co.in/demo/doccure/admin/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 30 Nov 2019 04:12:20 GMT -->
-<head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
-        <title>Add Patient</title>
-		
-		<!-- Favicon -->
-        <link rel="shortcut icon" type="image/x-icon" href="assets/img/opd.png">
-		
-		<!-- Bootstrap CSS -->
-        <link rel="stylesheet" href="assets/css/bootstrap.min.css">
-		
-		<!-- Fontawesome CSS -->
-        <link rel="stylesheet" href="assets/css/font-awesome.min.css">
-		
-		<!-- Feathericon CSS -->
-        <link rel="stylesheet" href="assets/css/feathericon.min.css">
-		
-		<link rel="stylesheet" href="assets/plugins/morris/morris.css">
-		
-		<!-- Main CSS -->
-        <link rel="stylesheet" href="assets/css/style.css">
-		
-		<!--[if lt IE 9]>
-			<script src="assets/js/html5shiv.min.js"></script>
-			<script src="assets/js/respond.min.js"></script>
-		<![endif]-->
+<?php
+session_start(); // Start session at the beginning to avoid any issues with headers
 
-        <?php
-session_start();
-include 'db.php'; // Assuming this includes the PostgreSQL connection setup
+include '../db.php'; // Database connection file
 
 // Check if clerk is logged in by verifying the session variable
 if (!isset($_SESSION['clerk_username'])) { // Changed to clerk_username
-    header("Location: login.php");
+    header("Location: /osna/doctor2/login.php");
     exit();
 }
 
@@ -45,10 +15,10 @@ $clerk_username = $_SESSION['clerk_username']; // Updated session variable
 // Fetch clerk information using prepared statements
 $query = "SELECT clerk_name, clerk_image FROM clerk_log WHERE username = $1"; // Using clerk_username in the query
 $stmt = pg_prepare($con, "fetch_clerk_info", $query);
-$stmt = pg_execute($con, "fetch_clerk_info", array($clerk_username));
+$result = pg_execute($con, "fetch_clerk_info", array($clerk_username));
 
-if ($stmt) {
-    $clerk = pg_fetch_assoc($stmt);
+if ($result) {
+    $clerk = pg_fetch_assoc($result);
     if ($clerk) {
         $name = $clerk['clerk_name'];
         $image = $clerk['clerk_image'];
@@ -60,10 +30,6 @@ if ($stmt) {
     $name = "Unknown";
     $image = "default.png"; // Fallback image
 }
-
-?>
-
-<?php
 
 // Include PHPMailer classes
 use PHPMailer\PHPMailer\PHPMailer;
@@ -97,6 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $_SESSION['dob'] = $_POST['dob'];
         $_SESSION['step'] = 3;
     } elseif (isset($_POST['submit'])) { 
+        // Database connection details
         $host = 'dpg-ct2lk83qf0us739u2uvg-a.oregon-postgres.render.com';
         $port = '5432';  // Default PostgreSQL port
         $dbname = 'opdmsis';
@@ -232,8 +199,38 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $_SESSION['step'] = 1;
 }
 ?>
+<!DOCTYPE html>
+<html lang="en">
+    
+<!-- Mirrored from dreamguys.co.in/demo/doccure/admin/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 30 Nov 2019 04:12:20 GMT -->
+<head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
+        <title>Add Patient</title>
+		
+		<!-- Favicon -->
+        <link rel="shortcut icon" type="image/x-icon" href="assets/img/opd.png">
+		
+		<!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+		
+		<!-- Fontawesome CSS -->
+        <link rel="stylesheet" href="assets/css/font-awesome.min.css">
+		
+		<!-- Feathericon CSS -->
+        <link rel="stylesheet" href="assets/css/feathericon.min.css">
+		
+		<link rel="stylesheet" href="assets/plugins/morris/morris.css">
+		
+		<!-- Main CSS -->
+        <link rel="stylesheet" href="assets/css/style.css">
+		
+		<!--[if lt IE 9]>
+			<script src="assets/js/html5shiv.min.js"></script>
+			<script src="assets/js/respond.min.js"></script>
+		<![endif]-->
 
-
+   
 <!-- Check for success session variable and trigger modal -->
 <script>
 $(document).ready(function() {
