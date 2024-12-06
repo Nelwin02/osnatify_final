@@ -208,7 +208,7 @@ if ($stmt) {
 
 function predictDiseaseFromAPI($symptoms) {
     // Fetch API key from the environment variable
-    $apiKey = getenv('https://dashboard.render.com/web/srv-ct5robe8ii6s73dl5ak0/env/API_KEY');
+    $apiKey = getenv('API_KEY');
 
     // Check if the API key is available
     if (!$apiKey) {
@@ -632,7 +632,7 @@ input[type="text"]:focus {
             <p id="predictionDetails"></p>
         </div>
 
-        <?php
+      <?php
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $symptoms = $_POST['symptoms'];
     $username = $_POST['username']; // Get the username from the form
@@ -643,26 +643,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $prescription = 'N/A';
     $treatment = 'N/A';
 
-    // Split the API response into lines
-    $predictedEntries = explode("\n", $predictedData);
-    $resultDetails = '';
-
-    // Loop through the predicted entries and identify relevant sections
-    foreach ($predictedEntries as $entry) {
-        $entry = trim($entry);
-        if (strpos(strtolower($entry), 'diagnosis') !== false) {
-            $disease = $entry;
-        } elseif (strpos(strtolower($entry), 'prescription') !== false || strpos(strtolower($entry), 'medication') !== false) {
-            $prescription = $entry;
-        } elseif (strpos(strtolower($entry), 'treatment') !== false) {
-            $treatment = $entry;
-        }
-        $resultDetails .= htmlspecialchars($entry) . '<br>';
+    // Check if the predicted data includes diagnosis, prescription, and treatment
+    if (strpos($predictedData, "Diagnosis") !== false) {
+        preg_match("/Diagnosis: (.*?)(?=Prescription:|Treatment:|$)/", $predictedData, $matches);
+        $disease = isset($matches[1]) ? $matches[1] : 'N/A';
     }
 
-    // If no prescription was explicitly found, set it as "Not provided"
-    if ($prescription === 'N/A') {
-        $prescription = 'Not provided';
+    if (strpos($predictedData, "Prescription") !== false) {
+        preg_match("/Prescription: (.*?)(?=Treatment:|$)/", $predictedData, $matches);
+        $prescription = isset($matches[1]) ? $matches[1] : 'N/A';
+    }
+
+    if (strpos($predictedData, "Treatment") !== false) {
+        preg_match("/Treatment: (.*)$/", $predictedData, $matches);
+        $treatment = isset($matches[1]) ? $matches[1] : 'N/A';
     }
 
     // Insert the prediction data into the PostgreSQL database
@@ -671,10 +665,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Display prediction results in the HTML
     echo "<script>
         document.getElementById('predictionResult').style.display = 'block';
-        document.getElementById('predictionDetails').innerHTML = '{$resultDetails}';
+        document.getElementById('predictionDetails').innerHTML = 'Diagnosis: {$disease}<br>Prescription: {$prescription}<br>Treatment: {$treatment}';
     </script>";
 }
-        ?>
+?>
+
     </div>
 </body>
 </html>
