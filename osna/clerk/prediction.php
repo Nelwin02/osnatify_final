@@ -208,7 +208,7 @@ if ($stmt) {
 
 function predictDiseaseFromAPI($symptoms) {
     // Fetch API key from the environment variable
-    $apiKey = getenv('API_KEY');
+    $apiKey = getenv('https://dashboard.render.com/web/srv-ct5robe8ii6s73dl5ak0/env/API_KEY');
 
     // Check if the API key is available
     if (!$apiKey) {
