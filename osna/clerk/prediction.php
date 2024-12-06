@@ -221,7 +221,7 @@ function predictDiseaseFromAPI($symptoms) {
         'Authorization: Bearer ' . $apiKey
     ];
 
-    $question = "Based on the symptoms: using comma provide 3 common 'Diagnosis', 'Prescription', 'Treatment': " . $symptoms;
+    $question = "Based on the different symptoms: using comma provide 3 common 'Diagnosis', 'Prescription', 'Treatment': " . $symptoms;
 
     $data = [
         'model' => 'gpt-3.5-turbo',
