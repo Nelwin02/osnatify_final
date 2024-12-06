@@ -199,18 +199,18 @@ if ($stmt) {
                         <br><br>
 					
               
-                    <?php
-                    if (isset($_GET['username'])) {
-                        $username = $_GET['username'];
-                      
-                        // Continue with your logic here
-                    }
+                  <?php
+if (isset($_GET['username']) && isset($_GET['symptoms'])) {
+    $username = $_GET['username'];
+    $symptoms = $_GET['symptoms'];
+
+    echo predictDiseaseFromAPI($symptoms);
+}
 
 function predictDiseaseFromAPI($symptoms) {
-    // Fetch API key from the environment variable
+    // Fetch API key from environment variable
     $apiKey = getenv('API_KEY');
 
-    // Check if the API key is available
     if (!$apiKey) {
         return "Error: API key is not set.";
     }
@@ -226,14 +226,12 @@ function predictDiseaseFromAPI($symptoms) {
     $data = [
         'model' => 'gpt-3.5-turbo',
         'messages' => [
-            [
-                'role' => 'user',
-                'content' => $question
-            ]
+            ['role' => 'user', 'content' => $question]
         ],
         'max_tokens' => 150,
         'temperature' => 0.5
     ];
+
     // Initialize cURL session
     $ch = curl_init($url);
     curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
@@ -242,25 +240,24 @@ function predictDiseaseFromAPI($symptoms) {
 
     // Execute cURL session
     $response = curl_exec($ch);
+    $error = curl_error($ch);
     curl_close($ch);
 
-    // Log the full API response for debugging
-    if ($response === false) {
-        return "Error: Unable to contact API.";
+    // Handle cURL errors
+    if ($response === false || !empty($error)) {
+        return "cURL Error: " . $error;
     }
 
     $result = json_decode($response, true);
-    
-    // Check for possible errors in the API response
+
+    // Handle API errors
     if (isset($result['error'])) {
         return "Error: " . $result['error']['message'];
     }
 
-    // Return the content of the response
+    // Return API response
     if (isset($result['choices'][0]['message']['content'])) {
         return trim($result['choices'][0]['message']['content']);
-
-        
     } else {
         return "Error: Unexpected API response.";
     }
