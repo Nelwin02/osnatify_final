@@ -10,12 +10,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $image = $_FILES['clerk_image']['name']; // Image file name
     $clerkId = $_POST['clerk_id']; // Clerk ID (assuming you are passing this)
 
-    // If a password is provided, hash it
-    if (!empty($new_password)) {
-        $new_password = password_hash($new_password, PASSWORD_DEFAULT); // Hash the password
-    }
-
     // Handle image upload
+    $imagePath = null;
     if (!empty($image)) {
         $imageTmpName = $_FILES['clerk_image']['tmp_name'];
         $imagePath = 'Images/' . basename($image); // Path where the image will be stored
@@ -27,38 +23,39 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     }
 
-    // Prepare the base update query
-    $updateQuery = "UPDATE clerk_log SET 
-                        username = $1, 
-                        clerk_name = $2, 
-                        clerk_image = $3 WHERE id = $4"; // Assuming you use 'id' to identify the clerk
+    // Prepare the base update query and parameters
+    $updateQuery = "UPDATE clerk_log SET username = $1, clerk_name = $2";
+    $params = [$username, $name];
 
-    // If a new password is provided, include it in the update query
+    // Add the password if provided
     if (!empty($new_password)) {
-        $updateQuery = "UPDATE clerk_log SET 
-                        username = $1, 
-                        password = $2, 
-                        clerk_name = $3,
-                        clerk_image = $4 WHERE id = $5";
+        $updateQuery .= ", password = $3";
+        $params[] = $new_password; // Directly use the raw password
     }
 
-    // Prepare the query using pg_query_params (PostgreSQL query execution with parameterized queries)
-    if (!empty($new_password)) {
-        // Bind parameters including the new password
-        $result = pg_query_params($con, $updateQuery, array($username, $new_password, $name, $image, $clerkId));
-    } else {
-        // Bind parameters without the password
-        $result = pg_query_params($con, $updateQuery, array($username, $name, $image, $clerkId));
+    // Add the image if provided
+    if ($imagePath !== null) {
+        $updateQuery .= ", clerk_image = $4";
+        $params[] = $image;
     }
+
+    // Add the WHERE clause for the clerk ID
+    $updateQuery .= " WHERE id = $5";
+    $params[] = $clerkId;
+
+    // Execute the query
+    $result = pg_query_params($con, $updateQuery, $params);
 
     // Check if the query was successful
     if ($result) {
         // Redirect to profile.php after successful update
-        header("Location: profile.php");
+        header("Location: profile.php?status=success");
         exit(); // Ensure script execution stops after redirect
     } else {
         echo "Error updating clerk details: " . pg_last_error($con); // Show error if any
     }
 }
-pg_close($con); // Close the PostgreSQL connection
+
+// Close the PostgreSQL connection
+pg_close($con);
 ?>
