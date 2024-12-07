@@ -107,12 +107,12 @@ if ($stmt) {
 					<!-- User Menu -->
 					<li class="nav-item dropdown has-arrow">
 						<a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown">
-							<span class="user-img"><img class="rounded-circle" src="../clerk/Images/<?php echo htmlspecialchars($image); ?>" width="31" alt="admin"></span>
+							<span class="user-img"><img class="rounded-circle" src="../clerk/Images/<?php echo htmlspecialchars($image); ?>" width="31" alt="clerk"></span>
 						</a>
 						<div class="dropdown-menu">
 							<div class="user-header">
 								<div class="avatar avatar-sm">
-								<span class="user-img"><img class="rounded-circle" src="../clerk/Images/<?php echo htmlspecialchars($image); ?>" width="31" alt="admin"></span>
+								<span class="user-img"><img class="rounded-circle" src="../clerk/Images/<?php echo htmlspecialchars($image); ?>" width="31" alt="clerk"></span>
 								</div>
 								<div class="user-text">
 								<h6><?php echo $clerk_username; ?></h6>
@@ -207,7 +207,7 @@ if ($stmt) {
 								<div class="row align-items-center">
 									<div class="col-auto profile-image">
 										<a href="#">
-										<span class="user-img"><img class="rounded-circle" src="../clerk/Images/<?php echo htmlspecialchars($image); ?>" width="31" alt="admin"></span>
+										<span class="user-img"><img class="rounded-circle" src="../clerk/Images/<?php echo htmlspecialchars($image); ?>" width="31" alt="clerk"span>
 										</a>
 									</div>
 									<div class="col ml-md-n2 profile-user-info">
