@@ -1,4 +1,6 @@
 <?php
+ob_start(); // Start output buffering
+
 include 'db.php'; // Database connection
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -55,4 +57,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Close the connection
     pg_close($con);
 }
+
+ob_end_flush(); // End output buffering and flush output
 ?>
