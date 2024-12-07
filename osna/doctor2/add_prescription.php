@@ -267,12 +267,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $username) {
     $third_take = !empty($_POST['third_take']) ? $_POST['third_take'] : null;
     $fourth_take = !empty($_POST['fourth_take']) ? $_POST['fourth_take'] : null;
     $fifth_take = !empty($_POST['fifth_take']) ? $_POST['fifth_take'] : null;
-
-    // Insert prescription data into the doctor_confirm table
+    $symptoms = $_POST['symptoms'];
+    // Insert prescription and symptoms data into the doctor_confirm table
     $query = "INSERT INTO doctor_confirm 
-              (username, diagnosis, prescription, frequency, dosage, duration, first_take, second_take, third_take, fourth_take, fifth_take) 
-              VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)";
-    $params = [$username, $diagnosis, $prescription, $frequency, $dosage, $duration, $first_take, $second_take, $third_take, $fourth_take, $fifth_take];
+              (username, diagnosis, prescription, frequency, dosage, duration, first_take, second_take, third_take, fourth_take, fifth_take, symptoms) 
+              VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)";
+    $params = [
+        $username, 
+        $diagnosis, 
+        $prescription, 
+        $frequency, 
+        $dosage, 
+        $duration, 
+        $first_take, 
+        $second_take, 
+        $third_take, 
+        $fourth_take, 
+        $fifth_take, 
+        $symptoms
+    ];
 
     $result = pg_query_params($con, $query, $params);
 
