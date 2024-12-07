@@ -1,3 +1,31 @@
+<?php
+// Start session
+session_start();
+include '../db.php'; // Ensure the correct path to db.php
+
+// Redirect to login if the user is not logged in
+if (!isset($_SESSION['username'])) {
+    header("Location: login.php");
+    exit();
+}
+
+$username = $_SESSION['username'];
+
+// Use PostgreSQL's parameterized query to prevent SQL injection
+$sql = "SELECT name FROM admin_log WHERE username = $1";
+$result = pg_query_params($con, $sql, array($username));
+
+$name = "Unknown"; // Default value
+if ($result) {
+    $user = pg_fetch_assoc($result);
+    if ($user) {
+        $name = $user['name'];
+    }
+}
+
+// Free the result resource
+pg_free_result($result);
+?>
 <!DOCTYPE html>
 <html lang="en">
     
@@ -28,49 +56,7 @@
 			<script src="assets/js/html5shiv.min.js"></script>
 			<script src="assets/js/respond.min.js"></script>
 		<![endif]-->
-		<?php
-  session_start();
-  include 'db.php'; // Include PostgreSQL connection script
-?>
-
-<?php
-    // Check if the session variable 'username' is set
-    if (!isset($_SESSION['username'])) {
-        header("Location: login.php");
-        exit();
-    }
-
-    // Get the username from the session
-    $username = $_SESSION['username'];
-
-    // Use a parameterized query to prevent SQL injection
-    $sql = "SELECT name FROM admin_log WHERE username = $1"; // $1 is a placeholder for parameter binding
-
-    // Prepare the query
-    if ($stmt = pg_prepare($con, "get_name", $sql)) {
-        // Execute the query with the username as the parameter
-        $result = pg_execute($con, "get_name", array($username));
-
-        // Check if the query was successful
-        if ($result) {
-            // Fetch the result
-            $user = pg_fetch_assoc($result);
-            if ($user) {
-                $name = $user['name'];
-            } else {
-                $name = "Unknown";
-            }
-        } else {
-            $name = "Unknown";
-        }
-    } else {
-        // Query preparation failed
-        $name = "Unknown";
-    }
-
-    // Close the PostgreSQL connection
-    pg_close($con);
-?>
+		
 
     </head>
     <body>
