@@ -246,83 +246,109 @@ if ($result) {
 												</div>
 											</div>
 											
-											<!-- Edit Details Modal -->
-											<!-- Edit Details Modal -->
-											<?php
-include 'db.php'; // Database connection
+		   <!-- Edit Details Modal -->
+        <?php
+// Include the database connection
+include 'db.php';
 
-// Fetch doctor details by ID (replace with dynamic ID if needed)
+// Check if doctor_id is set in the session (already started)
+if (!isset($_SESSION['doctor_id']) || !is_numeric($_SESSION['doctor_id'])) {
+    // If doctor_id is not set in session, redirect to the login page
+    header('Location: login.php');
+    exit();
+}
+
+// Get the doctor ID from the session
+$doctor_id = $_SESSION['doctor_id'];
+
+
+
+// PostgreSQL query using parameterized query to fetch doctor details from the doctor_log table
 $query = "SELECT * FROM doctor_log WHERE id = $1";
-$stmt = pg_prepare($con, "fetch_doctor", $query);
-$result = pg_execute($con, "fetch_doctor", array($doctorId));
 
+// Prepare the query and execute it
+$result = pg_query_params($con, $query, array($doctor_id));
+
+// Check if the query was successful
 if ($result) {
-    $doctor = pg_fetch_assoc($result);
-    if ($doctor) {
-        // Successfully fetched doctor details
+    // Check if there is at least one row
+    if (pg_num_rows($result) > 0) {
+        // Fetch the doctor details
+        $doctor = pg_fetch_assoc($result);
     } else {
         echo "No record found";
         exit;
     }
 } else {
-    echo "Error executing query.";
+    echo "Error in query execution";
     exit;
 }
 ?>
 
+<!-- Continue with the HTML part as before -->
 
-<div class="modal fade" id="edit_personal_details" aria-hidden="true" role="dialog">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Personal Details</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form action="update_doctor.php" method="POST" enctype="multipart/form-data">
-                    <div class="row form-row">
-                        <div class="col-12 col-sm-6">
-                            <div class="form-group">
-                                <label>Username</label>
-                                <input type="text" class="form-control" name="username" value="<?php echo htmlspecialchars($doctor['username']); ?>" required>
-                            </div>
-                        </div>
 
-                        <div class="col-12 col-sm-6">
-                            <div class="form-group">
-                                <label>Name</label>
-                                <input type="text" class="form-control" name="doctor_name" value="<?php echo htmlspecialchars($doctor['doctor_name']); ?>" required>
-                            </div>
-                        </div>
 
-                        <div class="col-12">
-                            <div class="form-group">
-                                <label>Profile Image</label>
-                                <input type="file" class="form-control" name="doctor_image">
-                                <?php if ($doctor['doctor_image']): ?>
-                                    <img src="Images/<?php echo htmlspecialchars($doctor['doctor_image']); ?>" alt="Current Image" style="max-width: 100px; margin-top: 10px;">
-                                <?php endif; ?>
-                            </div>
-                        </div>
+        <!-- Edit Details Modal -->
+        <div class="modal fade" id="edit_personal_details" aria-hidden="true" role="dialog">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Personal Details</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
                     </div>
+                    <div class="modal-body">
+                        <form action="update_doctor.php" method="POST" enctype="multipart/form-data">
+                            <div class="row form-row">
+                                <div class="col-12 col-sm-6">
+                                    <div class="form-group">
+                                        <label>Username</label>
+                                        <input type="text" class="form-control" name="username" value="<?php echo htmlspecialchars($doctor['username']); ?>" required>
+                                    </div>
+                                </div>
 
-                    <input type="hidden" name="doctor_id" value="<?php echo $doctor['id']; ?>">
-                    <button type="submit" class="btn btn-primary btn-block">Save Changes</button>
-                </form>
+                                <div class="col-12 col-sm-6">
+                                    <div class="form-group">
+                                        <label>Name</label>
+                                        <input type="text" class="form-control" name="doctor_name" value="<?php echo htmlspecialchars($doctor['doctor_name']); ?>" required>
+                                    </div>
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        <label>Profile Image</label>
+                                        <input type="file" class="form-control" name="doctor_image">
+                                        <?php if ($doctor['doctor_image']): ?>
+                                            <img src="Images/<?php echo htmlspecialchars($doctor['doctor_image']); ?>" alt="Current Image" style="max-width: 100px; margin-top: 10px;">
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 col-sm-6">
+                                    <div class="form-group">
+                                        <label>Password</label>
+                                        <input type="password" class="form-control" name="password" placeholder="Enter new password">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <input type="hidden" name="doctor_id" value="<?php echo $doctor['id']; ?>">
+                            <button type="submit" class="btn btn-primary btn-block">Save Changes</button>
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 <?php
-// Close the prepared statement and PostgreSQL connection
-pg_free_result($result);  // Optional, but good practice to free the result
+// Free the result and close the PostgreSQL connection
+pg_free_result($result);
 pg_close($con);
 ?>
-
-
 
 
         </div>
