@@ -16,10 +16,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Prepare the parameters array
     $params = [$name, $birthdate, $admin_email, $mob_num, $admin_address];
 
-    // If password is provided, include it in the update
+    // If a new password is provided, include it in the update
     if (!empty($new_password)) {
         $updateQuery .= ", password = $6"; // Add password to the query
         $params[] = $new_password; // Add password to the params array
+    } else {
+        // If password is empty or not provided, include NULL in the update
+        $updateQuery .= ", password = NULL"; // Set password to NULL if no new password is provided
     }
 
     // Add the WHERE condition for the admin ID
