@@ -18,7 +18,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $updateQuery .= ", password = $6";
     }
 
-    $updateQuery .= " WHERE id = $7";
+    $updateQuery .= " WHERE id = $1";
 
     // Prepare the statement
     $stmt = pg_prepare($con, "update_admin", $updateQuery);
