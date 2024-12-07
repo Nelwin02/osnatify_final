@@ -4,14 +4,14 @@ include 'db.php'; // Database connection
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $adminId = $_POST['admin_id'];
     $name = $_POST['name'];
-    $birthdate = $_POST['birthdate'];
+    $birthdate = $_POST['date_birth'];
     $admin_email = $_POST['admin_email'];
-    $mob_num = $_POST['mob_num'];
+    $mob_num = $_POST['mobile'];
     $admin_address = $_POST['admin_address'];
     $new_password = $_POST['new_password'];
 
     // Update query (use placeholders for parameters)
-    $updateQuery = "UPDATE admin_log SET name = $1, birthdate = $2, admin_email = $3, mob_num = $4, admin_address = $5";
+    $updateQuery = "UPDATE admin_log SET name = $1, date_birth = $2, admin_email = $3, mobile = $4, admin_address = $5";
 
     // If password is provided, include it in the update
     if (!empty($new_password)) {
