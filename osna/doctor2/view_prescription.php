@@ -298,7 +298,7 @@ if ($username) {
 
                         
                                     <div class="card-body" style="background-color: #f9f9f9; padding: 30px;">
-                                    <?php
+                                 <?php
 // Assuming $username is set based on the logged-in user
 
 // Fetch vitals data from vitalsigns table
@@ -331,6 +331,8 @@ $result = pg_execute($con, "prescription_query", array($username));
 // Flag to check if diagnosis and prescription have been displayed
 $diagnosisDisplayed = false;
 $prescriptionDisplayed = false;
+
+
 ?>
 
 
@@ -454,8 +456,9 @@ $prescriptionDisplayed = false;
         <table class="table table-striped table-bordered table-hover">
             <thead class="thead-dark">
                 <tr>
+                    <th>Chief Complaint </th>
                     <th>Diagnosis</th>
-                    <th>Medicine</th>
+                    <th>Prescription</th>
                     <th>Prescription Details</th>
                     <th>First Take</th>
                     <th>Second Take</th>
@@ -468,6 +471,7 @@ $prescriptionDisplayed = false;
             <tbody>
                 <?php while ($prescription = pg_fetch_assoc($result)): ?>
                     <tr>
+                        <td><?php echo htmlspecialchars($prescription['symptoms']); ?></td>
                         <td><?php echo htmlspecialchars($prescription['diagnosis']); ?></td>
                         <td><?php echo htmlspecialchars($prescription['prescription']); ?></td>
                         <td>
