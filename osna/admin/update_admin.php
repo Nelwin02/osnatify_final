@@ -8,7 +8,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $admin_email = $_POST['admin_email'];
     $mob_num = $_POST['mobile'];
     $admin_address = $_POST['admin_address'];
-    $new_password = $_POST['new_password'];
+    $new_password = $_POST['password'];
 
     // Base update query (use placeholders for parameters)
     $updateQuery = "UPDATE admin_log SET name = $1, date_birth = $2, admin_email = $3, mobile = $4, admin_address = $5";
