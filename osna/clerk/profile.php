@@ -1,37 +1,3 @@
-<?php
-session_start();
-include '../db.php'; // Database connection file
-
-// Check if clerk is logged in by verifying the session variable
-if (!isset($_SESSION['clerk_username'])) { 
-    header("Location: /osna/doctor2/login.php");
-    exit();
-}
-
-// Retrieve the clerk's username from session
-$clerk_username = $_SESSION['clerk_username']; 
-
-// Fetch clerk information using prepared statements
-$query = "SELECT clerk_name, clerk_image FROM clerk_log WHERE username = $1"; 
-$stmt = pg_prepare($con, "fetch_clerk_info", $query);
-$stmt = pg_execute($con, "fetch_clerk_info", array($clerk_username));
-
-if ($stmt) {
-    $clerk = pg_fetch_assoc($stmt);
-    if ($clerk) {
-        $name = $clerk['clerk_name'];
-        $image = $clerk['clerk_image'];
-    } else {
-        $name = "Unknown";
-        $image = "default.png"; // Fallback image
-    }
-} else {
-    $name = "Unknown";
-    $image = "default.png"; // Fallback image
-}
-
-?>
-
 <!DOCTYPE html>
 <html lang="en">
     
@@ -63,7 +29,40 @@ if ($stmt) {
 			<script src="assets/js/respond.min.js"></script>
 		<![endif]-->
 
-	
+		<?php
+session_start();
+include 'db.php'; 
+?>
+
+<?php
+// Check if clerk is logged in by verifying the session variable
+if (!isset($_SESSION['clerk_username'])) { // Changed to clerk_username
+    header("Location: login.php");
+    exit();
+}
+
+// Retrieve the clerk's username from session
+$clerk_username = $_SESSION['clerk_username']; // Updated session variable
+
+// Fetch clerk information using PostgreSQL
+$sql = "SELECT clerk_name, clerk_image FROM clerk_log WHERE username = $1"; // Using $1 for parameterized query
+$result = pg_query_params($con, $sql, array($clerk_username));
+
+if ($result) {
+    $clerk = pg_fetch_assoc($result);
+    if ($clerk) {
+        $name = $clerk['clerk_name'];
+        $image = $clerk['clerk_image'];
+    } else {
+        $name = "Unknown";
+        $image = "default.png"; // Fallback image
+    }
+} else {
+    $name = "Unknown";
+    $image = "default.png"; // Fallback image
+}
+?>
+
 
     </head>
     <body>
@@ -107,12 +106,12 @@ if ($stmt) {
 					<!-- User Menu -->
 					<li class="nav-item dropdown has-arrow">
 						<a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown">
-							<span class="user-img"><img class="rounded-circle" src="../clerk/Images/<?php echo htmlspecialchars($image); ?>" width="31" alt="clerk"></span>
+							<span class="user-img"><img class="rounded-circle" src="../clerk/Images/<?php echo htmlspecialchars($image); ?>" width="31" alt="admin"></span>
 						</a>
 						<div class="dropdown-menu">
 							<div class="user-header">
 								<div class="avatar avatar-sm">
-								<span class="user-img"><img class="rounded-circle" src="../clerk/Images/<?php echo htmlspecialchars($image); ?>" width="31" alt="clerk"></span>
+								<span class="user-img"><img class="rounded-circle" src="../clerk/Images/<?php echo htmlspecialchars($image); ?>" width="31" alt="admin"></span>
 								</div>
 								<div class="user-text">
 								<h6><?php echo $clerk_username; ?></h6>
@@ -207,7 +206,7 @@ if ($stmt) {
 								<div class="row align-items-center">
 									<div class="col-auto profile-image">
 										<a href="#">
-										<span class="user-img"><img class="rounded-circle" src="../clerk/Images/<?php echo htmlspecialchars($image); ?>" width="31" alt="clerk"span>
+										<span class="user-img"><img class="rounded-circle" src="../clerk/Images/<?php echo htmlspecialchars($image); ?>" width="31" alt="admin"></span>
 										</a>
 									</div>
 									<div class="col ml-md-n2 profile-user-info">
@@ -271,7 +270,6 @@ if ($result) {
 }
 ?>
 
-
 <div class="modal fade" id="edit_personal_details" aria-hidden="true" role="dialog">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
@@ -308,6 +306,13 @@ if ($result) {
                                 <?php endif; ?>
                             </div>
                         </div>
+
+                        <div class="col-12 col-sm-6">
+                            <div class="form-group">
+                                <label>Password</label>
+                                <input type="password" class="form-control" name="password" placeholder="Enter new password">
+                            </div>
+                        </div>
                     </div>
 
                     <input type="hidden" name="clerk_id" value="<?php echo $clerk['id']; ?>">
@@ -317,6 +322,7 @@ if ($result) {
         </div>
     </div>
 </div>
+
 
 
 
