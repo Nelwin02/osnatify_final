@@ -93,7 +93,7 @@ $sql = "
 
 // Apply filter for "today" if selected
 if (isset($_POST['dateFilter']) && $_POST['dateFilter'] === 'today') {
-    $sql .= " WHERE DATE(patient_info.date_created) = CURDATE() ";
+    $sql .= " WHERE patient_info.date_created::DATE = CURRENT_DATE ";
 }
 
 // Add grouping and ordering
@@ -111,13 +111,14 @@ $sql .= "
 ";
 
 // Execute the query
-$result = mysqli_query($con, $sql);
+$result = pg_query($con, $sql);
 
 // Handle query errors
 if (!$result) {
-    die("Query Failed: " . mysqli_error($con));
+    die("Query Failed: " . pg_last_error($con));
 }
 ?>
+
 		
 		
 
