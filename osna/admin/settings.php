@@ -216,37 +216,40 @@ pg_free_result($result);
 							
 							<!-- General -->
 							
-                      <?php
+                 <?php
 // Include the database connection file
-include_once 'db.php';
+include_once 'db.php'; 
 
 // Update form values when submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Sanitize and fetch form inputs
-    $newPhoneNumber = htmlspecialchars(trim($_POST['phone_number']));
-    $newEmail = htmlspecialchars(trim($_POST['email']));
-    $newOpeningTime = htmlspecialchars(trim($_POST['opening_time']));
-    $newClosingTime = htmlspecialchars(trim($_POST['closing_time']));
-    $mondayToFridayStart = htmlspecialchars(trim($_POST['monday_to_friday_start']));
-    $mondayToFridayEnd = htmlspecialchars(trim($_POST['monday_to_friday_end']));
-    $saturdayStart = htmlspecialchars(trim($_POST['saturday_start']));
-    $saturdayEnd = htmlspecialchars(trim($_POST['saturday_end']));
-    $sundayStart = htmlspecialchars(trim($_POST['sunday_start']));
-    $sundayEnd = htmlspecialchars(trim($_POST['sunday_end']));
-    $newAddress = htmlspecialchars(trim($_POST['address']));
-    $newWhatWeDo = htmlspecialchars(trim($_POST['what_we_do']));
-    $newOsnaService = htmlspecialchars(trim($_POST['osna_service']));
-    $newClassLeadDescription = htmlspecialchars(trim($_POST['class_lead_description']));
+    $newPhoneNumber = $_POST['phone_number'];
+    $newEmail = $_POST['email'];
+    $newOpeningTime = $_POST['opening_time'];
+    $newClosingTime = $_POST['closing_time'];
+    $mondayToFridayStart = $_POST['monday_to_friday_start'];
+    $mondayToFridayEnd = $_POST['monday_to_friday_end'];
+    $saturdayStart = $_POST['saturday_start'];
+    $saturdayEnd = $_POST['saturday_end'];
+    $sundayStart = $_POST['sunday_start'];
+    $sundayEnd = $_POST['sunday_end'];
+    $newAddress = $_POST['address'];
+    $newWhatWeDo = $_POST['what_we_do'];
+    $newOsnaService = $_POST['osna_service'];
+    $newClassLeadDescription = $_POST['class_lead_description'];
 
     // File upload handling
     if (isset($_FILES['image_path']) && $_FILES['image_path']['error'] === UPLOAD_ERR_OK) {
         $imageName = preg_replace("/[^a-zA-Z0-9\._-]/", "", $_FILES['image_path']['name']);
         $tempName = $_FILES['image_path']['tmp_name'];
-        $folder = $_SERVER['DOCUMENT_ROOT'] . '/osna/images/' . basename($imageName);
 
-        // Ensure the directory exists
-        if (!is_dir($_SERVER['DOCUMENT_ROOT'] . '/osna/images')) {
-            mkdir($_SERVER['DOCUMENT_ROOT'] . '/osna/images', 0755, true); // Secure directory permissions
+        // Target folder inside `osna/images/`
+        $targetDir = $_SERVER['DOCUMENT_ROOT'] . '/osna/images/';
+        $targetPath = $targetDir . basename($imageName);
+
+        // Ensure the `images` directory exists
+        if (!is_dir($targetDir)) {
+            mkdir($targetDir, 0755, true); // Create folder if it doesn't exist
         }
 
         // Validate file type
@@ -257,14 +260,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             die("<div class='alert alert-danger'>Invalid file type. Only JPG, JPEG, PNG, and GIF files are allowed.</div>");
         }
 
-        // Attempt to move the uploaded file
-        if (move_uploaded_file($tempName, $folder)) {
-            $relativePath = 'images/' . basename($imageName); // Save relative path to DB
+        // Move uploaded file
+        if (move_uploaded_file($tempName, $targetPath)) {
+            // Save relative path to the database (e.g., `images/example.jpg`)
+            $relativePath = 'images/' . basename($imageName);
         } else {
             die("<div class='alert alert-danger'>Failed to upload image. Please try again.</div>");
         }
     } else {
-        $relativePath = null; // No image uploaded
+        $relativePath = null; // No new image uploaded
     }
 
     // PostgreSQL Database update
@@ -284,7 +288,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 what_we_do = $12, 
                 osna_service = $13, 
                 class_lead_description = $14, 
-                image_path = COALESCE($15, image_path) -- Update only if a new image is uploaded
+                image_path = COALESCE($15, image_path) 
                 WHERE id = 1";
 
         $params = [
@@ -315,9 +319,49 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             echo "<div class='alert alert-danger'>Error updating settings: " . pg_last_error($con) . "</div>";
         }
     } catch (Exception $e) {
-        error_log($e->getMessage(), 3, '/var/log/osna_errors.log'); // Log error securely
-        echo "<div class='alert alert-danger'>Error updating settings. Please contact support.</div>";
+        echo "<div class='alert alert-danger'>Error: " . $e->getMessage() . "</div>";
     }
+}
+
+// Fetch current values from the database
+$sql = "SELECT 
+            phone_number, 
+            email, 
+            opening_time, 
+            closing_time, 
+            monday_to_friday_start, 
+            monday_to_friday_end, 
+            saturday_start, 
+            saturday_end, 
+            sunday_start, 
+            sunday_end, 
+            address, 
+            what_we_do, 
+            osna_service, 
+            class_lead_description, 
+            image_path 
+        FROM admin_settings WHERE id = 1";
+
+$result = pg_query($con, $sql);
+
+if ($result) {
+    $row = pg_fetch_assoc($result);
+
+    $phone_number = $row['phone_number'] ?? '';
+    $email = $row['email'] ?? '';
+    $opening_time = $row['opening_time'] ?? '08:00:00';
+    $closing_time = $row['closing_time'] ?? '20:00:00';
+    $monday_to_friday_start = $row['monday_to_friday_start'] ?? '08:00:00';
+    $monday_to_friday_end = $row['monday_to_friday_end'] ?? '17:00:00';
+    $saturday_start = $row['saturday_start'] ?? '08:00:00';
+    $saturday_end = $row['saturday_end'] ?? '17:00:00';
+    $sunday_start = $row['sunday_start'] ?? '10:00:00';
+    $sunday_end = $row['sunday_end'] ?? '15:00:00';
+    $address = $row['address'] ?? '';
+    $what_we_do = $row['what_we_do'] ?? 'What We Do';
+    $osna_service = $row['osna_service'] ?? 'OSNA Service';
+    $class_lead_description = $row['class_lead_description'] ?? 'We offer a comprehensive range of medical services designed to meet your health needs.';
+    $imagePath = $row['image_path'] ?? '';
 }
 ?>
 
