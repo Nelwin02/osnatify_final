@@ -13,26 +13,21 @@ if (!isset($_SESSION['username'])) {
 
 $username = $_SESSION['username'];
 
-// Prepare SQL query to fetch doctor details
-$sql = "SELECT doctor_name, doctor_image FROM doctor_log WHERE username = $1";  // Use $1 for parameterized query
+// Default values for doctor details
+$name = "Unknown";
+$image = "osna/doctor2/Images/default.png"; // Default image for cases where no image is available
 
-// Execute query with parameters
-$result = pg_query_params($con, $sql, array($username));
+// Prepare and execute the SQL query to fetch doctor details
+try {
+    $sql = "SELECT doctor_name, doctor_image FROM doctor_log WHERE username = $1";
+    $result = pg_query_params($con, $sql, array($username));
 
-if ($result) {
-    $user = pg_fetch_assoc($result);  // Fetch associative array
-    if ($user) {
-        $name = $user['doctor_name'];
-        $image = $user['doctor_image'];
-    } else {
-        $name = "Unknown";
-        $image = "default.png"; // Default image if no user found
+    if ($result && pg_num_rows($result) > 0) {
+        // Fetch the doctor's details
+        $user = pg_fetch_assoc($result);
+        $name = $user['doctor_name'] ?? "Unknown"; // Fallback to "Unknown" if `doctor_name` is NULL
+        $image = !empty($user['doctor_image']) ? "osna/doctor2/Images/" . $user['doctor_image'] : $image;
     }
-} else {
-    $name = "Unknown";
-    $image = "default.png"; // Default image in case of query failure
-}
-
 // Query to count patients
 $sqlPatients = "SELECT COUNT(*) as count FROM patient_info";
 $resultPatients = pg_query($con, $sqlPatients);
