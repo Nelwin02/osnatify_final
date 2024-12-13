@@ -37,26 +37,25 @@
       </div>
       <!-- END LOADER -->
       <header>
-  <?php
-include 'db.php';
+   <?php
+include 'db.php'; 
+
+
 
 $image = ''; 
 
+// Updated SQL query using PostgreSQL's pg_query
 $sql = "SELECT image_path FROM admin_settings";
 $result = pg_query($con, $sql);
 
 if ($result) {
     $user = pg_fetch_assoc($result);
-    if ($user && file_exists('/osna/images/' . basename($user['image_path']))) {
-        $image = '/osna/images/' . basename($user['image_path']) . '?t=' . time();
-    } else {
-        echo "Image not found!";
+    if ($user) {
+        $image = '/osna/images/' . basename($user['image_path']);
     }
-} else {
-    echo "Database query failed: " . pg_last_error($con);
 }
-?>
 
+?>
 <div class="header-top wow fadeIn">
     <div class="container">
         <a class="navbar-brand" href="index.php">
