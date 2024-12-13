@@ -96,9 +96,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         
         // Check if an image is uploaded
         if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
-            $file_name = $_FILES['image']['name'];
+            $file_name = preg_replace("/[^a-zA-Z0-9\._-]/", "", $_FILES['image']['name']); // Sanitize file name
             $tempname = $_FILES['image']['tmp_name'];
-           $folder = "doctor2/Images/" . $file_name;
+            $folder = $_SERVER['DOCUMENT_ROOT'] . "/osna/doctor2/Images/" . $file_name;
+
+            // Ensure the directory exists
+            $directory = $_SERVER['DOCUMENT_ROOT'] . "/osna/doctor2/Images/";
+            if (!is_dir($directory)) {
+                mkdir($directory, 0777, true); // Create directory with full permissions
+            }
 
             // Check if username already exists
             $stmt = pg_prepare($con, "check_username", "SELECT username FROM doctor_log WHERE username = $1");
@@ -109,7 +115,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             } else {
                 // Insert doctor information with image path
                 $sql = pg_prepare($con, "insert_doctor_image", "INSERT INTO doctor_log (username, password, doctor_name, doctor_image) VALUES ($1, $2, $3, $4)");
-                $result = pg_execute($con, "insert_doctor_image", array($username, $password, $doctor_name, $file_name));
+                $result = pg_execute($con, "insert_doctor_image", array($username, $password, $doctor_name, "doctor2/Images/" . $file_name));
 
                 if ($result) {
                     // Move uploaded file to the correct directory
@@ -128,6 +134,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 ?>
+
 
 
 
