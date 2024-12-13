@@ -263,7 +263,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Move uploaded file
         if (move_uploaded_file($tempName, $targetPath)) {
             // Save relative path to the database (e.g., `images/example.jpg`)
-            $relativePath = 'images/' . basename($imageName);
+            $relativePath = '/osna/images/' . basename($imageName);
         } else {
             die("<div class='alert alert-danger'>Failed to upload image. Please try again.</div>");
         }
