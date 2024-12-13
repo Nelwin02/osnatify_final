@@ -51,7 +51,7 @@ $result = pg_query($con, $sql);
 if ($result) {
     $user = pg_fetch_assoc($result);
     if ($user) {
-        $image = './admin/Images/' . basename($user['image_path']);
+        $image = '/osna/images/' . basename($user['image_path']);
     }
 }
 
