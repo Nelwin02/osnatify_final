@@ -216,7 +216,7 @@ pg_free_result($result);
 							
 							<!-- General -->
 							
-                 <?php
+             <?php
 // Include the database connection file
 include_once 'db.php'; 
 
