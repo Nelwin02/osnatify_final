@@ -5,7 +5,7 @@ session_start();
 // Include the database connection file
 include '../db.php'; 
 
-// Ensure the user is logged in, otherwise redirect
+// Ensure the user is logged in; otherwise, redirect
 if (!isset($_SESSION['username'])) {
     header("Location: /osna/doctor2/login.php");
     exit();
@@ -15,7 +15,7 @@ $username = $_SESSION['username'];
 
 // Default values for doctor details
 $name = "Unknown";
-$image = "osna/doctor2/Images/default.png"; // Default image for cases where no image is available
+$image = "/osna/doctor2/Images/default.png"; // Default image for cases where no image is available
 
 // Prepare and execute the SQL query to fetch doctor details
 try {
@@ -26,8 +26,12 @@ try {
         // Fetch the doctor's details
         $user = pg_fetch_assoc($result);
         $name = $user['doctor_name'] ?? "Unknown"; // Fallback to "Unknown" if `doctor_name` is NULL
-        $image = !empty($user['doctor_image']) ? "osna/doctor2/Images/" . $user['doctor_image'] : $image;
+        $image = !empty($user['doctor_image']) ? "/osna/doctor2/Images/" . $user['doctor_image'] : $image;
     }
+} catch (Exception $e) {
+    error_log("Error fetching doctor details: " . $e->getMessage());
+}
+
 // Query to count patients
 $sqlPatients = "SELECT COUNT(*) as count FROM patient_info";
 $resultPatients = pg_query($con, $sqlPatients);
@@ -96,9 +100,8 @@ while ($row = pg_fetch_assoc($resultTotalPatientsGraph)) {
     $dailyPatientCounts[] = $row['daily_count']; // Daily patient counts
     $totalPatientCounts[] = $row['cumulative_count']; // Cumulative patient counts
 }
-
-
 ?>
+
 
 <?php
 /*
