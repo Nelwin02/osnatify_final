@@ -98,10 +98,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
             $file_name = preg_replace("/[^a-zA-Z0-9\._-]/", "", $_FILES['image']['name']); // Sanitize file name
             $tempname = $_FILES['image']['tmp_name'];
-            $folder = $_SERVER['DOCUMENT_ROOT'] . "/osna/doctor2/Images/" . $file_name;
+            $folder = $_SERVER['DOCUMENT_ROOT'] . "./osna/doctor2/Images/" . $file_name;
 
             // Ensure the directory exists
-            $directory = $_SERVER['DOCUMENT_ROOT'] . "/osna/doctor2/Images/";
+            $directory = $_SERVER['DOCUMENT_ROOT'] . "./osna/doctor2/Images/";
             if (!is_dir($directory)) {
                 mkdir($directory, 0777, true); // Create directory with full permissions
             }
