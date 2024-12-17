@@ -64,7 +64,6 @@ if ($stmt) {
 			<script src="assets/js/respond.min.js"></script>
 		<![endif]-->
 
- 
 <?php
 // Build the SQL query
 $sql = "
@@ -110,7 +109,6 @@ $sql .= "
         patient_info.id DESC
 ";
 
-
 // Execute the query
 $result = pg_query($con, $sql);
 
@@ -119,6 +117,8 @@ if (!$result) {
     die("Query Failed: " . pg_last_error($con));
 }
 ?>
+
+
 
 
     </head>
@@ -161,14 +161,14 @@ if (!$result) {
 					
 					
 					<!-- User Menu -->
-                                        <li class="nav-item dropdown has-arrow">
+					<li class="nav-item dropdown has-arrow">
 						<a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown">
-							<span class="user-img"> <img src="Images/doctor1.png" class="rounded-circle" width="31" alt="admin"></span>
+							<span class="user-img"><img class="rounded-circle" src="../clerk/Images/<?php echo htmlspecialchars($image); ?>" width="31" alt="admin"></span>
 						</a>
 						<div class="dropdown-menu">
 							<div class="user-header">
 								<div class="avatar avatar-sm">
-                                <span class="user-img"><img src="Images/doctor1.png" class="rounded-circle" width="31" alt="admin"></span>
+								<span class="user-img"><img class="rounded-circle" src="../clerk/Images/<?php echo htmlspecialchars($image); ?>" width="31" alt="admin"></span>
 								</div>
 								<div class="user-text">
 								<h6><?php echo $clerk_username; ?></h6>
@@ -253,32 +253,29 @@ if (!$result) {
             <!-- /Page Header -->
 
             <div class="row align-items-center mb-4">
-    <!-- Align Date Filter and Search Input to the right -->
     <div class="col-md-12 d-flex justify-content-end">
         <!-- Date Filter -->
         <div class="form-group mb-0 mr-3 w-25">
-    <label for="dateFilter" class="font-weight-bold mr-2" style="color: grey">Date Filter</label><br>
-    <select id="dateFilter" class="form-control d-inline-block mt-1" style="width: 100%;"> 
-        <option value="today" selected>Today</option>
-        <option value="all">All</option>
-    </select>
-</div>
-
+            <label for="dateFilter" class="font-weight-bold mr-2" style="color: grey">Date Filter</label><br>
+            <select id="dateFilter" class="form-control d-inline-block mt-1" style="width: 100%;"> 
+                <option value="today" selected>Today</option>
+                <option value="all">All</option>
+            </select>
+        </div>
 
         <!-- Search Input -->
         <div class="form-group mb-0 w-25" style="position: relative;">
-        
-        <label for="searchInput" class="font-weight-bold mr-2" style="color: grey;">Search P_ID or Name</label>
-        <i class="fa fa-search" style="position: absolute; top: 65%; left: 10px; transform: translateY(-50%); color: gray;"></i>
-        <input type="text" 
-                id="searchInput" 
-                class="form-control placeholder-center" 
-                placeholder="Choose 'All Date filter' if not found" 
-                style="text-align: center; padding-left: 30px;">
+            <label for="searchInput" class="font-weight-bold mr-2" style="color: grey;">Search P_ID or Name</label>
+            <i class="fa fa-search" style="position: absolute; top: 65%; left: 10px; transform: translateY(-50%); color: gray;"></i>
+            <input type="text" 
+                    id="searchInput" 
+                    class="form-control placeholder-center" 
+                    placeholder="Choose 'All Date filter' if not found" 
+                    style="text-align: center; padding-left: 30px;">
         </div>
+    </div>
+</div>
 
-            </div>
-        </div>
 <!-- Consultations Table -->
 <div class="card shadow-sm">
     <div class="card-body">
@@ -299,95 +296,46 @@ if (!$result) {
             </thead>
             <tbody id="tableBody">
                <!-- PHP loop to populate rows -->
-<?php
-if ($result && pg_num_rows($result) > 0) {
-    while ($row = pg_fetch_assoc($result)) {
-        // Determine icons based on the statuses
-        $vitalsignsIcon = $row['vitalsigns_status'] === 'done' 
-            ? "<span class='text-success'><i class='fa fa-check-circle'></i></span>" 
-            : ($row['vitalsigns_status'] === 'pending'
-                ? "<span class='text-warning'><i class='fa fa-exclamation-circle'></i></span>"
-                : "<span class='text-muted'>No Record</span>");
+               <?php
+               if ($result && pg_num_rows($result) > 0) {
+                   while ($row = pg_fetch_assoc($result)) {
+                       // Determine icons based on the statuses
+                       $vitalsignsIcon = $row['vitalsigns_status'] === 'done' 
+                           ? "<span class='text-success'><i class='fa fa-check-circle'></i></span>" 
+                           : ($row['vitalsigns_status'] === 'pending'
+                               ? "<span class='text-warning'><i class='fa fa-exclamation-circle'></i></span>"
+                               : "<span class='text-muted'>No Record</span>");
 
-        $predictionIcon = $row['prediction_status'] === 'done' 
-            ? "<span class='text-success'><i class='fa fa-check-circle'></i></span>" 
-            : ($row['prediction_status'] === 'pending'
-                ? "<span class='text-warning'><i class='fa fa-exclamation-circle'></i></span>"
-                : "<span class='text-muted'>No Record</span>");
+                       $predictionIcon = $row['prediction_status'] === 'done' 
+                           ? "<span class='text-success'><i class='fa fa-check-circle'></i></span>" 
+                           : ($row['prediction_status'] === 'pending'
+                               ? "<span class='text-warning'><i class='fa fa-exclamation-circle'></i></span>"
+                               : "<span class='text-muted'>No Record</span>");
 
-        echo "<tr data-date='" . htmlspecialchars($row['date_created']) . "'>
-                <td style='font-size: 14px;'>" . htmlspecialchars($row['username']) . "</td>
-                <td style='font-size: 14px;'>" . htmlspecialchars($row['name']) . "</td>
-                <td style='font-size: 14px;'>" . htmlspecialchars($row['address']) . "</td>
-                <td style='font-size: 14px;'>" . htmlspecialchars($row['age']) . "</td>
-                <td style='font-size: 14px;'>" . htmlspecialchars($row['sex']) . "</td>
-                <td style='font-size: 14px;'>" . htmlspecialchars($row['date_created']) . "</td>
-                <td class='text-center' style='font-size: 13px;'>" . $vitalsignsIcon . "</td>
-                <td class='text-center' style='font-size: 13px;'>" . $predictionIcon . "</td>
-                <td style='font-size: 12px;'>
-                    <a href='consult_patient.php?username=" . urlencode($row['username']) . "' class='btn btn-info btn-sm' title='View'><i class='fa fa-eye'></i></a>
-                    <a href='edit_patient.php?username=" . urlencode($row['username']) . "' class='btn btn-warning btn-sm' title='Edit'><i class='fa fa-pencil'></i></a>
-                </td>
-            </tr>";
-    }
-} else {
-    echo "<tr><td colspan='9' class='text-center'>No patients found.</td></tr>";
-}
-?>
-
+                       echo "<tr data-date='" . htmlspecialchars($row['date_created']) . "'>
+                               <td style='font-size: 14px;'>" . htmlspecialchars($row['username']) . "</td>
+                               <td style='font-size: 14px;'>" . htmlspecialchars($row['name']) . "</td>
+                               <td style='font-size: 14px;'>" . htmlspecialchars($row['address']) . "</td>
+                               <td style='font-size: 14px;'>" . htmlspecialchars($row['age']) . "</td>
+                               <td style='font-size: 14px;'>" . htmlspecialchars($row['sex']) . "</td>
+                               <td style='font-size: 14px;'>" . htmlspecialchars($row['date_created']) . "</td>
+                               <td class='text-center' style='font-size: 13px;'>" . $vitalsignsIcon . "</td>
+                               <td class='text-center' style='font-size: 13px;'>" . $predictionIcon . "</td>
+                               <td style='font-size: 12px;'>
+                                   <a href='consult_patient.php?username=" . urlencode($row['username']) . "' class='btn btn-info btn-sm' title='View'><i class='fa fa-eye'></i></a>
+                                   <a href='edit_patient.php?username=" . urlencode($row['username']) . "' class='btn btn-warning btn-sm' title='Edit'><i class='fa fa-pencil'></i></a>
+                               </td>
+                           </tr>";
+                   }
+               } else {
+                   echo "<tr><td colspan='9' class='text-center'>No patients found.</td></tr>";
+               }
+               ?>
             </tbody>
         </table>
     </div>
 </div>
 
-<!-- JavaScript to Filter Table Rows Based on Date -->
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    const dateFilter = document.getElementById('dateFilter');
-    const searchInput = document.getElementById('searchInput');
-    const tableBody = document.getElementById('tableBody');
-    const rows = tableBody.getElementsByTagName('tr');
-
-    function filterRows() {
-        const selectedValue = dateFilter.value;
-        const searchQuery = searchInput.value.toLowerCase();
-        const today = new Date();
-        today.setHours(0, 0, 0, 0); // Reset time for today
-
-        Array.from(rows).forEach((row) => {
-            const dateCreated = new Date(row.getAttribute('data-date'));
-            dateCreated.setHours(0, 0, 0, 0); // Reset time for the stored date
-            const name = row.cells[1].textContent.toLowerCase();
-            const username = row.cells[0].textContent.toLowerCase();
-            const address = row.cells[2].textContent.toLowerCase(); // Assuming the address is in the 3rd column
-
-            let showRow = false;
-
-            // Date filter logic
-            if (selectedValue === 'today') {
-                showRow = dateCreated.getTime() === today.getTime();
-            } else if (selectedValue === 'all') {
-                showRow = true;
-            }
-
-            // Combine date filter logic with search filter logic (including address)
-            if (showRow && (name.includes(searchQuery) || username.includes(searchQuery) || address.includes(searchQuery))) {
-                row.style.display = '';
-            } else {
-                row.style.display = 'none';
-            }
-        });
-    }
-
-    // Apply initial filtering on page load
-    filterRows();
-
-    // Add event listeners for date filter and search input
-    dateFilter.addEventListener('change', filterRows);
-    searchInput.addEventListener('keyup', filterRows);
-});
-
-</script>
 
 
 
