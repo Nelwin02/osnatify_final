@@ -109,7 +109,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             } else {
                 // Insert doctor information with image path
                 $sql = pg_prepare($con, "insert_doctor_image", "INSERT INTO doctor_log (username, password, doctor_name, doctor_image) VALUES ($1, $2, $3, $4)");
-                $result = pg_execute($con, "insert_doctor_image", array($username, $password, $doctor_name, "doctor2/Images/" . $file_name));
+                $result = pg_execute($con, "insert_doctor_image", array($username, $password, $doctor_name, "/osna/doctor2/Images/" . $file_name));
 
                 if ($result) {
                     // Move uploaded file to the correct directory
