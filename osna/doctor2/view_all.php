@@ -1,3 +1,40 @@
+<?php
+// Start the session at the very beginning
+session_start(); 
+
+// Include the database connection file
+include '../db.php'; 
+
+// Ensure the user is logged in, otherwise redirect
+if (!isset($_SESSION['username'])) {
+    header("Location: /osna/doctor2/login.php");
+    exit();
+}
+
+$username = $_SESSION['username'];
+
+// Prepare SQL query to fetch doctor details
+$sql = "SELECT doctor_name, doctor_image FROM doctor_log WHERE username = $1";  // Use $1 for parameterized query
+
+// Execute query with parameters
+$result = pg_query_params($con, $sql, array($username));
+
+if ($result) {
+    $user = pg_fetch_assoc($result);  // Fetch associative array
+    if ($user) {
+        $name = $user['doctor_name'];
+        $image = $user['doctor_image'];
+    } else {
+        $name = "Unknown";
+        $image = "default.png"; // Default image if no user found
+    }
+} else {
+    $name = "Unknown";
+    $image = "default.png"; // Default image in case of query failure
+}
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
     
@@ -5,7 +42,7 @@
 <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
-        <title>View All Informations</title>
+        <title>Add Prescription</title>
 		
 		<!-- Favicon -->
         <link rel="shortcut icon" type="image/x-icon" href="assets/img/opd.png">
@@ -29,38 +66,18 @@
 			<script src="assets/js/respond.min.js"></script>
 		<![endif]-->
 
-    	<?php
-    session_start();
-    include 'db.php'; // Database connection
-
-    if (!isset($_SESSION['username'])) {
-        header("Location: login.php");
-        exit();
-    }
-
-    $username = $_SESSION['username'];
-
-    // Query to fetch doctor details from PostgreSQL
-    $sql = "SELECT doctor_name, doctor_image FROM doctor_log WHERE username = $1";
-    $stmt = pg_prepare($con, "fetch_doctor_details", $sql);
-    $result = pg_execute($con, "fetch_doctor_details", array($username));
-
-    if ($result) {
-        $user = pg_fetch_assoc($result);
-        if ($user) {
-            $name = $user['doctor_name'];
-            $image = $user['doctor_image'];
-        } else {
-            $name = "Unknown";
-            $image = ''; // You can set a default image if needed
-        }
-    } else {
-        $name = "Unknown";
-        $image = ''; // You can set a default image if needed
-    }
-
-    // Close the PostgreSQL connection
-    pg_close($con);
+    
+<?php
+include 'db.php';
+// Fetch current status from the database
+$status_query = "SELECT status FROM patient_info WHERE username = $1";
+$status_result = pg_query_params($con, $status_query, array($username));
+if ($status_result) {
+    $status_row = pg_fetch_assoc($status_result);
+    $status = $status_row['status'];
+} else {
+    $status = null;  // If status fetch fails, set $status to null
+}
 ?>
 
 </head>
@@ -107,7 +124,7 @@
 						<a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown">
 						<span class="user-img">
 					
-						<img src="images/<?php echo htmlspecialchars($image); ?>" alt="Doctor Image" class="img-circle" />
+						<img src="./assets/img/profiles/doc5.jpg" alt="Doctor Image" class="img-circle" />
 					</span>
 
 					<style>
@@ -125,7 +142,7 @@
 						<div class="dropdown-menu">
 							<div class="user-header">
 								<div class="avatar avatar-sm">
-								<img src="images/<?php echo htmlspecialchars($image); ?>" alt="Doctor Image" class="img-circle" />
+								<img src="./assets/img/profiles/doc5.jpg" alt="Doctor Image" class="img-circle" />
 								</div>
 								<div class="user-text">
 								<h6><?php echo $username; ?></h6>
@@ -169,7 +186,7 @@
 								
 								</ul>
 
-								<li><a href="patient_list.php"><i class="fa fa-info-circle"></i> &nbsp; Patient List</a></li>
+								<li><a href="view_patient.php"><i class="fa fa-info-circle"></i> &nbsp; Patient List</a></li>
 								<li>
 							<a href="login.php"><i class="fa fa-sign-out"></i> <span>Logout</span></a>
 							</li>
@@ -177,22 +194,23 @@
                 </div>
             </div>
 			<!-- /Sidebar -->
-
-			<!-- Page Wrapper -->
-            <div class="page-wrapper">
-                <div class="content container-fluid">
-                    <div class="page-header">
-                        <div class="row">
-                            <div class="col-sm-12">
-                                <h3 class="page-title">Prescription</h3>
-                                <ul class="breadcrumb">
-                                    <li class="breadcrumb-item"><a href="clerk_dash.php">Dashboard</a></li>
-                                    <li class="breadcrumb-item active">Add Prescription</li>
-                                </ul>
-                            </div>
-                        </div>
+  <!-- Page Wrapper -->
+  <div class="page-wrapper">
+        <div class="content container-fluid">
+            <!-- Page Header -->
+            <div class="page-header">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <h3 class="page-title">Patient List</h3>
+                        <ul class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="consultation.php">Consultations</a></li>
+                            <li class="breadcrumb-item active">Vital Signs list | Prediction List</li>
+                        </ul>
                     </div>
-                    <div class="mb-4">
+                </div>
+            </div>
+
+            <div class="mb-4">
                             <h2 class="text-center">
                                 <hr style="border: 2px solid black; width: 100%;">
                             </h2>
@@ -201,22 +219,25 @@
                         <?php
 // consult_patient.php
 
-// Connect to PostgreSQL database
+// Connect to database
 include('db.php');
 
 // Retrieve username from URL
 $username = isset($_GET['username']) ? $_GET['username'] : null;
 
 if ($username) {
-    // Fetch patient data from PostgreSQL database
-    $sql = "SELECT * FROM patient_info WHERE username = $1";
-    $stmt = pg_prepare($con, "fetch_patient_data", $sql);
-    $result = pg_execute($con, "fetch_patient_data", array($username));
-
-    $patient = pg_fetch_assoc($result);
+    // Fetch patient data from database using PostgreSQL
+    $sql = "SELECT * FROM patient_info WHERE username = $1";  // Using parameterized query
+    $result = pg_query_params($con, $sql, array($username));
     
-    if ($patient) {
-        ?>
+    if ($result) {
+        $patient = pg_fetch_assoc($result);
+        
+        if ($patient) {
+            // Patient data is available, continue with processing
+            ?>
+          
+
         <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px;">
 
             <!-- Vital Signs History Table -->
@@ -225,54 +246,52 @@ if ($username) {
                     <h3 class="mb-0" style="font-weight: 600;">Vital Signs List</h3>
                 </div>
                 <div class="card-body" style="background-color: #f9f9fb; padding: 20px;">
-                                    <?php
-                    // Fetch vital signs history from vitalsigns table
-                    $sql = "SELECT * FROM vitalsigns WHERE username = $1 ORDER BY date_added DESC";
-                    $stmt = pg_prepare($con, "fetch_vitals", $sql);
-                    $result = pg_execute($con, "fetch_vitals", array($username));
+                <?php
+// Fetch vital signs history from vitalsigns table using PostgreSQL
+$sql = "SELECT * FROM vitalsigns WHERE username = $1 ORDER BY date_added DESC";
+$result = pg_query_params($con, $sql, array($username));
 
-                    // Function to format units for weight and height
-                    function formatVitalSignUnits($value, $type) {
-                        if ($type == 'weight') {
-                            return $value . ' kg';
-                        } elseif ($type == 'height') {
-                            return $value . ' cm';
-                        } elseif ($type == 'bloodpressure') {
-                            return $value . ' mmHg';
-                        } elseif ($type == 'heartrate') {
-                            return $value . ' bpm';
-                        }
-                        return $value;
-                    }
+// Function to format units for weight and height
+function formatVitalSignUnits($value, $type) {
+    if ($type == 'weight') {
+        return $value . ' kg';
+    } elseif ($type == 'height') {
+        return $value . ' cm';
+    } elseif ($type == 'bloodpressure') {
+        return $value . ' mmHg';
+    } elseif ($type == 'heartrate') {
+        return $value . ' bpm';
+    }
+    return $value;
+}
 
-                    if (pg_num_rows($result) > 0) {
-                        // Display vital signs history in a scrollable table
-                        echo '<div class="table-responsive">';
-                        echo '<table class="table table-striped table-hover table-bordered" style="font-size: 14px;">';
-                        echo '<thead class="thead-dark"><tr><th>Weight</th><th>Height</th><th>Blood Pressure</th><th>Heart Rate</th><th>Date</th></tr></thead>';
-                        echo '<tbody>';
-                        while ($vitals = pg_fetch_assoc($result)) {
-                            echo '<tr>';
-                            // Format weight and height with appropriate units
-                            echo '<td>' . htmlspecialchars(formatVitalSignUnits($vitals['weight'], 'weight')) . '</td>';
-                            echo '<td>' . htmlspecialchars(formatVitalSignUnits($vitals['height'], 'height')) . '</td>';
-                            echo '<td>' . htmlspecialchars(formatVitalSignUnits($vitals['bloodpressure'], 'bloodpressure')) . '</td>';
-                            echo '<td>' . htmlspecialchars(formatVitalSignUnits($vitals['heartrate'], 'heartrate')) . '</td>';
-                            echo '<td>' . htmlspecialchars($vitals['date_added']) . '</td>';
-                            echo '</tr>';
-                        }
-                        echo '</tbody></table>';
-                        echo '</div>';
-                    } else {
-                        echo "<p class='text-center text-muted'>No vital signs history available.</p>";
-                    }
-                    ?>
-
-
-                    <br>
-                    <br>
-
-                
+if ($result) {
+    if (pg_num_rows($result) > 0) {
+        // Display vital signs history in a scrollable table
+        echo '<div class="table-responsive">';
+        echo '<table class="table table-striped table-hover table-bordered" style="font-size: 14px;">';
+        echo '<thead class="thead-dark"><tr><th>Weight</th><th>Height</th><th>Blood Pressure</th><th>Heart Rate</th><th>Date</th></tr></thead>';
+        echo '<tbody>';
+        
+        while ($vitals = pg_fetch_assoc($result)) {
+            echo '<tr>';
+            // Format weight and height with appropriate units
+            echo '<td>' . htmlspecialchars(formatVitalSignUnits($vitals['weight'], 'weight')) . '</td>';
+            echo '<td>' . htmlspecialchars(formatVitalSignUnits($vitals['height'], 'height')) . '</td>';
+            echo '<td>' . htmlspecialchars(formatVitalSignUnits($vitals['bloodpressure'], 'bloodpressure')) . '</td>';
+            echo '<td>' . htmlspecialchars(formatVitalSignUnits($vitals['heartrate'], 'heartrate')) . '</td>';
+            echo '<td>' . htmlspecialchars($vitals['date_added']) . '</td>';
+            echo '</tr>';
+        }
+        echo '</tbody></table>';
+        echo '</div>';
+    } else {
+        echo "<p class='text-center text-muted'>No vital signs history available.</p>";
+    }
+} else {
+    echo "Error fetching vital signs history: " . pg_last_error($con);
+}
+?>
 
 
           
@@ -280,54 +299,56 @@ if ($username) {
                 </div>
                 <div class="card-body" style="background-color: #f9f9fb; padding: 20px; font-size: 14px;">
                 <?php
-                    // Fetch prediction history from prediction table
-                    $sql = "SELECT * FROM prediction WHERE username = $1 ORDER BY created_at DESC";
-                    $stmt = pg_prepare($con, "fetch_predictions", $sql);
-                    $result = pg_execute($con, "fetch_predictions", array($username));
+// Fetch prediction history from prediction table using PostgreSQL
+$sql = "SELECT * FROM prediction WHERE username = $1 ORDER BY created_at DESC";
+$result = pg_query_params($con, $sql, array($username));
 
-                    // Function to sanitize text (removes unwanted keywords)
-                    function sanitizeText($text) {
-                        $keywords = ['Diagnosis:', 'Prescription:', 'Treatment:'];
-                        return str_replace($keywords, "", $text);
-                    }
+// Function to sanitize text (removes unwanted keywords)
+function sanitizeText($text) {
+    $keywords = ['Diagnosis:', 'Prescription:', 'Treatment:'];
+    return str_replace($keywords, "", $text);
+}
 
-                    if (pg_num_rows($result) > 0) {
-                        // Display prediction history in a scrollable table
-                        echo '<div class="table-responsive">';
-                        echo '<table class="table table-striped table-hover table-bordered" style="font-size: 14px;">';
-                        echo '<thead class="thead-dark"><tr><th>Symptoms</th><th>Diagnosis</th><th>Prescription</th><th>Treatment</th></tr></thead>';
-                        echo '<tbody>';
-                        while ($prediction = pg_fetch_assoc($result)) {
-                            echo '<tr>';
-                            echo '<td>' . htmlspecialchars(sanitizeText($prediction['symptoms'])) . '</td>';
-                            echo '<td>' . htmlspecialchars(sanitizeText($prediction['predicted_disease'])) . '</td>';
-                            echo '<td>' . htmlspecialchars(sanitizeText($prediction['predicted_prescription'])) . '</td>';
-                            echo '<td>' . htmlspecialchars(sanitizeText($prediction['predicted_treatment'])) . '</td>';
-                            echo '</tr>';
-                        }
-                        echo '</tbody></table>';
-                        echo '</div>';
-                    } else {
-                        echo "<p class='text-center text-muted'>No prediction history available.</p>";
-                    }
-                    ?>
+if ($result) {
+    if (pg_num_rows($result) > 0) {
+        // Display prediction history in a scrollable table
+        echo '<div class="table-responsive">';
+        echo '<table class="table table-striped table-hover table-bordered" style="font-size: 14px;">';
+        echo '<thead class="thead-dark"><tr><th>Symptoms</th><th>Diagnosis</th><th>Prescription</th><th>Treatment</th></tr></thead>';
+        echo '<tbody>';
+        
+        while ($prediction = pg_fetch_assoc($result)) {
+            echo '<tr>';
+            echo '<td>' . htmlspecialchars(sanitizeText($prediction['symptoms'])) . '</td>';
+            echo '<td>' . htmlspecialchars(sanitizeText($prediction['predicted_disease'])) . '</td>';
+            echo '<td>' . htmlspecialchars(sanitizeText($prediction['predicted_prescription'])) . '</td>';
+            echo '<td>' . htmlspecialchars(sanitizeText($prediction['predicted_treatment'])) . '</td>';
+            echo '</tr>';
+        }
+        echo '</tbody></table>';
+        echo '</div>';
+    } else {
+        echo "<p class='text-center text-muted'>No prediction history available.</p>";
+    }
+} else {
+    echo "Error fetching prediction history: " . pg_last_error($con);
+}
+?>
 
                 </div>
             </div>
         </div>
 
-        <?php
+         <!-- Your HTML and PHP code to display patient info goes here -->
+         <?php
+        } else {
+            echo "No patient found with the username: $username";
+        }
     } else {
-        echo "<div style='text-align: center; padding-top: 50px;'><p class='text-danger'>Patient not found.</p></div>";
+        echo "Error fetching patient data: " . pg_last_error($con);
     }
-} else {
-    echo "<div style='text-align: center; padding-top: 50px;'><p class='text-warning'>No patient selected.</p></div>";
 }
-
-// Close database connection
-$con->close();
 ?>
-
 
 
 
