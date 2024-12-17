@@ -9,11 +9,11 @@ if (!isset($_SESSION['username'])) {
     exit();
 }
 
-$username = $_SESSION['username'];
+$admin_username = $_SESSION['username']; // Admin username from session
 
 // Use PostgreSQL's parameterized query to prevent SQL injection
 $sql = "SELECT name FROM admin_log WHERE username = $1";
-$result = pg_query_params($con, $sql, array($username));
+$result = pg_query_params($con, $sql, array($admin_username));
 
 $name = "Unknown"; // Default value
 if ($result) {
@@ -26,6 +26,7 @@ if ($result) {
 // Free the result resource
 pg_free_result($result);
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -189,7 +190,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 									<img src="./assets/img/profiles/profile.jpeg" alt="User Image" class="avatar-img rounded-circle">
 								</div>
 								<div class="user-text">
-								<h6><?php echo $username; ?></h6>
+								<h6><?php echo $admin_username; ?></h6>
 									<p class="text-muted mb-0"><?php echo $name; ?></p>
 								</div>
 							</div>
