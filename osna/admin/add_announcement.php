@@ -60,15 +60,17 @@ pg_free_result($result);
 		<![endif]-->
 
 
+        <?php
+$showModal = false;
+$modalType = ""; // To differentiate which modal to show
+$successMessage = "";
 
-<?php
 // Handle Add Announcement
 if (isset($_POST['add_announcement'])) {
     $title = htmlspecialchars($_POST['title']);
     $message = htmlspecialchars($_POST['message']);
 
     try {
-        // Insert into the announcement table
         $stmt = pg_prepare(
             $con,
             "add_announcement",
@@ -77,14 +79,19 @@ if (isset($_POST['add_announcement'])) {
         $result = pg_execute($con, "add_announcement", array($title, $message));
 
         if ($result) {
-            echo "Announcement added successfully!";
+            $successMessage = "Announcement added successfully!";
+            $modalType = "add"; // Correct modal type
+            $showModal = true;
         } else {
-            echo "Error adding announcement.";
+            $successMessage = "Failed to add announcement.";
+            $modalType = "error";
+            $showModal = true;
         }
     } catch (Exception $e) {
         echo "Error: " . htmlspecialchars($e->getMessage());
     }
 }
+
 
 // Handle Edit Announcement
 if (isset($_POST['edit_announcement'])) {
@@ -93,7 +100,6 @@ if (isset($_POST['edit_announcement'])) {
     $message = htmlspecialchars($_POST['message']);
 
     try {
-        // Update the announcement in the database
         $stmt = pg_prepare(
             $con,
             "edit_announcement",
@@ -102,9 +108,9 @@ if (isset($_POST['edit_announcement'])) {
         $result = pg_execute($con, "edit_announcement", array($title, $message, $announcement_id));
 
         if ($result) {
-            echo "Announcement updated successfully!";
-        } else {
-            echo "Error updating announcement.";
+            $successMessage = "Announcement updated successfully!";
+            $modalType = "edit";
+            $showModal = true;
         }
     } catch (Exception $e) {
         echo "Error: " . htmlspecialchars($e->getMessage());
@@ -116,7 +122,6 @@ if (isset($_GET['delete'])) {
     $announcement_id = $_GET['delete'];
 
     try {
-        // Delete the announcement
         $stmt = pg_prepare(
             $con,
             "delete_announcement",
@@ -125,27 +130,78 @@ if (isset($_GET['delete'])) {
         $result = pg_execute($con, "delete_announcement", array($announcement_id));
 
         if ($result) {
-            echo "Announcement deleted successfully!";
-        } else {
-            echo "Error deleting announcement.";
+            $successMessage = "Announcement deleted successfully!";
+            $modalType = "delete";
+            $showModal = true;
         }
     } catch (Exception $e) {
         echo "Error: " . htmlspecialchars($e->getMessage());
     }
 }
 
-// Fetch all announcements
+// Fetch Announcements
 try {
     $stmt = pg_prepare($con, "fetch_announcements", "SELECT * FROM announcement ORDER BY date DESC");
     $result = pg_execute($con, "fetch_announcements", array());
-
-    if (!$result) {
-        echo "Error fetching announcements.";
-    }
 } catch (Exception $e) {
     echo "Error: " . htmlspecialchars($e->getMessage());
 }
 ?>
+<?php if ($showModal): ?>
+<div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="border-radius: 8px; overflow: hidden;">
+      <?php 
+        // Set modal color and icon based on action type
+        $modalColor = ($modalType === 'add') ? '#2E7D32' : 
+                      (($modalType === 'edit') ? '#FFC107' : 
+                      (($modalType === 'delete') ? '#DC3545' : '#6C757D')); 
+        $modalIcon = ($modalType === 'add') ? 'fa-plus-circle' : 
+                     (($modalType === 'edit') ? 'fa-edit' : 
+                     (($modalType === 'delete') ? 'fa-trash-alt' : 'fa-times-circle'));
+      ?>
+      <!-- Modal Header -->
+      <div class="modal-header" style="background-color: <?php echo $modalColor; ?>; color: #fff; border: none;">
+        <h5 class="modal-title" id="successModalLabel">
+            <i class="fa <?php echo $modalIcon; ?> me-2"></i> 
+            <?php 
+                if ($modalType === "add") echo "Add Announcement";
+                elseif ($modalType === "edit") echo "Edit Announcement";
+                elseif ($modalType === "delete") echo "Delete Announcement";
+                else echo "Error";
+            ?>
+        </h5>
+      </div>
+      
+      <!-- Modal Body -->
+      <div class="modal-body text-center">
+        <p style="font-size: 1.1rem; color: #333;"><?php echo $successMessage; ?></p>
+      </div>
+      
+      <!-- Modal Footer -->
+      <div class="modal-footer justify-content-center" style="border: none;">
+        <button type="button" class="btn" id="closeModalBtn" 
+            style="background-color: <?php echo $modalColor; ?>; color: #fff; padding: 8px 20px; font-size: 1rem;">
+            OK
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var successModal = new bootstrap.Modal(document.getElementById('successModal'));
+        successModal.show();
+
+        // Close Modal on Button Click
+        document.getElementById('closeModalBtn').addEventListener('click', function () {
+            successModal.hide();
+        });
+    });
+</script>
+<?php endif; ?>
+
 
 </head>
 <body>
@@ -298,20 +354,25 @@ margin-right: 8px; /* Add some space between the icon and text */
  
 <!-- Add Announcement Form -->
 <div class="content container-fluid">
-<div class="container mt-">
-    <h2>Add New Announcement</h2>
-    <form method="POST" action="">
-        <div class="form-group">
-            <label for="title">Title:</label>
-            <input type="text" class="form-control" name="title" id="title" required>
+    <!-- Add Announcement Section -->
+    <div class="container mt-5">
+        <h2 class="mb-4 text-primary">Add New Announcement</h2>
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <form method="POST" action="">
+                    <div class="form-group mb-3">
+                        <label for="title" class="form-label">Title:</label>
+                        <input type="text" class="form-control" name="title" id="title" placeholder="Enter announcement title" required>
+                    </div>
+                    <div class="form-group mb-4">
+                        <label for="message" class="form-label">Message:</label>
+                        <textarea class="form-control" name="message" id="message" rows="4" placeholder="Enter announcement message" required></textarea>
+                    </div>
+                    <button type="submit" name="add_announcement" class="btn btn-primary btn-lg">Save</button>
+                </form>
+            </div>
         </div>
-        <div class="form-group">
-            <label for="message">Message:</label>
-            <textarea class="form-control" name="message" id="message" rows="4" required></textarea>
-        </div>
-        <button type="submit" name="add_announcement" class="btn btn-primary">Save</button>
-    </form>
-</div>
+    </div>
 
 <!-- Display Announcements -->
 <div class="container mt-5">
@@ -349,7 +410,6 @@ margin-right: 8px; /* Add some space between the icon and text */
         </tbody>
     </table>
 </div>
-
 
 
 
