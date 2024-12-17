@@ -37,7 +37,7 @@
       </div>
       <!-- END LOADER -->
       <header>
-   <?php
+      <?php
 include 'db.php'; 
 
 
@@ -51,15 +51,16 @@ $result = pg_query($con, $sql);
 if ($result) {
     $user = pg_fetch_assoc($result);
     if ($user) {
-        $image = '/osna/images/' . basename($user['image_path']);
+        $image = './admin/Images/' . basename($user['image_path']);
     }
 }
 
 ?>
+
 <div class="header-top wow fadeIn">
     <div class="container">
         <a class="navbar-brand" href="index.php">
-            <img src="<?php echo htmlspecialchars($image); ?>" alt="Website Logo" width="100px" height="100px">
+        <img src="images/opd.png" alt="Website Logo" width="100px" height="100px">
         </a>
 
         <div class="right-header">
@@ -490,7 +491,7 @@ try {
       <div id="getintouch" class="section wb wow fadeIn" style="padding-bottom:0;">
          <div class="container">
              <div class="heading">
-                 <span class="icon-logo"> <img src="<?php echo htmlspecialchars($image); ?>" alt="Website Logo" width="200px" height="100px"></span>
+                 <span class="icon-logo">  <img src="images/opd.png" alt="Website Logo" width="200px" height="100px"></span>
                  <h2>Get in Touch</h2>
              </div>
          </div>
@@ -554,7 +555,7 @@ try {
             <div class="row">
                <div class="col-md-4">
                   <div class="logo padding">
-                     <a href=""> <img src="<?php echo htmlspecialchars($image); ?>" alt="Website Logo"></a>
+                     <a href=""> <img src="images/opd.png" alt="Website Logo"></a>
                      
                   </div>
                </div>
