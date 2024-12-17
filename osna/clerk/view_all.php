@@ -110,14 +110,14 @@ $result = pg_query($con, $sql);
 					
 					
 					<!-- User Menu -->
-					<li class="nav-item dropdown has-arrow">
+                                        <li class="nav-item dropdown has-arrow">
 						<a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown">
-							<span class="user-img"><img class="rounded-circle" src="../clerk/Images/<?php echo htmlspecialchars($image); ?>" width="31" alt="admin"></span>
+							<span class="user-img"> <img src="Images/doctor1.png" class="rounded-circle" width="31" alt="admin"></span>
 						</a>
 						<div class="dropdown-menu">
 							<div class="user-header">
 								<div class="avatar avatar-sm">
-								<span class="user-img"><img class="rounded-circle" src="../clerk/Images/<?php echo htmlspecialchars($image); ?>" width="31" alt="admin"></span>
+                                <span class="user-img"><img src="Images/doctor1.png" class="rounded-circle" width="31" alt="admin"></span>
 								</div>
 								<div class="user-text">
 								<h6><?php echo $clerk_username; ?></h6>
@@ -129,7 +129,6 @@ $result = pg_query($con, $sql);
 						</div>
 					</li>
 					<!-- /User Menu -->
-					
 				</ul>
 				<!-- /Header Right Menu -->
 				
