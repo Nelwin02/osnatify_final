@@ -248,77 +248,123 @@ $result = pg_query($con, $sql);
         </div>
 
         <?php
-// Get the current date
-$currentDate = date('Y-m-d');
+        // Get the current date
+        $currentDate = date('Y-m-d');
 
-// SQL query to fetch patients with their statuses
-$sql = "
-    SELECT 
-        pi.username,
-        pi.name,
-        pi.address,
-        pi.contactnum,
-        pi.age,
-        pi.sex,
-        CASE 
-            WHEN EXISTS (
-                SELECT 1 
-                FROM prediction p 
-                WHERE p.username = pi.username AND DATE(p.created_at) = '$currentDate'
-            ) THEN 'No Record'
-            ELSE 'Authorized'
-        END AS status
-    FROM 
-        patient_info pi
-    ORDER BY 
-        pi.username
-";
+        // SQL query to join tables and filter by the current date
+        $sql = "
+            SELECT 
+                patient_info.username,
+                patient_info.name,
+                patient_info.address,
+                patient_info.contactnum,
+                patient_info.age,
+                patient_info.sex,
+                prediction.created_at
+            FROM 
+                patient_info
+            INNER JOIN 
+                prediction 
+            ON 
+                patient_info.username = prediction.username
+            WHERE 
+                DATE(prediction.created_at) = '$currentDate'
+            ORDER BY 
+                prediction.created_at DESC
+        ";
 
-// Execute the query
-$result = pg_query($con, $sql);
-?>
-
-<!-- First Table -->
-<table class="table table-bordered table-hover" id="patientTable">
-    <thead class="thead-dark">
-        <tr>
-            <th>P_ID</th>
-            <th>Name</th>
-            <th>Address</th>
-            <th>Age</th>
-            <th>Sex</th>
-            <th>Status</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody id="tableBody">
-        <?php
-        if ($result && pg_num_rows($result) > 0) {
-            while ($row = pg_fetch_assoc($result)) {
-                $status = $row['status'];
-                $color = $status === 'No Record' ? 'grey' : 'green';
-
-                echo "<tr data-status='" . strtolower(str_replace(' ', '-', $status)) . "' data-pid='" . htmlspecialchars($row['username']) . "' data-name='" . htmlspecialchars($row['name']) . "' data-address='" . htmlspecialchars($row['address']) . "'>
-                    <td>" . htmlspecialchars($row['username']) . "</td>
-                    <td>" . htmlspecialchars($row['name']) . "</td>
-                    <td>" . htmlspecialchars($row['address']) . "</td>
-                    <td>" . htmlspecialchars($row['age']) . "</td>
-                    <td>" . htmlspecialchars($row['sex']) . "</td>
-                    <td class='text-" . ($color === 'grey' ? 'secondary' : 'success') . "'>" . $status . "</td>
-                    <td>
-                        <a href='view_prediction.php?username=" . urlencode($row['username']) . "' class='btn btn-info btn-sm' title='View Details'>
-                            <i class='fa fa-eye'></i>
-                        </a>
-                    </td>
-                </tr>";
-            }
-        } else {
-            echo "<tr><td colspan='7' class='text-center text-muted'>No patients found.</td></tr>";
-        }
+        // Execute the query
+        $predictionresult = pg_query($con, $sql);
         ?>
-    </tbody>
-</table>
 
+        <!-- First Table -->
+        <table class="table table-bordered table-hover" id="patientTable">
+            <thead class="thead-dark">
+                <tr>
+                    <th>P_ID</th>
+                    <th>Name</th>
+                    <th>Address</th>
+                    <th>Age</th>
+                    <th>Sex</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                <?php
+                if ($result && pg_num_rows($result) > 0) {
+                    while ($row = pg_fetch_assoc($result)) {
+                        $status = isset($row['status']) && $row['status'] === 'pending' ? 'No Record' : 'Authorized';
+                        $color = $status === 'No Record' ? 'grey' : 'green';
+
+                        echo "<tr data-status='" . strtolower(str_replace(' ', '-', $status)) . "' data-pid='" . htmlspecialchars($row['username']) . "' data-name='" . htmlspecialchars($row['name']) . "' data-address='" . htmlspecialchars($row['address']) . "'>
+                            <td>" . htmlspecialchars($row['username']) . "</td>
+                            <td>" . htmlspecialchars($row['name']) . "</td>
+                            <td>" . htmlspecialchars($row['address']) . "</td>
+                            <td>" . htmlspecialchars($row['age']) . "</td>
+                            <td>" . htmlspecialchars($row['sex']) . "</td>
+                            <td class='text-" . ($color === 'grey' ? 'secondary' : 'success') . "'>" . $status . "</td>
+                            <td>
+                                <a href='view_prediction.php?username=" . urlencode($row['username']) . "' class='btn btn-info btn-sm' title='View Details'>
+                                    <i class='fa fa-eye'></i>
+                                </a>
+                            </td>
+                        </tr>";
+                    }
+                } else {
+                    echo "<tr><td colspan='7' class='text-center text-muted'>No patients found.</td></tr>";
+                }
+                ?>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Predictions Table -->
+<div class="card shadow-sm">
+    <div class="card-header bg-success text-white">
+        <h4 class="mb-0">Today's Patient</h4>
+    </div>
+    <div class="card-body">
+        <table class="table table-bordered table-hover" id="predictionTable">
+            <thead class="thead-dark">
+                <tr>
+                    <th>P_ID</th>
+                    <th>Name</th>
+                    <th>Address</th>
+                    <th>Age</th>
+                    <th>Sex</th>
+                    <th>Prediction Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php
+                if ($predictionresult && pg_num_rows($predictionresult) > 0) {
+                    while ($row = pg_fetch_assoc($predictionresult)) {
+                        $dateTime = new DateTime($row['created_at']);
+                        $formattedDate = $dateTime->format('h:i A');
+
+                        echo "<tr>
+                            <td>" . htmlspecialchars($row['username']) . "</td>
+                            <td>" . htmlspecialchars($row['name']) . "</td>
+                            <td>" . htmlspecialchars($row['address']) . "</td>
+                            <td>" . htmlspecialchars($row['age']) . "</td>
+                            <td>" . htmlspecialchars($row['sex']) . "</td>
+                            <td>" . $formattedDate . "</td>
+                            <td>
+                                <a href='view_oldpatient.php?username=" . urlencode($row['username']) . "' class='btn btn-info btn-sm' title='View Details'>
+                                    <i class='fa fa-eye'></i>
+                                </a>
+                            </td>
+                        </tr>";
+                    }
+                } else {
+                    echo "<tr><td colspan='7' class='text-center text-muted'>No data available</td></tr>";
+                }
+                ?>
+            </tbody>
+        </table>
     </div>
 </div>
 
