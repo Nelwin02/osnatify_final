@@ -266,7 +266,7 @@ WHERE
 								
 								</ul>
 
-								<li><a href="patient_list.php"><i class="fa fa-info-circle"></i> &nbsp; Patient List</a></li>
+								<li><a href="view_patient.php"><i class="fa fa-info-circle"></i> &nbsp; Patient List</a></li>
 								<li>
 							
 								<li>
