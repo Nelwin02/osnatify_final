@@ -204,7 +204,7 @@ WHERE
 						<a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown">
 						<span class="user-img">
 					
-						<img src="images/<?php echo htmlspecialchars($image); ?>" alt="Doctor Image" class="img-circle" />
+						<img src="images/doc3.jpeg" alt="Doctor" class="img-circle" />
 					</span>
 
 					<style>
@@ -222,7 +222,7 @@ WHERE
 						<div class="dropdown-menu">
 							<div class="user-header">
 								<div class="avatar avatar-sm">
-								<img src="images/<?php echo htmlspecialchars($image); ?>" alt="Doctor Image" class="img-circle" />
+								<img src="images/doc3.jpeg" alt="Doctor" class="img-circle" />
 								</div>
 								<div class="user-text">
 								<h6><?php echo $username; ?></h6>
