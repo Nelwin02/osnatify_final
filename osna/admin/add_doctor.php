@@ -100,6 +100,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $tempname = $_FILES['image']['tmp_name'];
             $folder = $_SERVER['DOCUMENT_ROOT'] . "/osna/doctor2/Images/" . $file_name;
 
+	 // Ensure the directory exists
+            $directory = $_SERVER['DOCUMENT_ROOT'] . "./osna/doctor2/Images/";
+            if (!is_dir($directory)) {
+                mkdir($directory, 0777, true); // Create directory with full permissions
+            }
+
             // Check if username already exists
             $stmt = pg_prepare($con, "check_username", "SELECT username FROM doctor_log WHERE username = $1");
             $result = pg_execute($con, "check_username", array($username));
