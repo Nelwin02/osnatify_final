@@ -108,7 +108,7 @@ if ($result) {
 						<a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown">
 						<span class="user-img">
 					
-						<img src="images/<?php echo htmlspecialchars($image); ?>" alt="Doctor Image" class="img-circle" />
+						<img src="./assets/img/profiles/doc5.jpg" alt="Doctor Image" class="img-circle" />
 					</span>
 
 					<style>
@@ -126,7 +126,7 @@ if ($result) {
 						<div class="dropdown-menu">
 							<div class="user-header">
 								<div class="avatar avatar-sm">
-								<img src="images/<?php echo htmlspecialchars($image); ?>" alt="Doctor Image" class="img-circle" />
+								<img src="./assets/img/profiles/doc5.jpg" alt="Doctor Image" class="img-circle" />
 								</div>
 								<div class="user-text">
 								<h6><?php echo $username; ?></h6>
@@ -170,7 +170,7 @@ if ($result) {
 								
 								</ul>
 
-								<li><a href="patient_list.php"><i class="fa fa-info-circle"></i> &nbsp; Patient List</a></li>
+								<li><a href="view_patient.php"><i class="fa fa-info-circle"></i> &nbsp; Patient List</a></li>
 								<li>
 							<a href="login.php"><i class="fa fa-sign-out"></i> <span>Logout</span></a>
 							</li>
