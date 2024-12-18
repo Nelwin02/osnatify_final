@@ -310,26 +310,35 @@ $result = pg_query($con, $sql);
                     </thead>
                     <tbody id="tableBody">
                        <!-- PHP loop to populate rows (dynamically generated content) -->
-                        <?php
-                        // Assuming the connection to PostgreSQL is established using pg_connect
-                        if ($result && pg_num_rows($result) > 0) {
-                            while ($row = pg_fetch_assoc($result)) {
-                                echo "<tr data-date='" . htmlspecialchars($row['date_created']) . "'>
-                                    <td style='font-size: 14px;'>" . htmlspecialchars($row['username']) . "</td>
-                                    <td style='font-size: 14px;'>" . htmlspecialchars($row['name']) . "</td>
-                                    <td style='font-size: 14px;'>" . htmlspecialchars($row['address']) . "</td>
-                                    <td style='font-size: 14px;'>" . htmlspecialchars($row['age']) . "</td>
-                                    <td style='font-size: 14px;'>" . htmlspecialchars($row['sex']) . "</td>
-                                    <td style='font-size: 14px;'>" . htmlspecialchars($row['date_created']) . "</td>
-                                    <td style='font-size: 12px;'>
-                                        <a href='view_all.php?username=" . urlencode($row['username']) . "' class='btn btn-info btn-sm' title='View'>view all</a>
-                                    </td>
-                                </tr>";
-                            }
-                        } else {
-                            echo "<tr><td colspan='7' class='text-center'>No patients found.</td></tr>";
-                        }
-                        ?>
+                                             <?php
+// Initialize an empty array to track displayed usernames
+$displayedUsernames = array();
+
+// Assuming the connection to PostgreSQL is established using pg_connect
+if ($result && pg_num_rows($result) > 0) {
+    while ($row = pg_fetch_assoc($result)) {
+        // Check if this username has already been displayed
+        if (!in_array($row['username'], $displayedUsernames)) {
+            // Add the username to the displayedUsernames array
+            $displayedUsernames[] = $row['username'];
+
+            echo "<tr data-date='" . htmlspecialchars($row['date_created']) . "'>
+                <td style='font-size: 14px;'>" . htmlspecialchars($row['username']) . "</td>
+                <td style='font-size: 14px;'>" . htmlspecialchars($row['name']) . "</td>
+                <td style='font-size: 14px;'>" . htmlspecialchars($row['address']) . "</td>
+                <td style='font-size: 14px;'>" . htmlspecialchars($row['age']) . "</td>
+                <td style='font-size: 14px;'>" . htmlspecialchars($row['sex']) . "</td>
+                <td style='font-size: 14px;'>" . htmlspecialchars($row['date_created']) . "</td>
+                <td style='font-size: 12px;'>
+                    <a href='view_all.php?username=" . urlencode($row['username']) . "' class='btn btn-info btn-sm' title='View'>view all</a>
+                </td>
+            </tr>";
+        }
+    }
+} else {
+    echo "<tr><td colspan='7' class='text-center'>No patients found.</td></tr>";
+}
+?>
 
                     </tbody>
                 </table>
