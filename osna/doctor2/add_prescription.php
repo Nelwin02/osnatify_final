@@ -385,7 +385,7 @@ if ($username) {
     </td>
 </tr>
 <tr>
-    <td><strong>Medicine</strong></td>
+    <td><strong>Prescription</strong></td>
     <td>
         <textarea 
             class="form-control" 
