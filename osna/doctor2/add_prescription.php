@@ -243,7 +243,7 @@ if ($username) {
     }
 
     // Fetch prediction data (symptoms, predicted_disease, predicted_prescription)
-    $query = "SELECT symptoms, predicted_disease, predicted_prescription FROM prediction WHERE username = $1";
+    $query = "SELECT symptoms, predicted_disease, predicted_prescription FROM prediction WHERE username = $1 order by id desc";
     $result = pg_query_params($con, $query, [$username]);
 
     if ($row = pg_fetch_assoc($result)) {
@@ -352,8 +352,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $username) {
 
 if ($username) {
 ?>
-<h5 style="text-align: left;"><?php echo htmlspecialchars($name); ?></h5>
-<h5 style="text-align: left;"><?php echo htmlspecialchars($username); ?></h5>
+<h5 style="text-align: left;">Patient Name: <?php echo htmlspecialchars($name); ?></h5>
+
 
 <div class="row">
     
