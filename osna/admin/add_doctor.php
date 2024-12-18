@@ -58,50 +58,26 @@ pg_free_result($result);
 			<script src="assets/js/html5shiv.min.js"></script>
 			<script src="assets/js/respond.min.js"></script>
 		<![endif]-->
-<?php
+        <?php
 // Include database connection
 include 'db.php';
 
 // Check if form was submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    if (isset($_POST['add_doctor'])) {
-        // Add doctor without image
-        $username = pg_escape_string($con, $_POST['username']);
-        $password = pg_escape_string($con, $_POST['password']);
-        $doctor_name = pg_escape_string($con, $_POST['doctor_name']);
-
-        // Check if username already exists
-        $stmt = pg_prepare($con, "check_username", "SELECT username FROM doctor_log WHERE username = $1");
-        $result = pg_execute($con, "check_username", array($username));
-
-        if (pg_num_rows($result) > 0) {
-            echo "<script>alert('Username already exists. Please choose a different username.');</script>";
-        } else {
-            // Insert new doctor
-            $sql = pg_prepare($con, "insert_doctor", "INSERT INTO doctor_log (username, password, doctor_name) VALUES ($1, $2, $3)");
-            $result = pg_execute($con, "insert_doctor", array($username, $password, $doctor_name));
-
-            if ($result) {
-                echo "<script>alert('New doctor added successfully');</script>";
-            } else {
-                echo "<script>alert('Error: " . pg_last_error($con) . "');</script>";
-            }
-        }
-    }
-
     if (isset($_POST['submit'])) {
         // Handle doctor information with image upload
         $username = pg_escape_string($con, $_POST['username']);
         $password = pg_escape_string($con, $_POST['password']);
         $doctor_name = pg_escape_string($con, $_POST['doctor_name']);
-        
+        $licensed_id = pg_escape_string($con, $_POST['licensed_id']);  // Get licensed_id
+
         // Check if an image is uploaded
         if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
             $file_name = preg_replace("/[^a-zA-Z0-9\._-]/", "", $_FILES['image']['name']); // Sanitize file name
             $tempname = $_FILES['image']['tmp_name'];
             $folder = $_SERVER['DOCUMENT_ROOT'] . "/osna/doctor2/Images/" . $file_name;
 
-	 // Ensure the directory exists
+            // Ensure the directory exists
             $directory = $_SERVER['DOCUMENT_ROOT'] . "/osna/doctor2/Images/";
             if (!is_dir($directory)) {
                 mkdir($directory, 0777, true); // Create directory with full permissions
@@ -114,9 +90,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             if (pg_num_rows($result) > 0) {
                 echo "<script>alert('Username already exists. Please choose a different username.');</script>";
             } else {
-                // Insert doctor information with image path
-                $sql = pg_prepare($con, "insert_doctor_image", "INSERT INTO doctor_log (username, password, doctor_name, doctor_image) VALUES ($1, $2, $3, $4)");
-                $result = pg_execute($con, "insert_doctor_image", array($username, $password, $doctor_name, "/osna/doctor2/Images/" . $file_name));
+                // Insert doctor information with image path and licensed_id
+                $sql = pg_prepare($con, "insert_doctor_image", "INSERT INTO doctor_log (username, password, doctor_name, doctor_image, licensed_id) VALUES ($1, $2, $3, $4, $5)");
+                $result = pg_execute($con, "insert_doctor_image", array($username, $password, $doctor_name, "/osna/doctor2/Images/" . $file_name, $licensed_id));
 
                 if ($result) {
                     // Move uploaded file to the correct directory
@@ -278,39 +254,45 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </div>
 
 <div class="container mt-5">
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="card">
-                    <div class="card-body">
-                        <h4 class="card-title">Add Doctor</h4>
-                        <form action="" method="post" enctype="multipart/form-data">
-                            <div class="form-group">
-                                <label for="username">Username:</label>
-                                <input type="text" class="form-control" id="username" name="username" required>
-                            </div>
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title">Add Doctor</h4>
+                    <form action="" method="post" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <label for="username">Username:</label>
+                            <input type="text" class="form-control" id="username" name="username" required>
+                        </div>
 
-                            <div class="form-group">
-                                <label for="password">Password:</label>
-                                <input type="password" class="form-control" id="password" name="password" required>
-                            </div>
+                        <div class="form-group">
+                            <label for="password">Password:</label>
+                            <input type="password" class="form-control" id="password" name="password" required>
+                        </div>
 
-                            <div class="form-group">
-                                <label for="doctor_name">Doctor's Name:</label>
-                                <input type="text" class="form-control" id="doctor_name" name="doctor_name" required>
-                            </div>
+                        <div class="form-group">
+                            <label for="doctor_name">Doctor's Name:</label>
+                            <input type="text" class="form-control" id="doctor_name" name="doctor_name" required>
+                        </div>
 
-                            <div class="form-group">
-                                <label for="image">Upload Image:</label>
-                                <input type="file" class="form-control-file" id="image" name="image" accept="image/*" required>
-                            </div>
+                        <div class="form-group">
+                            <label for="licensed_id">Licensed ID:</label>
+                            <input type="text" class="form-control" id="licensed_id" name="licensed_id" required>
+                        </div>
 
-                            <button type="submit" class="btn btn-primary" name="submit">Add Doctor</button>
-                        </form>
-                    </div>
+                        <div class="form-group">
+                            <label for="image">Upload Image:</label>
+                            <input type="file" class="form-control-file" id="image" name="image" accept="image/*" required>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" name="submit">Add Doctor</button>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
+</div>
+
 <!-- jQuery -->
 <script src="assets/js/jquery-3.2.1.min.js"></script>
 		
