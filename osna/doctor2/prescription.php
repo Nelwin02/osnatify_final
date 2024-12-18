@@ -115,7 +115,7 @@ $result = pg_query($con, $sql);
 						<a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown">
 						<span class="user-img">
 					
-						<img src="./assets/img/profiles/doc5.jpg" alt="Doctor" class="img-circle" />
+						<img src="images/doc3.jpeg" alt="Doctor Image" class="img-circle" />
 					</span>
 
 					<style>
@@ -133,7 +133,7 @@ $result = pg_query($con, $sql);
 						<div class="dropdown-menu">
 							<div class="user-header">
 								<div class="avatar avatar-sm">
-								<img src="./assets/img/profiles/doc5.jpg" alt="Doctor" class="img-circle" />
+								<img src="images/doc3.jpeg" alt="Doctor Image" class="img-circle" />
 								</div>
 								<div class="user-text">
 								<h6><?php echo $username; ?></h6>
@@ -235,9 +235,7 @@ $result = pg_query($con, $sql);
 
             <!-- Filter Buttons -->
             <div class="btn-group" role="group" aria-label="Status Filter">
-                <button type="button" class="btn btn-outline-primary filter-btn active" data-filter="no-record">
-                    No Record
-                </button>
+                
                 <button type="button" class="btn btn-outline-success filter-btn" data-filter="authorized">
                     Authorized
                 </button>
@@ -317,56 +315,61 @@ $result = pg_query($con, $sql);
                 ?>
             </tbody>
         </table>
+
+        <!-- Pagination Controls -->
+        <div id="pagination" class="d-flex justify-content-center mt-3">
+            <button id="prevPage" class="btn btn-outline-primary btn-sm" disabled>&laquo; Previous</button>
+            <span id="pageInfo" class="mx-2">Page 1</span>
+            <button id="nextPage" class="btn btn-outline-primary btn-sm">Next &raquo;</button>
+        </div>
     </div>
 </div>
 
-<!-- Predictions Table -->
-<div class="card shadow-sm">
-    <div class="card-header bg-success text-white">
-        <h4 class="mb-0">Today's Patient</h4>
-    </div>
-    <div class="card-body">
-        <table class="table table-bordered table-hover" id="predictionTable">
-            <thead class="thead-dark">
-                <tr>
-                    <th>P_ID</th>
-                    <th>Name</th>
-                    <th>Address</th>
-                    <th>Age</th>
-                    <th>Sex</th>
-                    <th>Prediction Date</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php
-                if ($predictionresult && pg_num_rows($predictionresult) > 0) {
-                    while ($row = pg_fetch_assoc($predictionresult)) {
-                        $dateTime = new DateTime($row['created_at']);
-                        $formattedDate = $dateTime->format('h:i A');
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const rowsPerPage = 5;
+    let currentPage = 1;
 
-                        echo "<tr>
-                            <td>" . htmlspecialchars($row['username']) . "</td>
-                            <td>" . htmlspecialchars($row['name']) . "</td>
-                            <td>" . htmlspecialchars($row['address']) . "</td>
-                            <td>" . htmlspecialchars($row['age']) . "</td>
-                            <td>" . htmlspecialchars($row['sex']) . "</td>
-                            <td>" . $formattedDate . "</td>
-                            <td>
-                                <a href='view_oldpatient.php?username=" . urlencode($row['username']) . "' class='btn btn-info btn-sm' title='View Details'>
-                                    <i class='fa fa-eye'></i>
-                                </a>
-                            </td>
-                        </tr>";
-                    }
-                } else {
-                    echo "<tr><td colspan='7' class='text-center text-muted'>No data available</td></tr>";
-                }
-                ?>
-            </tbody>
-        </table>
-    </div>
-</div>
+    const tableBody = document.getElementById('tableBody');
+    const rows = tableBody.querySelectorAll('tr');
+    const totalPages = Math.ceil(rows.length / rowsPerPage);
+
+    const prevPageButton = document.getElementById('prevPage');
+    const nextPageButton = document.getElementById('nextPage');
+    const pageInfo = document.getElementById('pageInfo');
+
+    function updatePagination() {
+        const startIndex = (currentPage - 1) * rowsPerPage;
+        const endIndex = startIndex + rowsPerPage;
+
+        rows.forEach((row, index) => {
+            row.style.display = index >= startIndex && index < endIndex ? '' : 'none';
+        });
+
+        prevPageButton.disabled = currentPage === 1;
+        nextPageButton.disabled = currentPage === totalPages;
+        pageInfo.textContent = `Page ${currentPage}`;
+    }
+
+    prevPageButton.addEventListener('click', function () {
+        if (currentPage > 1) {
+            currentPage--;
+            updatePagination();
+        }
+    });
+
+    nextPageButton.addEventListener('click', function () {
+        if (currentPage < totalPages) {
+            currentPage++;
+            updatePagination();
+        }
+    });
+
+    // Initialize the table with the first page
+    updatePagination();
+});
+</script>
+
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
