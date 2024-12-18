@@ -150,8 +150,7 @@
 							<li class="submenu">
 								<a href="#"><i class="fa fa-wheelchair"></i> <span>Manage Patient</span> <span class="menu-arrow"></span></a>
 								<ul style="display: none;">
-								<li><a href="manage_patient.php"><i class="fa fa-info-circle"></i>Patient Information</a></li>
-								<li><a href="patient.php"><i class="fa fa-stethoscope"></i>Health Records</a></li>
+								<li><a href="manage_patient.php"><i class="fa fa-info-circle"></i>Patient Records</a></li>
 								</ul>
 								<li class="submenu">
 									<a href="#"><i class="fa fa-user-md"></i> <span>Manage Doctors</span> <span class="menu-arrow"></span></a>
