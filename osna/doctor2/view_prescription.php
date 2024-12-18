@@ -14,7 +14,7 @@ if (!isset($_SESSION['username'])) {
 $username = $_SESSION['username'];
 
 // Prepare SQL query to fetch doctor details
-$sql = "SELECT doctor_name, doctor_image FROM doctor_log WHERE username = $1";  // Use $1 for parameterized query
+$sql = "SELECT doctor_name, doctor_image, licensed_id FROM doctor_log WHERE username = $1";  // Use $1 for parameterized query
 
 // Execute query with parameters
 $result = pg_query_params($con, $sql, array($username));
@@ -24,6 +24,7 @@ if ($result) {
     if ($user) {
         $name = $user['doctor_name'];
         $image = $user['doctor_image'];
+        $licensed_id = $user['licensed_id'];
     } else {
         $name = "Unknown";
         $image = "default.png"; // Default image if no user found
@@ -344,7 +345,7 @@ $prescriptionDisplayed = false;
                             <!-- Doctor Info -->
                             <div class="col-6">
                                 <p><strong>Doctor Name:</strong> <?php echo htmlspecialchars($name); ?></p>
-                                <p><strong>Doctor License ID:</strong> </p>
+                                <p><strong>Doctor Licensed ID:</strong> <?php echo htmlspecialchars($licensed_id); ?></p>
                             </div>
 
                             <div class="row">
