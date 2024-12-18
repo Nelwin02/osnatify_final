@@ -64,7 +64,7 @@ if ($stmt) {
 			<script src="assets/js/respond.min.js"></script>
 		<![endif]-->
 
-<?php
+        <?php
 // Build the SQL query
 $sql = "
     SELECT 
@@ -117,6 +117,7 @@ if (!$result) {
     die("Query Failed: " . pg_last_error($con));
 }
 ?>
+
 
 
 
@@ -264,6 +265,7 @@ if (!$result) {
             </select>
         </div>
 
+  
         <!-- Search Input -->
         <div class="form-group mb-0 w-25" style="position: relative;">
             <label for="searchInput" class="font-weight-bold mr-2" style="color: grey;">Search P_ID or Name</label>
@@ -276,7 +278,6 @@ if (!$result) {
         </div>
     </div>
 </div>
-
 <!-- Consultations Table -->
 <div class="card shadow-sm">
     <div class="card-body">
@@ -296,46 +297,171 @@ if (!$result) {
                 </tr>
             </thead>
             <tbody id="tableBody">
-               <!-- PHP loop to populate rows -->
-               <?php
-               if ($result && pg_num_rows($result) > 0) {
-                   while ($row = pg_fetch_assoc($result)) {
-                       // Determine icons based on the statuses
-                       $vitalsignsIcon = $row['vitalsigns_status'] === 'done' 
-                           ? "<span class='text-success'><i class='fa fa-check-circle'></i></span>" 
-                           : ($row['vitalsigns_status'] === 'pending'
-                               ? "<span class='text-warning'><i class='fa fa-exclamation-circle'></i></span>"
-                               : "<span class='text-muted'>No Record</span>");
+                <!-- PHP loop to populate rows -->
+                <?php
+                if ($result && pg_num_rows($result) > 0) {
+                    while ($row = pg_fetch_assoc($result)) {
+                        // Determine icons based on the statuses
+                        $vitalsignsIcon = $row['vitalsigns_status'] === 'done' 
+                            ? "<span class='text-success'><i class='fa fa-check-circle'></i></span>" 
+                            : ($row['vitalsigns_status'] === 'pending'
+                                ? "<span class='text-warning'><i class='fa fa-exclamation-circle'></i></span>"
+                                : "<span class='text-muted'>No Record</span>");
 
-                       $predictionIcon = $row['prediction_status'] === 'done' 
-                           ? "<span class='text-success'><i class='fa fa-check-circle'></i></span>" 
-                           : ($row['prediction_status'] === 'pending'
-                               ? "<span class='text-warning'><i class='fa fa-exclamation-circle'></i></span>"
-                               : "<span class='text-muted'>No Record</span>");
+                        $predictionIcon = $row['prediction_status'] === 'done' 
+                            ? "<span class='text-success'><i class='fa fa-check-circle'></i></span>" 
+                            : ($row['prediction_status'] === 'pending'
+                                ? "<span class='text-warning'><i class='fa fa-exclamation-circle'></i></span>"
+                                : "<span class='text-muted'>No Record</span>");
 
-                       echo "<tr data-date='" . htmlspecialchars($row['date_created']) . "'>
-                               <td style='font-size: 14px;'>" . htmlspecialchars($row['username']) . "</td>
-                               <td style='font-size: 14px;'>" . htmlspecialchars($row['name']) . "</td>
-                               <td style='font-size: 14px;'>" . htmlspecialchars($row['address']) . "</td>
-                               <td style='font-size: 14px;'>" . htmlspecialchars($row['age']) . "</td>
-                               <td style='font-size: 14px;'>" . htmlspecialchars($row['sex']) . "</td>
-                               <td style='font-size: 14px;'>" . htmlspecialchars($row['date_created']) . "</td>
-                               <td class='text-center' style='font-size: 13px;'>" . $vitalsignsIcon . "</td>
-                               <td class='text-center' style='font-size: 13px;'>" . $predictionIcon . "</td>
-                               <td style='font-size: 12px;'>
-                                   <a href='consult_patient.php?username=" . urlencode($row['username']) . "' class='btn btn-info btn-sm' title='View'><i class='fa fa-eye'></i></a>
-                                   <a href='edit_patient.php?username=" . urlencode($row['username']) . "' class='btn btn-warning btn-sm' title='Edit'><i class='fa fa-pencil'></i></a>
-                               </td>
-                           </tr>";
-                   }
-               } else {
-                   echo "<tr><td colspan='9' class='text-center'>No patients found.</td></tr>";
-               }
-               ?>
+                        echo "<tr data-date='" . htmlspecialchars($row['date_created']) . "'>
+                                   <td style='font-size: 14px;'>" . htmlspecialchars($row['username']) . "</td>
+                                   <td style='font-size: 14px;'>" . htmlspecialchars($row['name']) . "</td>
+                                   <td style='font-size: 14px;'>" . htmlspecialchars($row['address']) . "</td>
+                                   <td style='font-size: 14px;'>" . htmlspecialchars($row['age']) . "</td>
+                                   <td style='font-size: 14px;'>" . htmlspecialchars($row['sex']) . "</td>
+                                   <td style='font-size: 14px;'>" . htmlspecialchars($row['date_created']) . "</td>
+                                   <td class='text-center' style='font-size: 13px;'>" . $vitalsignsIcon . "</td>
+                                   <td class='text-center' style='font-size: 13px;'>" . $predictionIcon . "</td>
+                                   <td style='font-size: 12px;'>
+                                       <a href='consult_patient.php?username=" . urlencode($row['username']) . "' class='btn btn-info btn-sm' title='View'><i class='fa fa-eye'></i></a>
+                                       <a href='edit_patient.php?username=" . urlencode($row['username']) . "' class='btn btn-warning btn-sm' title='Edit'><i class='fa fa-pencil'></i></a>
+                                   </td>
+                               </tr>";
+                    }
+                } else {
+                    echo "<tr><td colspan='9' class='text-center'>No patients found.</td></tr>";
+                }
+                ?>
             </tbody>
         </table>
+        <!-- Pagination Controls -->
+        <div id="paginationControls" class="text-center">
+            <button id="prevBtn" class="btn btn-secondary btn-sm" disabled>Previous</button>
+            <button id="nextBtn" class="btn btn-secondary btn-sm">Next</button>
+        </div>
+        <p id="noDataMessage" class="text-center" style="display: none;">No results found.</p>
     </div>
 </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const tableBody = document.getElementById('tableBody');
+    const paginationControls = document.getElementById('paginationControls');
+    const noDataMessage = document.getElementById('noDataMessage');
+    const dateFilter = document.getElementById('dateFilter');
+    const searchInput = document.getElementById('searchInput');
+    const rowsPerPage = 5;
+
+    let currentPage = 1;
+    let allData = <?php echo json_encode(pg_fetch_all($result)); ?>; // Fetch all rows into JS
+
+    function renderTable(data) {
+        tableBody.innerHTML = '';
+        if (data.length === 0) {
+            noDataMessage.style.display = 'block';
+        } else {
+            noDataMessage.style.display = 'none';
+            data.forEach(row => {
+                const vitalsignsIcon = row.vitalsigns_status === 'done' 
+                    ? "<span class='text-success'><i class='fa fa-check-circle'></i></span>" 
+                    : (row.vitalsigns_status === 'pending'
+                        ? "<span class='text-warning'><i class='fa fa-exclamation-circle'></i></span>"
+                        : "<span class='text-muted'>No Record</span>");
+
+                const predictionIcon = row.prediction_status === 'done' 
+                    ? "<span class='text-success'><i class='fa fa-check-circle'></i></span>" 
+                    : (row.prediction_status === 'pending'
+                        ? "<span class='text-warning'><i class='fa fa-exclamation-circle'></i></span>"
+                        : "<span class='text-muted'>No Record</span>");
+
+                const rowHTML = `
+                    <tr>
+                        <td style='font-size: 14px;'>${row.username}</td>
+                        <td style='font-size: 14px;'>${row.name}</td>
+                        <td style='font-size: 14px;'>${row.address}</td>
+                        <td style='font-size: 14px;'>${row.age}</td>
+                        <td style='font-size: 14px;'>${row.sex}</td>
+                        <td style='font-size: 14px;'>${row.date_created}</td>
+                        <td class='text-center' style='font-size: 13px;'>${vitalsignsIcon}</td>
+                        <td class='text-center' style='font-size: 13px;'>${predictionIcon}</td>
+                        <td style='font-size: 12px;'>
+                            <a href='consult_patient.php?username=${row.username}' class='btn btn-info btn-sm' title='View'><i class='fa fa-eye'></i></a>
+                            <a href='edit_patient.php?username=${row.username}' class='btn btn-warning btn-sm' title='Edit'><i class='fa fa-pencil'></i></a>
+                        </td>
+                    </tr>
+                `;
+                tableBody.innerHTML += rowHTML;
+            });
+        }
+    }
+
+    function updatePaginationControls() {
+        const totalPages = Math.ceil(allData.length / rowsPerPage);
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+
+        prevBtn.disabled = currentPage === 1;
+        nextBtn.disabled = currentPage === totalPages;
+
+        prevBtn.onclick = function() {
+            if (currentPage > 1) {
+                currentPage--;
+                renderTable(filteredData());
+            }
+        };
+
+        nextBtn.onclick = function() {
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderTable(filteredData());
+            }
+        };
+    }
+
+    function filteredData() {
+        let filtered = allData;
+
+        // Date Filter
+        if (dateFilter.value === 'today') {
+            const today = new Date().toISOString().split('T')[0]; // Current date in YYYY-MM-DD format
+            filtered = filtered.filter(row => row.date_created.split(' ')[0] === today);
+        }
+
+        // Search Filter
+        const searchTerm = searchInput.value.toLowerCase();
+        if (searchTerm) {
+            filtered = filtered.filter(row => 
+                row.username.toLowerCase().includes(searchTerm) ||
+                row.name.toLowerCase().includes(searchTerm) ||
+                row.address.toLowerCase().includes(searchTerm)
+            );
+        }
+
+        // Pagination
+        const start = (currentPage - 1) * rowsPerPage;
+        return filtered.slice(start, start + rowsPerPage);
+    }
+
+    // Event listeners
+    dateFilter.addEventListener('change', function() {
+        currentPage = 1; // Reset to the first page when the filter changes
+        renderTable(filteredData());
+        updatePaginationControls();
+    });
+
+    searchInput.addEventListener('input', function() {
+        currentPage = 1; // Reset to the first page when the search term changes
+        renderTable(filteredData());
+        updatePaginationControls();
+    });
+
+    // Initial render
+    renderTable(filteredData());
+    updatePaginationControls();
+});
+</script>
+
 
 
 
