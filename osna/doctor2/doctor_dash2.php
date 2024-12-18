@@ -318,15 +318,7 @@ WHERE
                             </div>
                             <div class="dash-widget-info">
                                 <h6 class="text-muted">New Patients</h6>
-                                <div class="progress progress-sm">
-                                    <div 
-                                        class="progress-bar bg-warning" 
-                                        id="patientProgressBar" 
-                                        style="width: <?php echo $progressPercentage; ?>%;" 
-                                        data-count="<?php echo $newPatientsCountToday; ?>">
-                                    </div>
-                                </div>
-                                <small class="text-muted"><?php echo round($progressPercentage); ?>%</small>
+                                
                             </div>
                         </div>
                     </div>
@@ -346,15 +338,7 @@ WHERE
                             </div>
                             <div class="dash-widget-info">
                                 <h6 class="text-muted">Total Patients</h6>
-                                <div class="progress progress-sm">
-                                    <div 
-                                        class="progress-bar bg-warning" 
-                                        id="patientProgressBar" 
-                                        style="width: <?php echo $progressPercentage; ?>%;" 
-                                        data-count="<?php echo $countPatients; ?>">
-                                    </div>
-                                </div>
-                                <small class="text-muted"><?php echo round($progressPercentage); ?>%</small>
+                                
                             </div>
                         </div>
                     </div>
@@ -373,16 +357,7 @@ WHERE
                                 </div>
                             </div>
                             <div class="dash-widget-info">
-                                <h6 class="text-muted">Prescriptions</h6>
-                                <div class="progress progress-sm">
-                                    <div 
-                                        class="progress-bar bg-info" 
-                                        id="prescriptionProgressBar" 
-                                        style="width: <?php echo $progressPrescriptionPercentage; ?>%;" 
-                                        data-count="<?php echo $countPrescriptions; ?>">
-                                    </div>
-                                </div>
-                                <small class="text-muted"><?php echo round($progressPrescriptionPercentage); ?>%</small>
+                                <h6 class="text-muted">Total Prescriptions</h6>
                             </div>
                         </div>
                     </div>
@@ -401,16 +376,9 @@ WHERE
                                 </div>
                             </div>
                             <div class="dash-widget-info">
-                                <h6 class="text-muted">Diagnosis</h6>
-                                <div class="progress progress-sm">
-                                    <div 
-                                        class="progress-bar bg-primary" 
-                                        id="diagnosisProgressBar" 
-                                        style="width: <?php echo $progressDiagnosisPercentage; ?>%;" 
-                                        data-count="<?php echo $countDiagnoses; ?>">
-                                    </div>
-                                </div>
-                                <small class="text-muted"><?php echo round($progressDiagnosisPercentage); ?>%</small>
+                                <h6 class="text-muted">Total Diagnosis</h6>
+                               
+                               
                             </div>
                         </div>
                     </div>
@@ -447,47 +415,7 @@ WHERE
             </div>
         </div>
 
-      <!-- Vitals Section -->
-<div class="col-xl-12">
-    <div class="card shadow-lg border-0">
-        <div class="card-body">
-            <h5 class="card-title mb-4">Current Vitals (Latest Records)</h5>
-            <div class="table-responsive">
-                <table class="table table-bordered table-lg text-center">
-                    <thead class="bg-secondary text-white">
-                        <tr>
-                            <th>Patient Name</th>
-                            <th>P_ID</th>
-                            <th>Weight (kg)</th>
-                            <th>Height (cm)</th>
-                            <th>Blood Pressure (mmHg)</th>
-                            <th>Heart Rate (bpm)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    <?php if (!empty($vitalsData)) : ?>
-                        <?php foreach ($vitalsData as $vital) : ?>
-                            <tr>
-                                <td class="fw-bold"><?php echo htmlspecialchars($vital['patient_name']); ?></td>
-                                <td><?php echo htmlspecialchars($vital['patient_username']); ?></td>
-                                <td><?php echo !empty($vital['weight']) ? htmlspecialchars($vital['weight']) : 'N/A'; ?></td>
-                                <td><?php echo !empty($vital['height']) ? htmlspecialchars($vital['height']) : 'N/A'; ?></td>
-                                <td><?php echo !empty($vital['bloodpressure']) ? htmlspecialchars($vital['bloodpressure']) : 'N/A'; ?></td>
-                                <td><?php echo !empty($vital['heartrate']) ? htmlspecialchars($vital['heartrate']) : 'N/A'; ?></td>
-                            </tr>
-                        <?php endforeach; ?>
-                    <?php else : ?>
-                        <tr>
-                            <td colspan="6" class="text-danger fw-bold">No records found.</td>
-                        </tr>
-                    <?php endif; ?>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-</div>
-
+      
 
 
 
