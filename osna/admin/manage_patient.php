@@ -297,26 +297,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action'])) {
                     	<!-- /Table for updating -->
 
 
-                     
-<div class="container mt-4">
-    <div class="row mb-2">
-        <div class="col-md-6">
-            <form method="GET" action="">
-                <div class="input-group">
-                    <input type="text" name="search" class="form-control" 
-                           placeholder="Search by name or address" value="<?= htmlspecialchars($search) ?>">
-                    <div class="input-group-append">
-                        <button class="btn btn-primary" type="submit">Search</button>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
+         <div class="container mt-4">
     <div class="row">
         <div class="col-sm-12">
             <div class="card">
                 <div class="card-body">
-                    <table class="table table-striped">
+                    <!-- Search Form -->
+                    <div class="form-group">
+                        <input type="text" id="searchInput" class="form-control" placeholder="Search by Name or Address">
+                    </div>
+
+                    <!-- Table -->
+                    <table class="table table-striped" id="patientTable">
                         <thead>
                             <tr>
                                 <th>Name</th>
@@ -327,6 +319,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action'])) {
                         </thead>
                         <tbody>
                             <?php
+                            // Query the database for patient records
+                            $sql = "SELECT id, username, name, email, guardian, address FROM patient_info ORDER BY id DESC LIMIT $limit OFFSET $offset";
+                            $result = pg_query($con, $sql); // Execute query using pg_query
+
                             if (pg_num_rows($result) > 0) {
                                 while ($row = pg_fetch_assoc($result)) {
                                     echo "<tr>";
@@ -339,15 +335,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action'])) {
                                             data-username='" . $row['username'] . "'>
                                             <i class='fas fa-eye'></i>
                                           </button>"; 
-                                    echo "<button class='btn btn-warning btn-sm' style='background-color: #295F98; color: white; border-color: blue;' 
-                                            data-toggle='modal' data-target='#editModal' 
-                                            data-id='" . $row['id'] . "' 
-                                            data-username='" . $row['username'] . "' 
-                                            data-name='" . $row['name'] . "' 
-                                            data-email='" . $row['email'] . "' 
-                                            data-guardian='" . $row['guardian'] . "' 
-                                            data-address='" . $row['address'] . "'>
-                                            <i class='fas fa-edit'></i></button>";
+                                    echo "<button class='btn btn-warning btn-sm' style='background-color: #295F98; color: white; border-color: blue;' data-toggle='modal' data-target='#editModal' data-id='" . $row['id'] . "' data-username='" . $row['username'] . "' data-name='" . $row['name'] . "' data-email='" . $row['email'] . "' data-guardian='" . $row['guardian'] . "' data-address='" . $row['address'] . "'><i class='fas fa-edit'></i></button>";
                                     echo "<button class='btn btn-danger btn-sm' onclick='deletePatient(" . $row['id'] . ")'><i class='fas fa-trash'></i></button>";
                                     echo "</td>";
                                     echo "</tr>";
@@ -355,27 +343,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action'])) {
                             } else {
                                 echo "<tr><td colspan='4'>No data found</td></tr>";
                             }
-                            pg_free_result($result);
                             ?>
                         </tbody>
                     </table>
+
                     <!-- Pagination -->
-                    <nav>
-                        <ul class="pagination">
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination" id="pagination">
                             <?php if ($page > 1): ?>
-                                <li class="page-item">
-                                    <a class="page-link" href="?page=<?= $page - 1 ?>&search=<?= urlencode($search) ?>">Previous</a>
-                                </li>
+                                <li class="page-item"><a class="page-link" href="?page=<?php echo $page - 1; ?>">Previous</a></li>
                             <?php endif; ?>
+
                             <?php for ($i = 1; $i <= $total_pages; $i++): ?>
-                                <li class="page-item <?= $i == $page ? 'active' : '' ?>">
-                                    <a class="page-link" href="?page=<?= $i ?>&search=<?= urlencode($search) ?>"><?= $i ?></a>
+                                <li class="page-item <?php echo $i == $page ? 'active' : ''; ?>">
+                                    <a class="page-link" href="?page=<?php echo $i; ?>"><?php echo $i; ?></a>
                                 </li>
                             <?php endfor; ?>
+
                             <?php if ($page < $total_pages): ?>
-                                <li class="page-item">
-                                    <a class="page-link" href="?page=<?= $page + 1 ?>&search=<?= urlencode($search) ?>">Next</a>
-                                </li>
+                                <li class="page-item"><a class="page-link" href="?page=<?php echo $page + 1; ?>">Next</a></li>
                             <?php endif; ?>
                         </ul>
                     </nav>
@@ -384,6 +370,36 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action'])) {
         </div>
     </div>
 </div>
+
+<script>
+// JavaScript to filter table rows by name or address
+document.getElementById('searchInput').addEventListener('input', function() {
+    var searchTerm = this.value.toLowerCase();
+    var table = document.getElementById('patientTable');
+    var rows = table.getElementsByTagName('tr');
+
+    // Loop through all table rows (skip the header row)
+    for (var i = 1; i < rows.length; i++) {
+        var row = rows[i];
+        var nameCell = row.getElementsByTagName('td')[0];
+        var addressCell = row.getElementsByTagName('td')[2];
+
+        if (nameCell && addressCell) {
+            var name = nameCell.textContent.toLowerCase();
+            var address = addressCell.textContent.toLowerCase();
+
+            // Check if search term matches name or address
+            if (name.indexOf(searchTerm) > -1 || address.indexOf(searchTerm) > -1) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        }
+    }
+});
+</script>
+
+
 
 <!-- Modal for Vital Signs -->
 <div class="modal fade" id="viewModal" tabindex="-1" role="dialog" aria-labelledby="viewModalLabel" aria-hidden="true">
