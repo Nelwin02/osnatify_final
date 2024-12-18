@@ -207,7 +207,7 @@ if ($stmt) {
 								<div class="row align-items-center">
 									<div class="col-auto profile-image">
 										<a href="#">
-										<span class="user-img"><img class="rounded-circle" src="../clerk/Images/<?php echo htmlspecialchars($image); ?>" width="31" alt="admin"></span>
+										<span class="user-img"> <img src="Images/doctor1.png" class="rounded-circle" width="31" alt="admin"></span>
 										</a>
 									</div>
 									<div class="col ml-md-n2 profile-user-info">
