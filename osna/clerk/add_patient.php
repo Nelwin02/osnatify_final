@@ -177,7 +177,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 <p><strong>Password:</strong> $password</p>
                                 <div class='view-more'>
                                     <p>View all records:</p>
-                                    <a href=''>Download app here!</a>
+                                    <a href='https://l.facebook.com/l.php?u=https%3A%2F%2Fexpo.dev%2Fartifacts%2Feas%2F7s6rDWRPp5giqvWe88roxL.apk%3Ffbclid%3DIwZXh0bgNhZW0CMTAAAR2jIyseu2gshucG466_QGLYJKeQnU3DP98eCMSww01BQ9ot1nw2OS64LvQ_aem_fasQd_D_ftCFlbZ3ULN2lw&h=AT32TBLsM7eaVarRZQshmIW_DFy2j2pIVatSEn6pjQpWueN_RyWA3emFiYBcivxv9SLx-IAF3RvVYauG99IE-0-WY8TCsDPknTj2RsRboqx5tFg6mnwo9XsX_ra7j9ebgf36gTecc9s8jCE'>Download app here!</a>
                                 </div>
                             </div>
                         </body>
